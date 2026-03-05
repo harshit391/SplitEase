@@ -141,18 +141,6 @@ SplitEase uses a greedy algorithm to minimize transactions:
 
 This ensures the fewest possible transactions to settle everyone up.
 
-## Screenshots
-
-<p align="center">
-  <img src="public/screenshots/home-dark.png" alt="Home Page Dark" width="45%" />
-  <img src="public/screenshots/home-light.png" alt="Home Page Light" width="45%" />
-</p>
-
-<p align="center">
-  <img src="public/screenshots/trip-detail.png" alt="Trip Detail" width="45%" />
-  <img src="public/screenshots/settlements.png" alt="Settlements" width="45%" />
-</p>
-
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
