@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   Plus,
@@ -91,9 +92,13 @@ export default function HomePage() {
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-primary" />
-            </div>
+            <Image
+              src="/logo.png"
+              alt="SplitEase"
+              width={32}
+              height={32}
+              className="w-8 h-8"
+            />
             <span className="font-bold text-foreground">SplitEase</span>
           </div>
           <ThemeToggle />

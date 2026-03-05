@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
 import {
   ArrowLeft,
   Plus,
@@ -220,14 +222,16 @@ export default function TripPage() {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
         <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between">
-          <Button
-            variant="ghost"
-            onClick={() => router.push("/")}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="w-5 h-5 mr-2" />
-            <span className="hidden sm:inline">Back</span>
-          </Button>
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <Image
+              src="/logo.png"
+              alt="SplitEase"
+              width={32}
+              height={32}
+              className="w-8 h-8"
+            />
+            <span className="font-bold text-foreground hidden sm:inline">SplitEase</span>
+          </Link>
           <div className="text-center">
             <div className="flex items-center justify-center gap-2">
               <h1 className="text-xl font-semibold text-foreground flex items-center gap-2">

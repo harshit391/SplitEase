@@ -7,6 +7,10 @@ export const metadata: Metadata = {
   title: "SplitEase - Split bills, not friendships",
   description:
     "Track shared expenses, split bills fairly, and settle up with friends — all stored locally on your device.",
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({
