@@ -1,0 +1,184 @@
+/* Inter font import - must be first */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+@import "tailwindcss";
+
+@layer base {
+  /* Light Theme */
+  :root {
+    /* Backgrounds */
+    --background: 210 20% 98%;        /* #F7F9FB */
+    --foreground: 220 20% 20%;        /* #1F2937 */
+
+    /* Cards */
+    --card: 0 0% 100%;                /* #FFFFFF */
+    --card-foreground: 220 20% 20%;
+
+    /* Popovers/Dialogs */
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 20% 20%;
+
+    /* Primary - Teal accent */
+    --primary: 160 84% 50%;           /* #14F195 equivalent in HSL */
+    --primary-foreground: 220 30% 8%;
+
+    /* Secondary */
+    --secondary: 210 20% 96%;
+    --secondary-foreground: 220 15% 40%;
+
+    /* Muted */
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 15% 47%;  /* #6B7280 */
+
+    /* Accent */
+    --accent: 160 70% 94%;
+    --accent-foreground: 160 84% 35%;
+
+    /* Destructive */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders & Inputs */
+    --border: 220 13% 91%;            /* #E5E7EB */
+    --input: 220 13% 91%;
+    --ring: 160 84% 50%;
+
+    /* Radius */
+    --radius: 0.625rem;
+
+    /* Chart colors */
+    --chart-1: 160 84% 50%;
+    --chart-2: 199 89% 48%;
+    --chart-3: 220 15% 40%;
+    --chart-4: 38 92% 50%;
+    --chart-5: 0 72% 51%;
+  }
+
+  /* Dark Theme - Mailkit Style */
+  .dark {
+    /* Backgrounds - Deep dark */
+    --background: 220 30% 6%;         /* #0B0F14 */
+    --foreground: 0 0% 100%;          /* #FFFFFF */
+
+    /* Cards - Slightly lighter dark */
+    --card: 220 30% 10%;              /* #111827 */
+    --card-foreground: 0 0% 100%;
+
+    /* Popovers/Dialogs */
+    --popover: 220 30% 10%;
+    --popover-foreground: 0 0% 100%;
+
+    /* Primary - Neon Teal */
+    --primary: 160 91% 51%;           /* #14F195 */
+    --primary-foreground: 220 30% 6%;
+
+    /* Secondary */
+    --secondary: 220 25% 14%;         /* #1F2937 */
+    --secondary-foreground: 210 20% 90%;
+
+    /* Muted */
+    --muted: 220 25% 14%;
+    --muted-foreground: 215 20% 65%;  /* #9CA3AF */
+
+    /* Accent */
+    --accent: 160 50% 15%;
+    --accent-foreground: 160 91% 51%;
+
+    /* Destructive */
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders & Inputs */
+    --border: 220 25% 18%;            /* #1F2937 */
+    --input: 220 25% 18%;
+    --ring: 160 91% 51%;
+
+    /* Chart colors */
+    --chart-1: 160 91% 51%;
+    --chart-2: 174 70% 50%;
+    --chart-3: 38 92% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 0 72% 55%;
+  }
+}
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+}
+
+/* Custom utility classes */
+@layer utilities {
+  /* Soft shadows for light mode */
+  .shadow-soft {
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.06);
+  }
+
+  .shadow-soft-md {
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .shadow-soft-lg {
+    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Glow effects for dark mode */
+  .dark .glow-primary {
+    box-shadow: 0 0 20px rgba(20, 241, 149, 0.3);
+  }
+
+  .dark .glow-primary-lg {
+    box-shadow: 0 0 40px rgba(20, 241, 149, 0.4);
+  }
+
+  /* Hover lift effect */
+  .hover-lift {
+    transition: transform 200ms ease, box-shadow 200ms ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+  }
+
+  .dark .hover-lift:hover {
+    box-shadow: 0 0 20px rgba(20, 241, 149, 0.15);
+  }
+
+  :not(.dark) .hover-lift:hover {
+    box-shadow: 0px 8px 24px rgba(0, 0, 0, 0.1);
+  }
+}
