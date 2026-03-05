@@ -45,31 +45,31 @@ export function TripCard({ trip, onDelete }: TripCardProps) {
       className="hover-lift"
     >
       <Link href={`/${trip.id}`}>
-        <Card className="group relative bg-card border border-border hover:border-primary/40 p-6 cursor-pointer transition-all duration-200 shadow-soft rounded-xl">
+        <Card className="group relative bg-card border border-white/5 hover:border-primary/30 p-6 cursor-pointer transition-all duration-300 card-hover-glow">
           {/* Delete button */}
           <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-10">
             <Button
               variant="ghost"
-              size="icon"
+              size="icon-xs"
               onClick={handleDelete}
-              className="h-8 w-8 hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+              className="hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
             >
               <Trash2 className="w-4 h-4" />
             </Button>
           </div>
 
           {/* Icon */}
-          <div className="w-12 h-12 bg-primary/10 dark:bg-primary/20 rounded-xl flex items-center justify-center mb-4 border border-primary/20">
+          <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-5">
             <MapPin className="w-6 h-6 text-primary" />
           </div>
 
           {/* Title */}
-          <h3 className="text-lg font-semibold text-foreground mb-2 pr-8">
+          <h3 className="text-lg font-semibold text-foreground mb-3 pr-8">
             {trip.name}
           </h3>
 
           {/* Meta */}
-          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
+          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-5">
             <span className="flex items-center gap-1.5">
               <Users className="w-4 h-4" />
               {trip.friends.length} friends
@@ -82,15 +82,15 @@ export function TripCard({ trip, onDelete }: TripCardProps) {
 
           {/* Expense Summary */}
           {grandTotal > 0 ? (
-            <div className="mb-4 bg-secondary/50 dark:bg-secondary/30 border border-border rounded-lg divide-y divide-border">
-              <div className="flex items-center justify-between px-3 py-2.5">
+            <div className="mb-5 rounded-xl bg-white/[0.02] border border-white/5 divide-y divide-white/5">
+              <div className="flex items-center justify-between px-4 py-3">
                 <span className="text-sm text-muted-foreground">Total Expenses</span>
                 <span className="text-sm font-semibold text-primary flex items-center gap-0.5">
                   <IndianRupee className="w-3.5 h-3.5" />
                   {grandTotal.toFixed(0)}
                 </span>
               </div>
-              <div className="flex items-center justify-between px-3 py-2.5">
+              <div className="flex items-center justify-between px-4 py-3">
                 <span className="text-sm text-muted-foreground">Per Person (avg)</span>
                 <span className="text-sm font-semibold text-foreground flex items-center gap-0.5">
                   <IndianRupee className="w-3.5 h-3.5 text-muted-foreground" />
@@ -99,7 +99,7 @@ export function TripCard({ trip, onDelete }: TripCardProps) {
               </div>
             </div>
           ) : (
-            <div className="mb-4 py-2.5 px-3 bg-secondary/50 border border-border rounded-lg text-center">
+            <div className="mb-5 py-3 px-4 rounded-xl bg-white/[0.02] border border-white/5 text-center">
               <span className="text-sm text-muted-foreground">
                 No expenses added yet
               </span>
@@ -107,12 +107,12 @@ export function TripCard({ trip, onDelete }: TripCardProps) {
           )}
 
           {/* Footer */}
-          <div className="flex items-center justify-between pt-2 border-t border-border">
+          <div className="flex items-center justify-between pt-4 border-t border-white/5">
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Calendar className="w-3.5 h-3.5" />
               {new Date(trip.createdAt).toLocaleDateString()}
             </span>
-            <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors group-hover:translate-x-1 duration-200" />
+            <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-all duration-200 group-hover:translate-x-1" />
           </div>
         </Card>
       </Link>

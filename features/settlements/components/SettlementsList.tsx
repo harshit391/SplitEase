@@ -51,28 +51,28 @@ export function SettlementsList({
   return (
     <div className="space-y-6">
       {/* Section 1: Net Balance Table */}
-      <div className="bg-card border border-border rounded-xl p-6 shadow-soft">
+      <div className="rounded-2xl bg-card border border-white/5 p-6">
         <h2 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-3">
-          <div className="w-10 h-10 bg-primary/10 dark:bg-primary/20 rounded-xl flex items-center justify-center border border-primary/20">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
             <Info className="w-5 h-5 text-primary" />
           </div>
           Net Balance
         </h2>
 
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-xl border border-white/5">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-border">
-                <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
+              <tr className="border-b border-white/5 bg-white/[0.02]">
+                <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Person
                 </th>
-                <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">
+                <th className="text-right py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Paid
                 </th>
-                <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">
+                <th className="text-right py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Should Pay
                 </th>
-                <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">
+                <th className="text-right py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Net
                 </th>
               </tr>
@@ -86,17 +86,17 @@ export function SettlementsList({
                 return (
                   <tr
                     key={person}
-                    className="border-b border-border/50 last:border-0 hover:bg-secondary/30 transition-colors"
+                    className="border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors"
                   >
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
                         <span
                           className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
                             isDebtor
-                              ? "bg-red-500/10 text-red-500 dark:bg-red-500/20 dark:text-red-400 border border-red-500/30"
+                              ? "bg-red-500/10 text-red-400 border border-red-500/30"
                               : isCreditor
-                                ? "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400 border border-emerald-500/30"
-                                : "bg-secondary text-muted-foreground border border-border"
+                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+                                : "bg-white/5 text-muted-foreground border border-white/10"
                           }`}
                         >
                           {person.charAt(0).toUpperCase()}
@@ -115,17 +115,17 @@ export function SettlementsList({
                     <td className="py-3 px-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         {isDebtor && (
-                          <TrendingDown className="w-4 h-4 text-red-500 dark:text-red-400" />
+                          <TrendingDown className="w-4 h-4 text-red-400" />
                         )}
                         {isCreditor && (
-                          <TrendingUp className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+                          <TrendingUp className="w-4 h-4 text-emerald-400" />
                         )}
                         <span
                           className={`font-mono font-semibold ${
                             isDebtor
-                              ? "text-red-600 dark:text-red-400"
+                              ? "text-red-400"
                               : isCreditor
-                                ? "text-emerald-600 dark:text-emerald-400"
+                                ? "text-emerald-400"
                                 : "text-muted-foreground"
                           }`}
                         >
@@ -141,20 +141,20 @@ export function SettlementsList({
           </table>
         </div>
 
-        <div className="mt-4 p-3 bg-secondary/50 rounded-lg text-sm text-muted-foreground border border-border">
-          <span className="text-red-600 dark:text-red-400 font-medium">Negative</span> = owes
+        <div className="mt-4 p-3 rounded-xl bg-white/[0.02] border border-white/5 text-sm text-muted-foreground">
+          <span className="text-red-400 font-medium">Negative</span> = owes
           money |{" "}
-          <span className="text-emerald-600 dark:text-emerald-400 font-medium">Positive</span> =
+          <span className="text-emerald-400 font-medium">Positive</span> =
           should receive money
         </div>
       </div>
 
       {/* Section 2: Final Settlements */}
       {hasTransactions && (
-        <div className="bg-card border border-border rounded-xl p-6 shadow-soft">
+        <div className="rounded-2xl bg-card border border-white/5 p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold text-foreground flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary/10 dark:bg-primary/20 rounded-xl flex items-center justify-center border border-primary/20">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
                 <Wallet className="w-5 h-5 text-primary" />
               </div>
               Settlements
@@ -163,16 +163,15 @@ export function SettlementsList({
               variant="outline"
               size="sm"
               onClick={handleCopy}
-              className="border-border hover:border-primary/30 hover:bg-accent"
             >
               {copied ? (
                 <>
-                  <Check className="w-4 h-4 mr-2 text-primary" />
+                  <Check className="w-4 h-4 text-primary" />
                   Copied!
                 </>
               ) : (
                 <>
-                  <Copy className="w-4 h-4 mr-2" />
+                  <Copy className="w-4 h-4" />
                   Copy for WhatsApp
                 </>
               )}
@@ -183,10 +182,10 @@ export function SettlementsList({
             {settlements.map((s, i) => (
               <div
                 key={i}
-                className="flex items-center gap-4 bg-secondary/30 border border-border rounded-lg p-4 hover:bg-secondary/50 transition-colors"
+                className="flex items-center gap-4 rounded-xl bg-white/[0.02] border border-white/5 p-4 hover:border-primary/20 transition-colors"
               >
                 <div className="flex items-center gap-3 flex-1">
-                  <span className="w-10 h-10 rounded-full bg-red-500/10 dark:bg-red-500/20 flex items-center justify-center text-sm font-semibold text-red-600 dark:text-red-400 border border-red-500/30">
+                  <span className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-sm font-semibold text-red-400 border border-red-500/30">
                     {s.from.charAt(0).toUpperCase()}
                   </span>
                   <span className="text-foreground font-medium">{s.from}</span>
@@ -194,8 +193,8 @@ export function SettlementsList({
 
                 <div className="flex items-center gap-3">
                   <ArrowRight className="w-5 h-5 text-muted-foreground" />
-                  <div className="px-4 py-2 bg-primary/10 dark:bg-primary/20 border border-primary/30 rounded-lg">
-                    <span className="text-primary font-bold">
+                  <div className="px-4 py-2 rounded-lg gradient-primary">
+                    <span className="text-white font-bold">
                       {formatCurrency(s.amount)}
                     </span>
                   </div>
@@ -204,7 +203,7 @@ export function SettlementsList({
 
                 <div className="flex items-center gap-3 flex-1 justify-end">
                   <span className="text-foreground font-medium">{s.to}</span>
-                  <span className="w-10 h-10 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center text-sm font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                  <span className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-sm font-semibold text-emerald-400 border border-emerald-500/30">
                     {s.to.charAt(0).toUpperCase()}
                   </span>
                 </div>
@@ -214,11 +213,11 @@ export function SettlementsList({
 
           {/* Section 3: Calculation Steps (Expandable) */}
           {steps.length > 0 && (
-            <div className="mt-6 pt-6 border-t border-border">
+            <div className="mt-6 pt-6 border-t border-white/5">
               <Button
                 variant="ghost"
                 onClick={() => setShowSteps(!showSteps)}
-                className="w-full justify-between text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                className="w-full justify-between text-muted-foreground hover:text-foreground hover:bg-white/5"
               >
                 <span className="flex items-center gap-2">
                   <Info className="w-4 h-4" />
@@ -239,10 +238,10 @@ export function SettlementsList({
                     return (
                       <div
                         key={step.stepNumber}
-                        className="bg-secondary/30 border border-border rounded-lg p-4"
+                        className="rounded-xl bg-white/[0.02] border border-white/5 p-4"
                       >
                         <div className="flex items-center gap-2 mb-3">
-                          <span className="w-6 h-6 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-xs font-bold text-primary border border-primary/20">
+                          <span className="w-6 h-6 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary">
                             {step.stepNumber}
                           </span>
                           <span className="text-sm font-semibold text-foreground">
@@ -253,14 +252,14 @@ export function SettlementsList({
                         <div className="text-sm text-muted-foreground mb-3 space-y-1">
                           <p>
                             Largest debtor:{" "}
-                            <span className="text-red-600 dark:text-red-400 font-medium">
+                            <span className="text-red-400 font-medium">
                               {step.debtor}
                             </span>{" "}
                             (owes {formatCurrency(step.debtorAmount)})
                           </p>
                           <p>
                             Largest creditor:{" "}
-                            <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+                            <span className="text-emerald-400 font-medium">
                               {step.creditor}
                             </span>{" "}
                             (should receive{" "}
@@ -268,7 +267,7 @@ export function SettlementsList({
                           </p>
                         </div>
 
-                        <div className="bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-lg p-3 mb-3">
+                        <div className="rounded-lg bg-primary/5 border border-primary/20 p-3 mb-3">
                           <span className="text-foreground">
                             <span className="font-medium">{step.debtor}</span>{" "}
                             pays{" "}
@@ -290,7 +289,7 @@ export function SettlementsList({
                               .map(([person, balance]) => (
                                 <div
                                   key={person}
-                                  className="flex items-center justify-between bg-card border border-border rounded px-2 py-1"
+                                  className="flex items-center justify-between rounded-lg bg-card border border-white/5 px-2 py-1"
                                 >
                                   <span>{person}</span>
                                   <span
@@ -298,8 +297,8 @@ export function SettlementsList({
                                       Math.abs(balance) < 0.01
                                         ? "text-muted-foreground"
                                         : balance < 0
-                                          ? "text-red-600 dark:text-red-400"
-                                          : "text-emerald-600 dark:text-emerald-400"
+                                          ? "text-red-400"
+                                          : "text-emerald-400"
                                     }`}
                                   >
                                     {Math.abs(balance) < 0.01
@@ -314,8 +313,8 @@ export function SettlementsList({
                         </div>
 
                         {isLastStep && (
-                          <div className="mt-3 p-2 bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/30 rounded-lg text-center">
-                            <span className="text-emerald-600 dark:text-emerald-400 text-sm font-medium">
+                          <div className="mt-3 p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-center">
+                            <span className="text-emerald-400 text-sm font-medium">
                               All balances settled!
                             </span>
                           </div>

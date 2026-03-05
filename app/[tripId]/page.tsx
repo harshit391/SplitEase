@@ -14,7 +14,6 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { useTrip, useUpdateTrip } from "@/features/trips/hooks/useTrips";
 import {
   useAddExpenseGroup,
@@ -109,7 +108,7 @@ export default function TripPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-muted-foreground">Loading...</div>
       </div>
     );
@@ -220,9 +219,9 @@ export default function TripPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
-        <div className="max-w-5xl mx-auto px-6 py-3 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+      <header className="fixed top-0 left-0 right-0 z-50 glass">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <Image
               src="/logo.png"
               alt="SplitEase"
@@ -230,53 +229,47 @@ export default function TripPage() {
               height={32}
               className="w-8 h-8"
             />
-            <span className="font-bold text-foreground hidden sm:inline">SplitEase</span>
+            <span className="font-semibold text-foreground hidden sm:inline">SplitEase</span>
           </Link>
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-2">
-              <h1 className="text-xl font-semibold text-foreground flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-primary" />
-                {trip.name}
-              </h1>
+
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/5">
+              <MapPin className="w-4 h-4 text-primary" />
+              <span className="font-medium text-foreground text-sm">{trip.name}</span>
               <Button
                 variant="ghost"
-                size="icon"
+                size="icon-xs"
                 onClick={() => setEditTripDialogOpen(true)}
-                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                className="ml-1 text-muted-foreground hover:text-foreground"
                 title="Edit trip details"
               >
-                <Edit className="w-4 h-4" />
+                <Edit className="w-3.5 h-3.5" />
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground">
-              {trip.friends.length} friends · {trip.subTopics.length} expenses
-            </p>
           </div>
+
           <div className="flex items-center gap-2">
-            <ThemeToggle />
             <Button
               variant="outline"
               size="sm"
               onClick={handleExportTrip}
-              className="border-border hover:border-primary/30 hover:bg-accent"
               title="Export This Trip"
             >
-              <Download className="w-4 h-4 mr-2" />
+              <Download className="w-4 h-4" />
               <span className="hidden md:inline">Export</span>
             </Button>
             <Button
               size="sm"
               onClick={() => setAddExpenseGroupDialogOpen(true)}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
-              <Plus className="w-4 h-4 mr-2" />
+              <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Add Expense</span>
             </Button>
           </div>
         </div>
       </header>
 
-      <div className="max-w-5xl mx-auto px-6 py-8 space-y-8">
+      <div className="max-w-6xl mx-auto px-6 pt-24 pb-16 space-y-10">
         {/* Stats Row */}
         <StatsGrid
           friendsCount={trip.friends.length}
@@ -292,9 +285,9 @@ export default function TripPage() {
 
         {/* Summary Table */}
         {trip.subTopics.length > 0 && (
-          <div className="bg-card border border-border rounded-xl p-6 shadow-soft">
+          <div className="rounded-2xl bg-card border border-white/5 p-6">
             <h2 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-3">
-              <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center border border-primary/10">
+              <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
                 <TrendingUp className="w-5 h-5 text-primary" />
               </div>
               Overall Summary
@@ -314,28 +307,30 @@ export default function TripPage() {
 
         {/* Expense Groups */}
         {trip.subTopics.length === 0 ? (
-          <div className="text-center py-16">
-            <div className="w-20 h-20 mx-auto mb-4 bg-muted rounded-2xl flex items-center justify-center border border-border">
+          <div className="text-center py-20">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-card border border-white/5 flex items-center justify-center">
               <Receipt className="w-10 h-10 text-muted-foreground" />
             </div>
-            <h3 className="text-lg font-semibold text-foreground mb-2">
+            <h3 className="text-lg font-semibold text-foreground mb-3">
               No expenses yet
             </h3>
-            <p className="text-muted-foreground mb-6">
+            <p className="text-muted-foreground mb-8 max-w-sm mx-auto">
               Add your first expense group like &quot;McDonald&apos;s&quot;, &quot;Hotel&quot;, etc.
             </p>
             <Button
               onClick={() => setAddExpenseGroupDialogOpen(true)}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              variant="glow"
             >
-              <Plus className="w-5 h-5 mr-2" />
+              <Plus className="w-5 h-5" />
               Add First Expense
             </Button>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-5">
             <h2 className="text-lg font-semibold text-foreground flex items-center gap-3">
-              <Receipt className="w-5 h-5 text-primary" />
+              <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+                <Receipt className="w-5 h-5 text-primary" />
+              </div>
               Expense Groups
             </h2>
             {trip.subTopics.map((expenseGroup) => (

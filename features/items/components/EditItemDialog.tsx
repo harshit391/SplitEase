@@ -94,10 +94,10 @@ export function EditItemDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg bg-card border-border max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-4 border border-blue-500/10">
-            <DollarSign className="w-6 h-6 text-blue-400" />
+          <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mb-4 glow-primary">
+            <DollarSign className="w-6 h-6 text-white" />
           </div>
           <DialogTitle>Edit Item</DialogTitle>
           <DialogDescription>
@@ -107,7 +107,7 @@ export function EditItemDialog({
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-5">
           {Object.keys(errors).length > 0 && (
-            <div className="px-4 py-3 bg-destructive/10 border border-destructive/20 rounded-xl text-destructive text-sm">
+            <div className="px-4 py-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm">
               {errors.name?.message ||
                 errors.amount?.message ||
                 errors.paidBy?.message ||
@@ -120,7 +120,6 @@ export function EditItemDialog({
             <Input
               {...register("name")}
               placeholder="e.g., Big Mac Combo"
-              className="bg-background/50"
             />
           </div>
 
@@ -128,7 +127,7 @@ export function EditItemDialog({
             <Label>Amount</Label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">
-                ₹
+                $
               </span>
               <Input
                 type="number"
@@ -136,7 +135,7 @@ export function EditItemDialog({
                 placeholder="0.00"
                 min="0"
                 step="0.01"
-                className="pl-8 bg-background/50"
+                className="pl-8"
               />
             </div>
           </div>
@@ -154,11 +153,6 @@ export function EditItemDialog({
                   variant={paidBy === f ? "default" : "outline"}
                   size="sm"
                   onClick={() => setValue("paidBy", f)}
-                  className={
-                    paidBy === f
-                      ? "bg-primary text-primary-foreground shadow-lg shadow-primary/25"
-                      : ""
-                  }
                 >
                   {f}
                 </Button>
@@ -175,18 +169,16 @@ export function EditItemDialog({
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
+                size="xs"
                 onClick={selectAllSplit}
-                className="text-xs"
               >
                 Select All
               </Button>
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
+                size="xs"
                 onClick={clearAllSplit}
-                className="text-xs"
               >
                 Clear All
               </Button>
@@ -201,7 +193,7 @@ export function EditItemDialog({
                   onClick={() => toggleSplit(f)}
                   className={
                     splitAmong.includes(f)
-                      ? "bg-cyan-500 text-slate-950 shadow-lg shadow-cyan-500/25 hover:bg-cyan-400"
+                      ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/25 hover:bg-emerald-400"
                       : ""
                   }
                 >
@@ -211,16 +203,17 @@ export function EditItemDialog({
             </div>
             {splitAmong.length > 0 && amount > 0 && (
               <p className="text-xs text-muted-foreground mt-2">
-                ₹{perPerson} per person ({splitAmong.length} people)
+                ${perPerson} per person ({splitAmong.length} people)
               </p>
             )}
           </div>
 
           <Button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 text-white font-bold"
+            className="w-full"
+            variant="glow"
           >
-            <Save className="w-5 h-5 mr-2" />
+            <Save className="w-5 h-5" />
             Save Changes
           </Button>
         </form>

@@ -48,17 +48,17 @@ export function ExpenseGroupCard({
 
   return (
     <Card
-      className={`overflow-hidden transition-all shadow-soft rounded-xl ${
-        isExcluded ? "border-border/50 opacity-60" : "border-border"
+      className={`overflow-hidden transition-all duration-200 rounded-2xl ${
+        isExcluded ? "border-white/[0.02] opacity-60" : "border-white/5 hover:border-primary/20"
       }`}
     >
       <div
-        className="flex items-center justify-between px-4 py-3 cursor-pointer hover:bg-secondary/30 transition-colors"
+        className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-white/[0.02] transition-colors"
         onClick={onToggleExpand}
       >
-        <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className="w-9 h-9 bg-primary/10 dark:bg-primary/20 rounded-lg flex items-center justify-center border border-primary/20 flex-shrink-0">
-            <Receipt className="w-4 h-4 text-primary" />
+        <div className="flex items-center gap-4 min-w-0 flex-1">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+            <Receipt className="w-5 h-5 text-primary" />
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
@@ -72,15 +72,15 @@ export function ExpenseGroupCard({
                 {expenseGroup.name}
               </h3>
               {isExcluded && (
-                <span className="text-[10px] px-1.5 py-0.5 bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded font-medium flex-shrink-0">
+                <span className="text-[10px] px-2 py-0.5 bg-amber-500/20 text-amber-400 rounded-full font-medium flex-shrink-0">
                   Excluded
                 </span>
               )}
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground mt-0.5">
               {expenseGroup.items.length} items · {formatCurrency(subTopicTotal + totalTax)}
               {expenseGroup.taxPercent > 0 && (
-                <span className="ml-1 text-amber-600 dark:text-amber-400 font-medium">
+                <span className="ml-1 text-amber-400 font-medium">
                   (+{expenseGroup.taxPercent}% tax)
                 </span>
               )}
@@ -90,11 +90,11 @@ export function ExpenseGroupCard({
         <div className="flex items-center gap-1 flex-shrink-0">
           <Button
             variant="ghost"
-            size="icon"
-            className={`h-8 w-8 ${
+            size="icon-xs"
+            className={`${
               isExcluded
-                ? "bg-amber-500/20 text-amber-600 dark:text-amber-400 hover:bg-amber-500/30"
-                : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                ? "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30"
+                : "text-muted-foreground hover:text-foreground hover:bg-white/5"
             }`}
             onClick={(e) => {
               e.stopPropagation();
@@ -114,8 +114,8 @@ export function ExpenseGroupCard({
           </Button>
           <Button
             variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-secondary"
+            size="icon-xs"
+            className="text-muted-foreground hover:text-foreground hover:bg-white/5"
             onClick={(e) => {
               e.stopPropagation();
               onEdit();
@@ -126,8 +126,8 @@ export function ExpenseGroupCard({
           </Button>
           <Button
             variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
+            size="icon-xs"
+            className="text-muted-foreground hover:text-primary hover:bg-primary/10"
             onClick={(e) => {
               e.stopPropagation();
               onAddItem();
@@ -138,8 +138,8 @@ export function ExpenseGroupCard({
           </Button>
           <Button
             variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+            size="icon-xs"
+            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
             onClick={(e) => {
               e.stopPropagation();
               onDelete();
@@ -166,7 +166,7 @@ export function ExpenseGroupCard({
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="border-t border-border p-4 bg-secondary/20">{children}</div>
+            <div className="border-t border-white/5 p-5 bg-white/[0.01]">{children}</div>
           </motion.div>
         )}
       </AnimatePresence>

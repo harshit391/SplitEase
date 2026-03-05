@@ -1,7 +1,6 @@
 "use client";
 
 import { Users, Receipt, TrendingUp, Calculator } from "lucide-react";
-import { Card } from "@/components/ui/card";
 import { formatCurrency } from "@/utils";
 
 interface StatsGridProps {
@@ -19,41 +18,49 @@ export function StatsGrid({
 }: StatsGridProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <Card className="bg-card border border-border p-5 shadow-soft rounded-xl">
-        <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
-          <Users className="w-4 h-4 text-primary" />
-          Friends
+      <div className="rounded-2xl bg-card border border-white/5 p-5 transition-all duration-200 hover:border-primary/20">
+        <div className="flex items-center gap-2 text-muted-foreground text-sm mb-3">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <Users className="w-4 h-4 text-primary" />
+          </div>
         </div>
         <div className="text-2xl font-bold text-foreground">{friendsCount}</div>
-      </Card>
+        <div className="text-xs text-muted-foreground mt-1">Friends</div>
+      </div>
 
-      <Card className="bg-card border border-border p-5 shadow-soft rounded-xl">
-        <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
-          <Receipt className="w-4 h-4 text-primary" />
-          Expenses
+      <div className="rounded-2xl bg-card border border-white/5 p-5 transition-all duration-200 hover:border-primary/20">
+        <div className="flex items-center gap-2 text-muted-foreground text-sm mb-3">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <Receipt className="w-4 h-4 text-primary" />
+          </div>
         </div>
         <div className="text-2xl font-bold text-foreground">{expensesCount}</div>
-      </Card>
+        <div className="text-xs text-muted-foreground mt-1">Expenses</div>
+      </div>
 
-      <Card className="bg-card border border-border p-5 shadow-soft rounded-xl">
-        <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
-          <TrendingUp className="w-4 h-4 text-primary" />
-          Total Spent
+      <div className="rounded-2xl bg-card border border-white/5 p-5 transition-all duration-200 hover:border-primary/20">
+        <div className="flex items-center gap-2 text-muted-foreground text-sm mb-3">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <TrendingUp className="w-4 h-4 text-primary" />
+          </div>
         </div>
-        <div className="text-2xl font-bold text-primary">
+        <div className="text-2xl font-bold gradient-text">
           {formatCurrency(totalSpent)}
         </div>
-      </Card>
+        <div className="text-xs text-muted-foreground mt-1">Total Spent</div>
+      </div>
 
-      <Card className="bg-card border border-border p-5 shadow-soft rounded-xl">
-        <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2">
-          <Calculator className="w-4 h-4 text-primary" />
-          Per Person (avg)
+      <div className="rounded-2xl bg-card border border-white/5 p-5 transition-all duration-200 hover:border-primary/20">
+        <div className="flex items-center gap-2 text-muted-foreground text-sm mb-3">
+          <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <Calculator className="w-4 h-4 text-primary" />
+          </div>
         </div>
         <div className="text-2xl font-bold text-foreground">
           {formatCurrency(perPerson)}
         </div>
-      </Card>
+        <div className="text-xs text-muted-foreground mt-1">Per Person (avg)</div>
+      </div>
     </div>
   );
 }

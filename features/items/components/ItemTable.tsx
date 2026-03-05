@@ -49,7 +49,7 @@ export function ItemTable({
       <div className="text-center py-8">
         <p className="text-muted-foreground mb-4">No items yet</p>
         <Button variant="outline" onClick={onAddItem}>
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="w-4 h-4" />
           Add First Item
         </Button>
       </div>
@@ -59,7 +59,7 @@ export function ItemTable({
   return (
     <div className="space-y-4">
       {/* Tax Input */}
-      <div className="flex items-center gap-3 p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+      <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
         <span className="text-sm text-amber-400 font-medium">Tax %:</span>
         {editingTax ? (
           <>
@@ -73,7 +73,7 @@ export function ItemTable({
               step="0.1"
             />
             <Button size="sm" onClick={handleSaveTax}>
-              <Save className="w-3 h-3 mr-1" />
+              <Save className="w-3 h-3" />
               Save
             </Button>
           </>
@@ -89,7 +89,7 @@ export function ItemTable({
                 setTaxValue(expenseGroup.taxPercent.toString());
                 setEditingTax(true);
               }}
-              className="text-amber-400 hover:text-amber-300"
+              className="text-amber-400 hover:text-amber-300 hover:bg-amber-500/20"
             >
               <Edit className="w-3 h-3" />
             </Button>
@@ -98,10 +98,10 @@ export function ItemTable({
       </div>
 
       {/* Items Table */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto rounded-xl border border-white/5">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="bg-white/[0.02]">
               <TableHead className="min-w-[120px]">Item</TableHead>
               <TableHead>Paid By</TableHead>
               {trip.friends.map((f) => (
@@ -124,7 +124,7 @@ export function ItemTable({
                 <TableRow key={item.id}>
                   <TableCell className="font-medium">{item.name}</TableCell>
                   <TableCell>
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-primary/20 rounded-lg text-xs text-primary">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 border border-primary/20 text-xs text-primary font-medium">
                       {item.paidBy}
                     </span>
                   </TableCell>
@@ -150,16 +150,16 @@ export function ItemTable({
                     <div className="flex items-center gap-1">
                       <Button
                         variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 hover:bg-blue-500/20 text-muted-foreground hover:text-blue-400"
+                        size="icon-xs"
+                        className="hover:bg-blue-500/20 text-muted-foreground hover:text-blue-400"
                         onClick={() => onEditItem(item)}
                       >
                         <Edit className="w-3 h-3" />
                       </Button>
                       <Button
                         variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 hover:bg-destructive/20 text-muted-foreground hover:text-destructive"
+                        size="icon-xs"
+                        className="hover:bg-destructive/20 text-muted-foreground hover:text-destructive"
                         onClick={() => {
                           if (window.confirm("Delete this item?")) {
                             onDeleteItem(item.id);
@@ -224,7 +224,7 @@ export function ItemTable({
       </div>
 
       <Button variant="outline" onClick={onAddItem} className="w-full">
-        <Plus className="w-4 h-4 mr-2" />
+        <Plus className="w-4 h-4" />
         Add Item
       </Button>
     </div>

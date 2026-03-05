@@ -68,10 +68,10 @@ export function EditExpenseGroupDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-card border-border">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mb-4 border border-blue-500/10">
-            <Receipt className="w-6 h-6 text-blue-400" />
+          <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mb-4 glow-primary">
+            <Receipt className="w-6 h-6 text-white" />
           </div>
           <DialogTitle>Edit Expense Group</DialogTitle>
           <DialogDescription>
@@ -81,7 +81,7 @@ export function EditExpenseGroupDialog({
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           {(errors.name || errors.taxPercent) && (
-            <div className="px-4 py-3 bg-destructive/10 border border-destructive/20 rounded-xl text-destructive text-sm">
+            <div className="px-4 py-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm">
               {errors.name?.message || errors.taxPercent?.message}
             </div>
           )}
@@ -92,7 +92,6 @@ export function EditExpenseGroupDialog({
               id="editExpenseGroupName"
               {...register("name")}
               placeholder="Expense group name"
-              className="bg-background/50"
             />
           </div>
 
@@ -106,15 +105,15 @@ export function EditExpenseGroupDialog({
               min="0"
               max="100"
               step="0.1"
-              className="bg-background/50"
             />
           </div>
 
           <Button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 text-white font-bold"
+            className="w-full"
+            variant="glow"
           >
-            <Save className="w-5 h-5 mr-2" />
+            <Save className="w-5 h-5" />
             Save Changes
           </Button>
         </form>

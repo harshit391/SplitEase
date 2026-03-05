@@ -33,7 +33,7 @@
 - **Offline-First** — All data stored locally in your browser using IndexedDB
 - **Import/Export** — Back up trips as JSON files and import them anytime
 - **WhatsApp Ready** — Copy settlements in a format ready to share with friends
-- **Dark/Light Mode** — Beautiful UI that adapts to your preference
+- **Modern Dark UI** — Sleek dark SaaS design with purple gradient accents
 - **Privacy Focused** — No accounts, no servers, your data stays on your device
 
 ## Tech Stack
@@ -50,6 +50,17 @@
 | Animations | [Framer Motion](https://www.framer.com/motion/) |
 | Forms | [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/) |
 | Icons | [Lucide React](https://lucide.dev/) |
+
+## Design System
+
+SplitEase features a modern dark SaaS UI with:
+
+- **Pure black background** (#000000) for maximum contrast
+- **Purple/blue gradient accents** (#7C3AED → #6366F1 → #A855F7)
+- **Soft glow effects** for depth and visual interest
+- **Glass-like cards** with subtle borders
+- **Large, clean typography** using Inter font
+- **Generous spacing** for a premium feel
 
 ## Getting Started
 
@@ -115,8 +126,7 @@ splitease/
 │   └── [tripId]/page.tsx  # Trip detail page
 ├── components/            # Shared UI components
 │   ├── ui/               # Shadcn UI components
-│   ├── theme-provider.tsx
-│   └── theme-toggle.tsx
+│   └── theme-provider.tsx
 ├── features/              # Feature modules
 │   ├── trips/            # Trip management
 │   ├── expenses/         # Expense groups
@@ -163,5 +173,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 <p align="center">
-  Made with ❤️ for splitting bills fairly
+  Made with care for splitting bills fairly
 </p>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X, UserPlus, Edit } from "lucide-react";
+import { X, UserPlus, Edit, Save } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -94,10 +94,10 @@ export function EditTripDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-lg bg-card border-border">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <div className="w-14 h-14 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-2xl flex items-center justify-center mb-4 border border-blue-500/10">
-            <Edit className="w-7 h-7 text-blue-400" />
+          <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mb-4 glow-primary">
+            <Edit className="w-7 h-7 text-white" />
           </div>
           <DialogTitle className="text-2xl">Edit Trip</DialogTitle>
           <DialogDescription>
@@ -107,7 +107,7 @@ export function EditTripDialog({
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
           {(errors.name || errors.friends) && (
-            <div className="px-4 py-3 bg-destructive/10 border border-destructive/20 rounded-xl text-destructive text-sm">
+            <div className="px-4 py-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm">
               {errors.name?.message || errors.friends?.message}
             </div>
           )}
@@ -118,7 +118,6 @@ export function EditTripDialog({
               id="editTripName"
               {...register("name")}
               placeholder="Trip name"
-              className="bg-background/50"
             />
           </div>
 
@@ -130,13 +129,13 @@ export function EditTripDialog({
                 onChange={(e) => setFriendName(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Friend's name"
-                className="flex-1 bg-background/50"
+                className="flex-1"
               />
               <Button
                 type="button"
                 variant="outline"
                 onClick={addFriend}
-                className="border-primary/30 text-primary hover:bg-primary/20"
+                className="border-primary/30 text-primary hover:bg-primary/10"
               >
                 <UserPlus className="w-5 h-5" />
               </Button>
@@ -151,14 +150,14 @@ export function EditTripDialog({
                   variant="secondary"
                   className="inline-flex items-center gap-2 px-3 py-2"
                 >
-                  <span className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/30 to-cyan-500/30 flex items-center justify-center text-xs font-bold text-primary">
+                  <span className="w-6 h-6 rounded-full gradient-primary flex items-center justify-center text-xs font-bold text-white">
                     {f.charAt(0).toUpperCase()}
                   </span>
                   {f}
                   <button
                     type="button"
                     onClick={() => removeFriend(f)}
-                    className="p-0.5 hover:bg-destructive/20 rounded text-muted-foreground hover:text-destructive transition-colors"
+                    className="p-0.5 rounded hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -169,9 +168,11 @@ export function EditTripDialog({
 
           <Button
             type="submit"
-            className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-400 hover:to-cyan-400 text-white font-bold"
+            className="w-full"
             size="lg"
+            variant="glow"
           >
+            <Save className="w-5 h-5" />
             Save Changes
           </Button>
         </form>

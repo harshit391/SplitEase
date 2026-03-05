@@ -88,10 +88,10 @@ export function CreateTripDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-lg bg-card border-border">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <div className="w-14 h-14 bg-gradient-to-br from-primary/20 to-cyan-500/20 rounded-2xl flex items-center justify-center mb-4 border border-primary/10">
-            <Rocket className="w-7 h-7 text-primary" />
+          <div className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mb-4 glow-primary">
+            <Rocket className="w-7 h-7 text-white" />
           </div>
           <DialogTitle className="text-2xl">Create New Trip</DialogTitle>
           <DialogDescription>
@@ -101,7 +101,7 @@ export function CreateTripDialog({
 
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
           {(errors.name || errors.friends) && (
-            <div className="px-4 py-3 bg-destructive/10 border border-destructive/20 rounded-xl text-destructive text-sm">
+            <div className="px-4 py-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm">
               {errors.name?.message || errors.friends?.message}
             </div>
           )}
@@ -112,7 +112,6 @@ export function CreateTripDialog({
               id="tripName"
               {...register("name")}
               placeholder="e.g., Goa Weekend Trip"
-              className="bg-background/50"
             />
           </div>
 
@@ -124,13 +123,13 @@ export function CreateTripDialog({
                 onChange={(e) => setFriendName(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Friend's name"
-                className="flex-1 bg-background/50"
+                className="flex-1"
               />
               <Button
                 type="button"
                 variant="outline"
                 onClick={addFriend}
-                className="border-primary/30 text-primary hover:bg-primary/20"
+                className="border-primary/30 text-primary hover:bg-primary/10"
               >
                 <UserPlus className="w-5 h-5" />
               </Button>
@@ -145,14 +144,14 @@ export function CreateTripDialog({
                   variant="secondary"
                   className="inline-flex items-center gap-2 px-3 py-2"
                 >
-                  <span className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/30 to-cyan-500/30 flex items-center justify-center text-xs font-bold text-primary">
+                  <span className="w-6 h-6 rounded-full gradient-primary flex items-center justify-center text-xs font-bold text-white">
                     {f.charAt(0).toUpperCase()}
                   </span>
                   {f}
                   <button
                     type="button"
                     onClick={() => removeFriend(f)}
-                    className="p-0.5 hover:bg-destructive/20 rounded text-muted-foreground hover:text-destructive transition-colors"
+                    className="p-0.5 rounded hover:bg-destructive/20 text-muted-foreground hover:text-destructive transition-colors"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -163,10 +162,11 @@ export function CreateTripDialog({
 
           <Button
             type="submit"
-            className="w-full bg-gradient-to-r from-primary to-cyan-500 hover:from-primary/90 hover:to-cyan-500/90 text-primary-foreground font-bold"
+            className="w-full"
             size="lg"
+            variant="glow"
           >
-            <Plus className="w-5 h-5 mr-2" />
+            <Plus className="w-5 h-5" />
             Create Trip
           </Button>
         </form>

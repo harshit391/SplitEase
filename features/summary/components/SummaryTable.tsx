@@ -98,7 +98,7 @@ export function SummaryTable({
       {/* Export Buttons */}
       <div className="flex flex-wrap gap-2 justify-end">
         <Button variant="outline" size="sm" onClick={handleDownloadCSV}>
-          <Download className="w-4 h-4 mr-2" />
+          <Download className="w-4 h-4" />
           Download CSV
         </Button>
 
@@ -107,9 +107,9 @@ export function SummaryTable({
             variant="outline"
             size="sm"
             onClick={handleOpenLinkedSheet}
-            className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/20"
+            className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
           >
-            <ExternalLink className="w-4 h-4 mr-2" />
+            <ExternalLink className="w-4 h-4" />
             Open Linked Sheet
           </Button>
         ) : (
@@ -117,16 +117,16 @@ export function SummaryTable({
             variant="outline"
             size="sm"
             onClick={handleCopyForSheets}
-            className="border-primary/30 text-primary hover:bg-primary/20"
+            className="border-primary/30 text-primary hover:bg-primary/10"
           >
             {copied ? (
               <>
-                <Check className="w-4 h-4 mr-2" />
+                <Check className="w-4 h-4" />
                 Copied! Paste in Sheet
               </>
             ) : (
               <>
-                <FileSpreadsheet className="w-4 h-4 mr-2" />
+                <FileSpreadsheet className="w-4 h-4" />
                 Copy for Google Sheets
               </>
             )}
@@ -140,16 +140,16 @@ export function SummaryTable({
             setLinkInput(trip.googleSheetUrl || "");
             setShowLinkInput(!showLinkInput);
           }}
-          className="border-violet-500/30 text-violet-400 hover:bg-violet-500/20"
+          className="border-violet-500/30 text-violet-400 hover:bg-violet-500/10"
         >
-          <Link2 className="w-4 h-4 mr-2" />
+          <Link2 className="w-4 h-4" />
           {trip.googleSheetUrl ? "Edit Link" : "Attach Link"}
         </Button>
       </div>
 
       {/* Link Input Section */}
       {showLinkInput && (
-        <div className="bg-secondary/50 border border-border/50 rounded-xl p-4 space-y-3">
+        <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4 space-y-3">
           <label className="block text-sm font-medium text-foreground">
             Google Sheets URL
           </label>
@@ -158,7 +158,6 @@ export function SummaryTable({
             value={linkInput}
             onChange={(e) => setLinkInput(e.target.value)}
             placeholder="https://docs.google.com/spreadsheets/d/..."
-            className="bg-background/50"
           />
           <div className="flex gap-2">
             <Button size="sm" onClick={handleSaveLink}>
@@ -176,7 +175,7 @@ export function SummaryTable({
                 size="sm"
                 variant="outline"
                 onClick={handleRemoveLink}
-                className="border-destructive/30 text-destructive hover:bg-destructive/20"
+                className="border-destructive/30 text-destructive hover:bg-destructive/10"
               >
                 Remove Link
               </Button>
@@ -186,17 +185,17 @@ export function SummaryTable({
       )}
 
       {/* Table */}
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto rounded-xl border border-white/5">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="bg-white/[0.02]">
               <TableHead className="min-w-[120px]">Expense</TableHead>
               {trip.friends.map((f) => (
                 <TableHead
                   key={f}
                   className={`text-center min-w-[80px] ${
                     f === lowestSpender
-                      ? "bg-yellow-500/20 text-yellow-400"
+                      ? "bg-amber-500/20 text-amber-400"
                       : ""
                   }`}
                 >
@@ -224,7 +223,7 @@ export function SummaryTable({
                     <TableCell
                       key={f}
                       className={`text-center ${
-                        f === lowestSpender ? "bg-yellow-500/10" : ""
+                        f === lowestSpender ? "bg-amber-500/5" : ""
                       }`}
                     >
                       <span className="inline-flex items-center gap-0.5">
@@ -244,14 +243,14 @@ export function SummaryTable({
             })}
 
             {/* Grand Total Row */}
-            <TableRow className="bg-primary/10 font-bold border-t-2 border-primary/30">
+            <TableRow className="bg-primary/5 font-bold border-t-2 border-primary/20">
               <TableCell className="text-primary">Grand Total</TableCell>
               {trip.friends.map((f) => (
                 <TableCell
                   key={f}
                   className={`text-center ${
                     f === lowestSpender
-                      ? "bg-yellow-500/30 text-yellow-400"
+                      ? "bg-amber-500/20 text-amber-400"
                       : "text-primary"
                   }`}
                 >
