@@ -31,6 +31,7 @@ export const tripsRepository = {
       subTopics: [],
       createdAt: new Date().toISOString(),
       googleSheetUrl: null,
+      defaultPayer: data.defaultPayer || null,
     };
     await db.trips.add(trip);
     return trip;
@@ -45,6 +46,8 @@ export const tripsRepository = {
     if (updates.friends !== undefined) updatedTrip.friends = updates.friends;
     if (updates.googleSheetUrl !== undefined)
       updatedTrip.googleSheetUrl = updates.googleSheetUrl;
+    if (updates.defaultPayer !== undefined)
+      updatedTrip.defaultPayer = updates.defaultPayer;
 
     await db.trips.put(updatedTrip);
     return updatedTrip;
@@ -66,6 +69,7 @@ export const tripsRepository = {
       subTopics: trip.subTopics || [],
       createdAt: trip.createdAt || new Date().toISOString(),
       googleSheetUrl: trip.googleSheetUrl || null,
+      defaultPayer: trip.defaultPayer || null,
     };
 
     await db.trips.add(importedTrip);

@@ -7,15 +7,18 @@ export interface Trip {
   subTopics: ExpenseGroup[];
   createdAt: string;
   googleSheetUrl: string | null;
+  defaultPayer: string | null;
 }
 
 export interface TripCreate {
   name: string;
   friends: string[];
+  defaultPayer?: string | null;
 }
 
 export interface TripUpdate {
   name?: string;
   friends?: string[];
   googleSheetUrl?: string | null;
+  defaultPayer?: string | null;
 }

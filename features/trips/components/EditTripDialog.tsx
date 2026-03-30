@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X, UserPlus, Edit, Save } from "lucide-react";
+import { X, UserPlus, Edit, Save, User } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -45,16 +45,19 @@ export function EditTripDialog({
     defaultValues: {
       name: trip.name,
       friends: trip.friends,
+      defaultPayer: trip.defaultPayer || null,
     },
   });
 
   const friends = watch("friends");
+  const defaultPayer = watch("defaultPayer");
 
   useEffect(() => {
     if (open) {
       reset({
         name: trip.name,
         friends: trip.friends,
+        defaultPayer: trip.defaultPayer || null,
       });
     }
   }, [open, trip, reset]);
@@ -72,6 +75,9 @@ export function EditTripDialog({
       "friends",
       friends.filter((f) => f !== name)
     );
+    if (defaultPayer === name) {
+      setValue("defaultPayer", null);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -163,6 +169,33 @@ export function EditTripDialog({
                   </button>
                 </Badge>
               ))}
+            </div>
+          )}
+
+          {friends.length > 0 && (
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <User className="w-4 h-4" />
+                Default Payer
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Pre-selected when adding new expenses. You can still change it per expense.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {friends.map((f) => (
+                  <Button
+                    key={f}
+                    type="button"
+                    variant={defaultPayer === f ? "default" : "outline"}
+                    size="sm"
+                    onClick={() =>
+                      setValue("defaultPayer", defaultPayer === f ? null : f)
+                    }
+                  >
+                    {f}
+                  </Button>
+                ))}
+              </div>
             </div>
           )}
 

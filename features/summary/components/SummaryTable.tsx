@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   IndianRupee,
   Download,
+  FileText,
   Trophy,
   FileSpreadsheet,
   Check,
@@ -26,7 +27,12 @@ import {
   calculateTotalSpentPerPerson,
   findLowestSpender,
 } from "@/services";
-import { downloadCSV, generateSummaryTSV, copyToClipboard } from "@/services";
+import {
+  downloadCSV,
+  downloadDetailedCSV,
+  generateSummaryTSV,
+  copyToClipboard,
+} from "@/services";
 
 interface SummaryTableProps {
   trip: Trip;
@@ -53,6 +59,10 @@ export function SummaryTable({
 
   const handleDownloadCSV = () => {
     downloadCSV(trip, excludedSubTopicIds);
+  };
+
+  const handleDownloadDetailedCSV = () => {
+    downloadDetailedCSV(trip, excludedSubTopicIds);
   };
 
   const handleCopyForSheets = async () => {
@@ -100,6 +110,11 @@ export function SummaryTable({
         <Button variant="outline" size="sm" onClick={handleDownloadCSV}>
           <Download className="w-4 h-4" />
           Download CSV
+        </Button>
+
+        <Button variant="outline" size="sm" onClick={handleDownloadDetailedCSV}>
+          <FileText className="w-4 h-4" />
+          Detailed CSV
         </Button>
 
         {trip.googleSheetUrl ? (

@@ -12,6 +12,7 @@ export const editTripSchema = z.object({
   friends: z
     .array(z.string().min(1, "Friend name cannot be empty"))
     .min(1, "At least one person is required"),
+  defaultPayer: z.string().nullable().optional(),
 });
 
 export type CreateTripFormData = z.infer<typeof createTripSchema>;

@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd /c/Users/HarshitSingla/splitease && npm run build 2>&1)",
+      "Bash(printf [Frontend] | Added Detailed CSV export for itemized expense breakdown and Default Payer setting per trip:*)"
+    ]
+  }
+}

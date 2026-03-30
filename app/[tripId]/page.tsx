@@ -116,7 +116,7 @@ export default function TripPage() {
 
   if (!trip) return null;
 
-  const handleEditTrip = (data: { name: string; friends: string[] }) => {
+  const handleEditTrip = (data: { name: string; friends: string[]; defaultPayer?: string | null }) => {
     updateTrip.mutate(
       { id: tripId, updates: data },
       { onSuccess: () => setEditTripDialogOpen(false) }
@@ -406,6 +406,7 @@ export default function TripPage() {
           if (!open) setActiveExpenseGroupId(null);
         }}
         friends={trip.friends}
+        defaultPayer={trip.defaultPayer}
         onSubmit={handleAddItem}
       />
 

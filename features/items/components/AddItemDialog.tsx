@@ -20,6 +20,7 @@ interface AddItemDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   friends: string[];
+  defaultPayer?: string | null;
   onSubmit: (data: CreateItemFormData, continueAdding: boolean) => void;
 }
 
@@ -27,9 +28,12 @@ export function AddItemDialog({
   open,
   onOpenChange,
   friends,
+  defaultPayer,
   onSubmit,
 }: AddItemDialogProps) {
   const [continueMode, setContinueMode] = useState(false);
+
+  const resolvedDefaultPayer = (defaultPayer && friends.includes(defaultPayer)) ? defaultPayer : friends[0] || "";
 
   const {
     register,
@@ -43,7 +47,7 @@ export function AddItemDialog({
     defaultValues: {
       name: "",
       amount: 0,
-      paidBy: friends[0] || "",
+      paidBy: resolvedDefaultPayer,
       splitAmong: [...friends],
     },
   });
@@ -82,7 +86,7 @@ export function AddItemDialog({
       reset({
         name: "",
         amount: 0,
-        paidBy: friends[0] || "",
+        paidBy: resolvedDefaultPayer,
         splitAmong: [...friends],
       });
     }
@@ -93,7 +97,7 @@ export function AddItemDialog({
       reset({
         name: "",
         amount: 0,
-        paidBy: friends[0] || "",
+        paidBy: resolvedDefaultPayer,
         splitAmong: [...friends],
       });
       setContinueMode(false);
