@@ -31,7 +31,10 @@
 - **Explainable Calculations** — See exactly how settlements are calculated with step-by-step breakdowns
 - **Tax Support** — Add tax percentages to expense groups with proportional distribution
 - **Offline-First** — All data stored locally in your browser using IndexedDB
-- **Import/Export** — Back up trips as JSON files and import them anytime
+- **Flexible Splitting** — Split items among any subset of friends
+- **Default Payer** — Set a default payer per trip to speed up data entry
+- **Exclude Groups** — Temporarily exclude expense groups from settlement calculations
+- **Import/Export** — Back up trips as JSON, export summary or detailed itemized CSV
 - **WhatsApp Ready** — Copy settlements in a format ready to share with friends
 - **Modern Dark UI** — Sleek dark SaaS design with purple gradient accents
 - **Privacy Focused** — No accounts, no servers, your data stays on your device
@@ -114,8 +117,8 @@ The app automatically calculates:
 
 ### 4. Share & Export
 - Copy settlements for WhatsApp with one click
-- Export the entire trip as JSON for backup
-- Import trips on any device
+- Export the entire trip as JSON for backup or as CSV for detailed breakdowns
+- Import trips from JSON on any device
 
 ## Project Structure
 
