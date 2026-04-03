@@ -11,7 +11,7 @@ export function calculateSubTopicPersonTotals(
   subTopic: ExpenseGroup,
   friends: string[]
 ): SubTopicTotals {
-  // Step 1: Calculate each person's base share (before tax)
+  // Step 1: Calculate each person's base share (before tax/discount)
   const baseTotals: Record<string, number> = {};
   friends.forEach((f) => {
     baseTotals[f] = 0;
@@ -31,24 +31,59 @@ export function calculateSubTopicPersonTotals(
     subTopicTotal += item.amount;
   });
 
-  // Step 2: Calculate tax proportionally based on each person's share
-  const taxMultiplier = (subTopic.taxPercent || 0) / 100;
-  const totalTax = subTopicTotal * taxMultiplier;
+  // Step 2: Calculate tax (percentage mode or value mode)
+  const taxMode = subTopic.taxMode || "percentage";
+  let totalTax: number;
+  if (taxMode === "value") {
+    totalTax = subTopic.taxValue || 0;
+  } else {
+    const taxMultiplier = (subTopic.taxPercent || 0) / 100;
+    totalTax = subTopicTotal * taxMultiplier;
+  }
 
   const taxPerPerson: Record<string, number> = {};
-  const totals: Record<string, number> = {};
 
   friends.forEach((f) => {
-    // Each person's tax = their base share proportion × total tax
     if (subTopicTotal > 0) {
       taxPerPerson[f] = (baseTotals[f] / subTopicTotal) * totalTax;
     } else {
       taxPerPerson[f] = 0;
     }
-    totals[f] = baseTotals[f] + taxPerPerson[f];
   });
 
-  return { totals, baseTotals, taxPerPerson, totalTax, subTopicTotal };
+  // Step 3: Calculate discount (applied after tax)
+  const totalAfterTax = subTopicTotal + totalTax;
+  const discountMode = subTopic.discountMode || "percentage";
+  let totalDiscount: number;
+  if (discountMode === "value") {
+    totalDiscount = subTopic.discountValue || 0;
+  } else {
+    const discountMultiplier = (subTopic.discountPercent || 0) / 100;
+    totalDiscount = totalAfterTax * discountMultiplier;
+  }
+
+  const discountPerPerson: Record<string, number> = {};
+  const totals: Record<string, number> = {};
+
+  friends.forEach((f) => {
+    const personAfterTax = baseTotals[f] + taxPerPerson[f];
+    if (totalAfterTax > 0) {
+      discountPerPerson[f] = (personAfterTax / totalAfterTax) * totalDiscount;
+    } else {
+      discountPerPerson[f] = 0;
+    }
+    totals[f] = baseTotals[f] + taxPerPerson[f] - discountPerPerson[f];
+  });
+
+  return {
+    totals,
+    baseTotals,
+    taxPerPerson,
+    totalTax,
+    discountPerPerson,
+    totalDiscount,
+    subTopicTotal,
+  };
 }
 
 export function calculateSettlements(
@@ -81,13 +116,29 @@ export function calculateSettlements(
 
     // Distribute tax payment proportionally to what each payer paid
     const subTotal = sub.items.reduce((s, i) => s + i.amount, 0);
-    const taxMultiplier = (sub.taxPercent || 0) / 100;
-    const totalTax = subTotal * taxMultiplier;
+    const { totalTax, totalDiscount } = calculateSubTopicPersonTotals(
+      sub,
+      trip.friends
+    );
 
     if (subTotal > 0 && totalTax > 0) {
       sub.items.forEach((item) => {
         if (balances[item.paidBy]) {
           balances[item.paidBy].paid += (item.amount / subTotal) * totalTax;
+        }
+      });
+    }
+
+    // Reduce paid proportionally by discount (payers paid less due to discount)
+    const totalPaidBeforeDiscount = subTotal + totalTax;
+    if (totalPaidBeforeDiscount > 0 && totalDiscount > 0) {
+      sub.items.forEach((item) => {
+        if (balances[item.paidBy]) {
+          const payerShareOfTotal =
+            (item.amount +
+              (subTotal > 0 ? (item.amount / subTotal) * totalTax : 0)) /
+            totalPaidBeforeDiscount;
+          balances[item.paidBy].paid -= payerShareOfTotal * totalDiscount;
         }
       });
     }

@@ -142,10 +142,8 @@ export function generateDetailedCSV(
   let grandTotal = 0;
 
   includedSubTopics.forEach((sub) => {
-    const { totals, baseTotals, totalTax } = calculateSubTopicPersonTotals(
-      sub,
-      trip.friends
-    );
+    const { totals, baseTotals, totalTax, totalDiscount } =
+      calculateSubTopicPersonTotals(sub, trip.friends);
     const subTopicTotal = sub.items.reduce((s, i) => s + i.amount, 0);
 
     // Individual item rows
@@ -182,14 +180,49 @@ export function generateDetailedCSV(
 
     // Tax row (only if non-zero)
     if (totalTax > 0) {
+      const taxLabel =
+        (sub.taxMode || "percentage") === "value"
+          ? `[Tax ₹${(sub.taxValue || 0).toFixed(2)}]`
+          : `[Tax ${sub.taxPercent}%]`;
       rows.push([
         sub.name,
-        `[Tax ${sub.taxPercent}%]`,
+        taxLabel,
         "",
         "",
         "",
-        ...trip.friends.map((f) => (totals[f] - baseTotals[f]).toFixed(2)),
+        ...trip.friends.map((f) =>
+          ((baseTotals[f] / (subTopicTotal || 1)) * totalTax).toFixed(2)
+        ),
         totalTax.toFixed(2),
+      ]);
+    }
+
+    // Discount row (only if non-zero)
+    if (totalDiscount > 0) {
+      const discountLabel =
+        (sub.discountMode || "percentage") === "value"
+          ? `[Discount ₹${(sub.discountValue || 0).toFixed(2)}]`
+          : `[Discount ${sub.discountPercent || 0}%]`;
+      const totalAfterTax = subTopicTotal + totalTax;
+      rows.push([
+        sub.name,
+        discountLabel,
+        "",
+        "",
+        "",
+        ...trip.friends.map((f) => {
+          const personAfterTax =
+            baseTotals[f] +
+            (subTopicTotal > 0
+              ? (baseTotals[f] / subTopicTotal) * totalTax
+              : 0);
+          const personDiscount =
+            totalAfterTax > 0
+              ? (personAfterTax / totalAfterTax) * totalDiscount
+              : 0;
+          return `-${personDiscount.toFixed(2)}`;
+        }),
+        `-${totalDiscount.toFixed(2)}`,
       ]);
     }
 

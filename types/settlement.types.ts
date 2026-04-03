@@ -31,5 +31,7 @@ export interface SubTopicTotals {
   baseTotals: Record<string, number>;
   taxPerPerson: Record<string, number>;
   totalTax: number;
+  discountPerPerson: Record<string, number>;
+  totalDiscount: number;
   subTopicTotal: number;
 }

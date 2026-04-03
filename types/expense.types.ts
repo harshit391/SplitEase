@@ -5,6 +5,11 @@ export interface ExpenseGroup {
   name: string;
   items: Item[];
   taxPercent: number;
+  taxMode: "percentage" | "value";
+  taxValue: number;
+  discountPercent: number;
+  discountValue: number;
+  discountMode: "percentage" | "value";
 }
 
 export interface ExpenseGroupCreate {
@@ -14,4 +19,9 @@ export interface ExpenseGroupCreate {
 export interface ExpenseGroupUpdate {
   name?: string;
   taxPercent?: number;
+  taxMode?: "percentage" | "value";
+  taxValue?: number;
+  discountPercent?: number;
+  discountValue?: number;
+  discountMode?: "percentage" | "value";
 }

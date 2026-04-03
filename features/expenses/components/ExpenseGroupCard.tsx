@@ -41,10 +41,8 @@ export function ExpenseGroupCard({
   onDelete,
   children,
 }: ExpenseGroupCardProps) {
-  const { subTopicTotal, totalTax } = calculateSubTopicPersonTotals(
-    expenseGroup,
-    trip.friends
-  );
+  const { subTopicTotal, totalTax, totalDiscount } =
+    calculateSubTopicPersonTotals(expenseGroup, trip.friends);
 
   return (
     <Card
@@ -78,10 +76,24 @@ export function ExpenseGroupCard({
               )}
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {expenseGroup.items.length} items · {formatCurrency(subTopicTotal + totalTax)}
-              {expenseGroup.taxPercent > 0 && (
+              {expenseGroup.items.length} items ·{" "}
+              {formatCurrency(subTopicTotal + totalTax - totalDiscount)}
+              {totalTax > 0 && (
                 <span className="ml-1 text-amber-400 font-medium">
-                  (+{expenseGroup.taxPercent}% tax)
+                  (+
+                  {(expenseGroup.taxMode || "percentage") === "value"
+                    ? `₹${(expenseGroup.taxValue || 0).toFixed(2)}`
+                    : `${expenseGroup.taxPercent}%`}{" "}
+                  tax)
+                </span>
+              )}
+              {totalDiscount > 0 && (
+                <span className="ml-1 text-emerald-400 font-medium">
+                  (-
+                  {(expenseGroup.discountMode || "percentage") === "value"
+                    ? `₹${(expenseGroup.discountValue || 0).toFixed(2)}`
+                    : `${expenseGroup.discountPercent}%`}{" "}
+                  discount)
                 </span>
               )}
             </p>

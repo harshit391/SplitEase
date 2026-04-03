@@ -66,7 +66,14 @@ export const tripsRepository = {
 
     const importedTrip: Trip = {
       ...trip,
-      subTopics: trip.subTopics || [],
+      subTopics: (trip.subTopics || []).map((sub) => ({
+        ...sub,
+        taxMode: sub.taxMode || "percentage",
+        taxValue: sub.taxValue || 0,
+        discountPercent: sub.discountPercent || 0,
+        discountValue: sub.discountValue || 0,
+        discountMode: sub.discountMode || "percentage",
+      })),
       createdAt: trip.createdAt || new Date().toISOString(),
       googleSheetUrl: trip.googleSheetUrl || null,
       defaultPayer: trip.defaultPayer || null,
@@ -89,6 +96,11 @@ export const tripsRepository = {
       name: data.name,
       items: [],
       taxPercent: 0,
+      taxMode: "percentage",
+      taxValue: 0,
+      discountPercent: 0,
+      discountValue: 0,
+      discountMode: "percentage",
     };
 
     trip.subTopics.push(expenseGroup);
@@ -110,6 +122,16 @@ export const tripsRepository = {
     if (updates.name !== undefined) expenseGroup.name = updates.name;
     if (updates.taxPercent !== undefined)
       expenseGroup.taxPercent = updates.taxPercent;
+    if (updates.taxMode !== undefined)
+      expenseGroup.taxMode = updates.taxMode;
+    if (updates.taxValue !== undefined)
+      expenseGroup.taxValue = updates.taxValue;
+    if (updates.discountPercent !== undefined)
+      expenseGroup.discountPercent = updates.discountPercent;
+    if (updates.discountValue !== undefined)
+      expenseGroup.discountValue = updates.discountValue;
+    if (updates.discountMode !== undefined)
+      expenseGroup.discountMode = updates.discountMode;
 
     await db.trips.put(trip);
     return expenseGroup;

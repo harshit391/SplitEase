@@ -44,7 +44,7 @@ import {
   calculateSubTopicPersonTotals,
   exportTripAsJSON,
 } from "@/services";
-import type { ExpenseGroup, Item } from "@/types";
+import type { ExpenseGroup, ExpenseGroupUpdate, Item } from "@/types";
 
 export default function TripPage() {
   const params = useParams();
@@ -98,11 +98,9 @@ export default function TripPage() {
     return trip.subTopics
       .filter((sub) => !excludedExpenseGroups.includes(sub.id))
       .reduce((sum, sub) => {
-        const { subTopicTotal, totalTax } = calculateSubTopicPersonTotals(
-          sub,
-          trip.friends
-        );
-        return sum + subTopicTotal + totalTax;
+        const { subTopicTotal, totalTax, totalDiscount } =
+          calculateSubTopicPersonTotals(sub, trip.friends);
+        return sum + subTopicTotal + totalTax - totalDiscount;
       }, 0);
   }, [trip, excludedExpenseGroups]);
 
@@ -129,7 +127,7 @@ export default function TripPage() {
     });
   };
 
-  const handleEditExpenseGroup = (data: { name: string; taxPercent: number }) => {
+  const handleEditExpenseGroup = (data: ExpenseGroupUpdate) => {
     if (editingExpenseGroup) {
       updateExpenseGroup.mutate(
         { expenseGroupId: editingExpenseGroup.id, updates: data },
@@ -196,10 +194,13 @@ export default function TripPage() {
     deleteItem.mutate({ expenseGroupId, itemId });
   };
 
-  const handleUpdateTax = (expenseGroupId: string, taxPercent: number) => {
+  const handleUpdateExpenseGroupInline = (
+    expenseGroupId: string,
+    updates: ExpenseGroupUpdate
+  ) => {
     updateExpenseGroup.mutate({
       expenseGroupId,
-      updates: { taxPercent },
+      updates,
     });
   };
 
@@ -365,7 +366,9 @@ export default function TripPage() {
                     setEditItemDialogOpen(true);
                   }}
                   onDeleteItem={(itemId) => handleDeleteItem(expenseGroup.id, itemId)}
-                  onUpdateTax={(taxPercent) => handleUpdateTax(expenseGroup.id, taxPercent)}
+                  onUpdateExpenseGroup={(updates) =>
+                    handleUpdateExpenseGroupInline(expenseGroup.id, updates)
+                  }
                 />
               </ExpenseGroupCard>
             ))}
