@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, Edit, Plus, IndianRupee, Save, Percent, Hash } from "lucide-react";
+import { Trash2, Edit, Plus, IndianRupee, Save, Percent } from "lucide-react";
 import {
   Table,
   TableBody,
