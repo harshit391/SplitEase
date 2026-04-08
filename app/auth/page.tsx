@@ -28,6 +28,7 @@ function AuthForm() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
 
+  const next = searchParams.get("next");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(error || "");
 
@@ -36,10 +37,13 @@ function AuthForm() {
   const handleGoogleLogin = async () => {
     setLoading(true);
     setErrorMsg("");
+    const callbackUrl = next
+      ? `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`
+      : `${window.location.origin}/auth/callback`;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: callbackUrl,
       },
     });
     if (error) {

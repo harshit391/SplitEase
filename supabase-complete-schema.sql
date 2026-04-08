@@ -88,6 +88,15 @@ CREATE TABLE public.trip_shares (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
+-- Saved Trips (users bookmarking shared trips)
+CREATE TABLE public.saved_trips (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  trip_id text NOT NULL REFERENCES public.trips(id) ON DELETE CASCADE,
+  saved_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE(user_id, trip_id)
+);
+
 -- ============================================================
 -- INDEXES
 -- ============================================================
@@ -101,6 +110,8 @@ CREATE INDEX idx_trip_shares_trip_id ON public.trip_shares(trip_id);
 CREATE INDEX idx_trip_shares_email ON public.trip_shares(shared_with_email);
 CREATE INDEX idx_trip_shares_code ON public.trip_shares(share_code);
 CREATE INDEX idx_trip_shares_user_id ON public.trip_shares(user_id);
+CREATE INDEX idx_saved_trips_user_id ON public.saved_trips(user_id);
+CREATE INDEX idx_saved_trips_trip_id ON public.saved_trips(trip_id);
 
 -- ============================================================
 -- ROW LEVEL SECURITY
@@ -111,6 +122,7 @@ ALTER TABLE public.trips ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.expense_groups ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.trip_shares ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.saved_trips ENABLE ROW LEVEL SECURITY;
 
 -- Profiles
 CREATE POLICY "Users can view own profile" ON public.profiles
@@ -135,6 +147,10 @@ CREATE POLICY "Anyone can view public shares by code" ON public.trip_shares
   FOR SELECT USING (
     share_type = 'public' AND share_code IS NOT NULL
   );
+
+-- Saved Trips
+CREATE POLICY "Users can manage own saved trips" ON public.saved_trips
+  FOR ALL USING (user_id = auth.uid());
 
 -- Trips (owner + viewers via trip_shares)
 CREATE POLICY "Users can view accessible trips" ON public.trips

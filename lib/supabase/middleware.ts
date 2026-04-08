@@ -29,7 +29,7 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Redirect unauthenticated users to /auth
+  // Redirect unauthenticated users to /auth, preserving the original URL as ?next=
   if (
     !user &&
     !request.nextUrl.pathname.startsWith("/auth") &&
@@ -37,14 +37,18 @@ export async function updateSession(request: NextRequest) {
     !request.nextUrl.pathname.startsWith("/_next")
   ) {
     const url = request.nextUrl.clone();
+    const returnTo = request.nextUrl.pathname + request.nextUrl.search;
     url.pathname = "/auth";
+    url.searchParams.set("next", returnTo);
     return NextResponse.redirect(url);
   }
 
-  // Redirect authenticated users away from /auth
+  // Redirect authenticated users away from /auth to the ?next= param or /
   if (user && request.nextUrl.pathname.startsWith("/auth")) {
+    const next = request.nextUrl.searchParams.get("next");
     const url = request.nextUrl.clone();
-    url.pathname = "/";
+    url.pathname = next && next !== "/auth" ? next : "/";
+    url.search = "";
     return NextResponse.redirect(url);
   }
 

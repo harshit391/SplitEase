@@ -19,9 +19,11 @@ import { staggerItem } from "@/lib/animations";
 interface TripCardProps {
   trip: Trip;
   onDelete: (id: string) => void;
+  savedView?: boolean;
+  linkPrefix?: string;
 }
 
-export function TripCard({ trip, onDelete }: TripCardProps) {
+export function TripCard({ trip, onDelete, savedView, linkPrefix }: TripCardProps) {
   // Calculate grand total from all items
   const grandTotal = trip.subTopics.reduce((total, sub) => {
     const subTotal = sub.items.reduce((sum, item) => sum + item.amount, 0);
@@ -44,19 +46,21 @@ export function TripCard({ trip, onDelete }: TripCardProps) {
       animate="animate"
       className="hover-lift"
     >
-      <Link href={`/${trip.id}`}>
+      <Link href={linkPrefix ? `${linkPrefix}/${trip.shareCode || trip.id}` : `/${trip.id}`}>
         <Card className="group relative bg-card border border-white/5 hover:border-primary/30 p-6 cursor-pointer transition-all duration-300 card-hover-glow">
           {/* Delete button */}
-          <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              onClick={handleDelete}
-              className="hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </div>
+          {!savedView && (
+            <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-10">
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                onClick={handleDelete}
+                className="hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
 
           {/* Icon */}
           <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-5">

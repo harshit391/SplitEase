@@ -147,6 +147,84 @@ export function createShareRepository(
   };
 }
 
+export interface SavedTripsRepository {
+  getSavedTrips(): Promise<Trip[]>;
+  saveTrip(tripId: string): Promise<boolean>;
+  unsaveTrip(tripId: string): Promise<void>;
+  isTripSaved(tripId: string): Promise<boolean>;
+}
+
+export function createSavedTripsRepository(
+  supabase: SupabaseClient,
+  userId: string
+): SavedTripsRepository {
+  return {
+    async getSavedTrips(): Promise<Trip[]> {
+      const { data: saved } = await supabase
+        .from("saved_trips")
+        .select("trip_id")
+        .eq("user_id", userId);
+
+      if (!saved || saved.length === 0) return [];
+
+      const tripIds = saved.map((s) => s.trip_id);
+
+      const [tripsResult, groupsResult, itemsResult, sharesResult] =
+        await Promise.all([
+          supabase.from("trips").select("*").in("id", tripIds),
+          supabase.from("expense_groups").select("*").in("trip_id", tripIds),
+          supabase.from("items").select("*").in("trip_id", tripIds),
+          supabase
+            .from("trip_shares")
+            .select("trip_id, share_code")
+            .in("trip_id", tripIds)
+            .eq("share_type", "public"),
+        ]);
+
+      const trips = tripsResult.data || [];
+      const groups = groupsResult.data || [];
+      const items = itemsResult.data || [];
+      const shares = sharesResult.data || [];
+
+      const shareCodeMap = new Map(
+        shares
+          .filter((s) => s.share_code)
+          .map((s) => [s.trip_id, s.share_code])
+      );
+
+      return trips.map((t) => ({
+        ...dbToTrip(t, groups, items),
+        shareCode: shareCodeMap.get(t.id) || null,
+      }));
+    },
+
+    async saveTrip(tripId: string): Promise<boolean> {
+      const { error } = await supabase
+        .from("saved_trips")
+        .insert({ user_id: userId, trip_id: tripId });
+      return !error;
+    },
+
+    async unsaveTrip(tripId: string): Promise<void> {
+      await supabase
+        .from("saved_trips")
+        .delete()
+        .eq("user_id", userId)
+        .eq("trip_id", tripId);
+    },
+
+    async isTripSaved(tripId: string): Promise<boolean> {
+      const { data } = await supabase
+        .from("saved_trips")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("trip_id", tripId)
+        .maybeSingle();
+      return !!data;
+    },
+  };
+}
+
 export function createSupabaseRepository(
   supabase: SupabaseClient,
   userId: string

@@ -4,7 +4,15 @@ import { useState, useEffect, useMemo } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Receipt, TrendingUp, Eye, Loader2 } from "lucide-react";
+import {
+  MapPin,
+  Receipt,
+  TrendingUp,
+  Eye,
+  Loader2,
+  Bookmark,
+  BookmarkCheck,
+} from "lucide-react";
 import { useUIStore } from "@/store";
 import { ExpenseGroupCard } from "@/features/expenses/components";
 import { ItemTable } from "@/features/items/components";
@@ -19,17 +27,25 @@ import {
   calculateSubTopicPersonTotals,
 } from "@/services";
 import { createClient } from "@/lib/supabase/client";
-import { createShareRepository } from "@/database/supabase.repository";
+import {
+  createShareRepository,
+  createSavedTripsRepository,
+} from "@/database/supabase.repository";
+import { useAuth } from "@/components/auth-provider";
 import { UserMenu } from "@/components/user-menu";
+import { Button } from "@/components/ui/button";
 import type { Trip } from "@/types";
 
 export default function SharedTripPage() {
   const params = useParams();
   const code = params.code as string;
 
+  const { user } = useAuth();
   const [trip, setTrip] = useState<Trip | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSaved, setIsSaved] = useState(false);
+  const [savingTrip, setSavingTrip] = useState(false);
 
   const {
     expandedExpenseGroups,
@@ -48,12 +64,33 @@ export default function SharedTripPage() {
         setError("Trip not found or link is no longer valid.");
       } else {
         setTrip(tripData);
+        // Check if user has saved this trip
+        if (user) {
+          const savedRepo = createSavedTripsRepository(supabase, user.id);
+          const saved = await savedRepo.isTripSaved(tripData.id);
+          setIsSaved(saved);
+        }
       }
       setLoading(false);
     }
 
     loadSharedTrip();
-  }, [code]);
+  }, [code, user]);
+
+  const handleToggleSave = async () => {
+    if (!trip || !user) return;
+    setSavingTrip(true);
+    const supabase = createClient();
+    const savedRepo = createSavedTripsRepository(supabase, user.id);
+    if (isSaved) {
+      await savedRepo.unsaveTrip(trip.id);
+      setIsSaved(false);
+    } else {
+      await savedRepo.saveTrip(trip.id);
+      setIsSaved(true);
+    }
+    setSavingTrip(false);
+  };
 
   const settlements = useMemo(() => {
     if (!trip) return null;
@@ -136,7 +173,29 @@ export default function SharedTripPage() {
             </div>
           </div>
 
-          <UserMenu />
+          <div className="flex items-center gap-2">
+            <Button
+              variant={isSaved ? "default" : "outline"}
+              size="sm"
+              onClick={handleToggleSave}
+              disabled={savingTrip}
+              className={
+                isSaved
+                  ? "bg-primary/20 text-primary border-primary/30 hover:bg-primary/30"
+                  : ""
+              }
+            >
+              {isSaved ? (
+                <BookmarkCheck className="w-4 h-4" />
+              ) : (
+                <Bookmark className="w-4 h-4" />
+              )}
+              <span className="hidden sm:inline">
+                {isSaved ? "Saved" : "Save"}
+              </span>
+            </Button>
+            <UserMenu />
+          </div>
         </div>
       </header>
 
