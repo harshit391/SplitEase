@@ -48,6 +48,9 @@ export function EditExpenseGroupDialog({
 
   const [taxMode, setTaxMode] = useState<"percentage" | "value">(currentTaxMode);
   const [discountMode, setDiscountMode] = useState<"percentage" | "value">(currentDiscountMode);
+  const [taxDiscountLevel, setTaxDiscountLevel] = useState<"group" | "item">(
+    expenseGroup.taxDiscountLevel || "group"
+  );
 
   const {
     register,
@@ -72,6 +75,7 @@ export function EditExpenseGroupDialog({
       const dMode = expenseGroup.discountMode || "percentage";
       setTaxMode(tMode);
       setDiscountMode(dMode);
+      setTaxDiscountLevel(expenseGroup.taxDiscountLevel || "group");
       reset({
         name: expenseGroup.name,
         taxPercent: expenseGroup.taxPercent || 0,
@@ -83,7 +87,7 @@ export function EditExpenseGroupDialog({
   }, [open, expenseGroup, reset]);
 
   const handleFormSubmit = (data: FormData) => {
-    const updates: ExpenseGroupUpdate = { name: data.name };
+    const updates: ExpenseGroupUpdate = { name: data.name, taxDiscountLevel };
 
     if (taxMode === "percentage") {
       updates.taxPercent = data.taxPercent ?? 0;
@@ -143,103 +147,142 @@ export function EditExpenseGroupDialog({
             />
           </div>
 
-          {/* Tax Section */}
+          {/* Tax & Discount Level Toggle */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>Tax</Label>
-              <div className="flex rounded-lg overflow-hidden border border-amber-500/30">
+              <Label>Tax & Discount Level</Label>
+              <div className="flex rounded-lg overflow-hidden border border-primary/30">
                 <button
                   type="button"
-                  className={`px-2.5 py-1 text-xs font-medium transition-colors ${
-                    taxMode === "percentage"
-                      ? "bg-amber-500 text-white"
-                      : "bg-transparent text-amber-400 hover:bg-amber-500/20"
+                  className={`px-3 py-1 text-xs font-medium transition-colors ${
+                    taxDiscountLevel === "group"
+                      ? "bg-primary text-white"
+                      : "bg-transparent text-primary hover:bg-primary/20"
                   }`}
-                  onClick={() => setTaxMode("percentage")}
+                  onClick={() => setTaxDiscountLevel("group")}
                 >
-                  <Percent className="w-3 h-3" />
+                  Group
                 </button>
                 <button
                   type="button"
-                  className={`px-2.5 py-1 text-xs font-medium transition-colors ${
-                    taxMode === "value"
-                      ? "bg-amber-500 text-white"
-                      : "bg-transparent text-amber-400 hover:bg-amber-500/20"
+                  className={`px-3 py-1 text-xs font-medium transition-colors ${
+                    taxDiscountLevel === "item"
+                      ? "bg-primary text-white"
+                      : "bg-transparent text-primary hover:bg-primary/20"
                   }`}
-                  onClick={() => setTaxMode("value")}
+                  onClick={() => setTaxDiscountLevel("item")}
                 >
-                  <IndianRupee className="w-3 h-3" />
+                  Per Item
                 </button>
               </div>
             </div>
-            {taxMode === "percentage" ? (
-              <Input
-                type="number"
-                {...register("taxPercent", { valueAsNumber: true })}
-                placeholder="Tax percentage"
-                min="0"
-                max="100"
-                step="0.1"
-              />
-            ) : (
-              <Input
-                type="number"
-                {...register("taxValue", { valueAsNumber: true })}
-                placeholder="Tax amount (₹)"
-                min="0"
-                step="0.01"
-              />
-            )}
           </div>
 
-          {/* Discount Section */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label>Discount</Label>
-              <div className="flex rounded-lg overflow-hidden border border-emerald-500/30">
-                <button
-                  type="button"
-                  className={`px-2.5 py-1 text-xs font-medium transition-colors ${
-                    discountMode === "percentage"
-                      ? "bg-emerald-500 text-white"
-                      : "bg-transparent text-emerald-400 hover:bg-emerald-500/20"
-                  }`}
-                  onClick={() => setDiscountMode("percentage")}
-                >
-                  <Percent className="w-3 h-3" />
-                </button>
-                <button
-                  type="button"
-                  className={`px-2.5 py-1 text-xs font-medium transition-colors ${
-                    discountMode === "value"
-                      ? "bg-emerald-500 text-white"
-                      : "bg-transparent text-emerald-400 hover:bg-emerald-500/20"
-                  }`}
-                  onClick={() => setDiscountMode("value")}
-                >
-                  <IndianRupee className="w-3 h-3" />
-                </button>
+          {taxDiscountLevel === "group" ? (
+            <>
+              {/* Tax Section */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label>Tax</Label>
+                  <div className="flex rounded-lg overflow-hidden border border-amber-500/30">
+                    <button
+                      type="button"
+                      className={`px-2.5 py-1 text-xs font-medium transition-colors ${
+                        taxMode === "percentage"
+                          ? "bg-amber-500 text-white"
+                          : "bg-transparent text-amber-400 hover:bg-amber-500/20"
+                      }`}
+                      onClick={() => setTaxMode("percentage")}
+                    >
+                      <Percent className="w-3 h-3" />
+                    </button>
+                    <button
+                      type="button"
+                      className={`px-2.5 py-1 text-xs font-medium transition-colors ${
+                        taxMode === "value"
+                          ? "bg-amber-500 text-white"
+                          : "bg-transparent text-amber-400 hover:bg-amber-500/20"
+                      }`}
+                      onClick={() => setTaxMode("value")}
+                    >
+                      <IndianRupee className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+                {taxMode === "percentage" ? (
+                  <Input
+                    type="number"
+                    {...register("taxPercent", { valueAsNumber: true })}
+                    placeholder="Tax percentage"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                  />
+                ) : (
+                  <Input
+                    type="number"
+                    {...register("taxValue", { valueAsNumber: true })}
+                    placeholder="Tax amount (₹)"
+                    min="0"
+                    step="0.01"
+                  />
+                )}
               </div>
+
+              {/* Discount Section */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label>Discount</Label>
+                  <div className="flex rounded-lg overflow-hidden border border-emerald-500/30">
+                    <button
+                      type="button"
+                      className={`px-2.5 py-1 text-xs font-medium transition-colors ${
+                        discountMode === "percentage"
+                          ? "bg-emerald-500 text-white"
+                          : "bg-transparent text-emerald-400 hover:bg-emerald-500/20"
+                      }`}
+                      onClick={() => setDiscountMode("percentage")}
+                    >
+                      <Percent className="w-3 h-3" />
+                    </button>
+                    <button
+                      type="button"
+                      className={`px-2.5 py-1 text-xs font-medium transition-colors ${
+                        discountMode === "value"
+                          ? "bg-emerald-500 text-white"
+                          : "bg-transparent text-emerald-400 hover:bg-emerald-500/20"
+                      }`}
+                      onClick={() => setDiscountMode("value")}
+                    >
+                      <IndianRupee className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+                {discountMode === "percentage" ? (
+                  <Input
+                    type="number"
+                    {...register("discountPercent", { valueAsNumber: true })}
+                    placeholder="Discount percentage"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                  />
+                ) : (
+                  <Input
+                    type="number"
+                    {...register("discountValue", { valueAsNumber: true })}
+                    placeholder="Discount amount (₹)"
+                    min="0"
+                    step="0.01"
+                  />
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="px-4 py-3 rounded-xl bg-primary/5 border border-primary/10 text-sm text-muted-foreground">
+              Tax and discount are set on each item individually. Edit items to configure their tax and discount.
             </div>
-            {discountMode === "percentage" ? (
-              <Input
-                type="number"
-                {...register("discountPercent", { valueAsNumber: true })}
-                placeholder="Discount percentage"
-                min="0"
-                max="100"
-                step="0.1"
-              />
-            ) : (
-              <Input
-                type="number"
-                {...register("discountValue", { valueAsNumber: true })}
-                placeholder="Discount amount (₹)"
-                min="0"
-                step="0.01"
-              />
-            )}
-          </div>
+          )}
 
           <Button type="submit" className="w-full" variant="glow">
             <Save className="w-5 h-5" />

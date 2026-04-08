@@ -13,7 +13,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { ExpenseGroup, ExpenseGroupUpdate, Trip, Item } from "@/types";
-import { calculateSubTopicPersonTotals } from "@/services";
+import {
+  calculateSubTopicPersonTotals,
+  calculateItemTaxDiscount,
+} from "@/services";
 
 interface ItemTableProps {
   trip: Trip;
@@ -32,6 +35,8 @@ export function ItemTable({
   onDeleteItem,
   onUpdateExpenseGroup,
 }: ItemTableProps) {
+  const isItemLevel =
+    (expenseGroup.taxDiscountLevel || "group") === "item";
   const taxMode = expenseGroup.taxMode || "percentage";
   const discountMode = expenseGroup.discountMode || "percentage";
 
@@ -134,191 +139,196 @@ export function ItemTable({
 
   return (
     <div className="space-y-4">
-      {/* Tax Input */}
-      <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
-        <span className="text-sm text-amber-400 font-medium">Tax:</span>
-        {editingTax ? (
-          <>
-            <div className="flex rounded-lg overflow-hidden border border-amber-500/30">
-              <button
-                type="button"
-                className={`px-2 py-1 text-xs font-medium transition-colors ${
-                  taxInputMode === "percentage"
-                    ? "bg-amber-500 text-white"
-                    : "bg-transparent text-amber-400 hover:bg-amber-500/20"
-                }`}
-                onClick={() => {
-                  setTaxInputMode("percentage");
-                  setTaxInputValue((expenseGroup.taxPercent || 0).toString());
-                }}
-              >
-                <Percent className="w-3 h-3" />
-              </button>
-              <button
-                type="button"
-                className={`px-2 py-1 text-xs font-medium transition-colors ${
-                  taxInputMode === "value"
-                    ? "bg-amber-500 text-white"
-                    : "bg-transparent text-amber-400 hover:bg-amber-500/20"
-                }`}
-                onClick={() => {
-                  setTaxInputMode("value");
-                  setTaxInputValue((expenseGroup.taxValue || 0).toString());
-                }}
-              >
-                <IndianRupee className="w-3 h-3" />
-              </button>
-            </div>
-            <Input
-              type="number"
-              value={taxInputValue}
-              onChange={(e) => setTaxInputValue(e.target.value)}
-              className="w-24 h-8 text-sm"
-              min="0"
-              max={taxInputMode === "percentage" ? "100" : undefined}
-              step="0.1"
-              placeholder={taxInputMode === "percentage" ? "%" : "₹"}
-            />
-            <Button size="sm" onClick={handleSaveTax}>
-              <Save className="w-3 h-3" />
-              Save
-            </Button>
-          </>
-        ) : (
-          <>
-            {taxMode === "percentage" ? (
-              <span className="text-amber-400 font-bold">
-                {expenseGroup.taxPercent || 0}%
-                {hasTax && (
-                  <span className="ml-1 font-normal text-amber-400/70 text-xs">
-                    = ₹{taxDisplayValue}
-                  </span>
-                )}
-              </span>
+      {/* Group-level Tax/Discount Inputs (only in group mode) */}
+      {!isItemLevel && (
+        <>
+          {/* Tax Input */}
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+            <span className="text-sm text-amber-400 font-medium">Tax:</span>
+            {editingTax ? (
+              <>
+                <div className="flex rounded-lg overflow-hidden border border-amber-500/30">
+                  <button
+                    type="button"
+                    className={`px-2 py-1 text-xs font-medium transition-colors ${
+                      taxInputMode === "percentage"
+                        ? "bg-amber-500 text-white"
+                        : "bg-transparent text-amber-400 hover:bg-amber-500/20"
+                    }`}
+                    onClick={() => {
+                      setTaxInputMode("percentage");
+                      setTaxInputValue((expenseGroup.taxPercent || 0).toString());
+                    }}
+                  >
+                    <Percent className="w-3 h-3" />
+                  </button>
+                  <button
+                    type="button"
+                    className={`px-2 py-1 text-xs font-medium transition-colors ${
+                      taxInputMode === "value"
+                        ? "bg-amber-500 text-white"
+                        : "bg-transparent text-amber-400 hover:bg-amber-500/20"
+                    }`}
+                    onClick={() => {
+                      setTaxInputMode("value");
+                      setTaxInputValue((expenseGroup.taxValue || 0).toString());
+                    }}
+                  >
+                    <IndianRupee className="w-3 h-3" />
+                  </button>
+                </div>
+                <Input
+                  type="number"
+                  value={taxInputValue}
+                  onChange={(e) => setTaxInputValue(e.target.value)}
+                  className="w-24 h-8 text-sm"
+                  min="0"
+                  max={taxInputMode === "percentage" ? "100" : undefined}
+                  step="0.1"
+                  placeholder={taxInputMode === "percentage" ? "%" : "₹"}
+                />
+                <Button size="sm" onClick={handleSaveTax}>
+                  <Save className="w-3 h-3" />
+                  Save
+                </Button>
+              </>
             ) : (
-              <span className="text-amber-400 font-bold">
-                ₹{(expenseGroup.taxValue || 0).toFixed(2)}
-                {hasTax && subTopicTotal > 0 && (
-                  <span className="ml-1 font-normal text-amber-400/70 text-xs">
-                    = {taxDisplayPercent}%
+              <>
+                {taxMode === "percentage" ? (
+                  <span className="text-amber-400 font-bold">
+                    {expenseGroup.taxPercent || 0}%
+                    {hasTax && (
+                      <span className="ml-1 font-normal text-amber-400/70 text-xs">
+                        = ₹{taxDisplayValue}
+                      </span>
+                    )}
+                  </span>
+                ) : (
+                  <span className="text-amber-400 font-bold">
+                    ₹{(expenseGroup.taxValue || 0).toFixed(2)}
+                    {hasTax && subTopicTotal > 0 && (
+                      <span className="ml-1 font-normal text-amber-400/70 text-xs">
+                        = {taxDisplayPercent}%
+                      </span>
+                    )}
                   </span>
                 )}
-              </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setTaxInputMode(taxMode);
+                    setTaxInputValue(
+                      taxMode === "value"
+                        ? (expenseGroup.taxValue || 0).toString()
+                        : (expenseGroup.taxPercent || 0).toString()
+                    );
+                    setEditingTax(true);
+                  }}
+                  className="text-amber-400 hover:text-amber-300 hover:bg-amber-500/20"
+                >
+                  <Edit className="w-3 h-3" />
+                </Button>
+              </>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setTaxInputMode(taxMode);
-                setTaxInputValue(
-                  taxMode === "value"
-                    ? (expenseGroup.taxValue || 0).toString()
-                    : (expenseGroup.taxPercent || 0).toString()
-                );
-                setEditingTax(true);
-              }}
-              className="text-amber-400 hover:text-amber-300 hover:bg-amber-500/20"
-            >
-              <Edit className="w-3 h-3" />
-            </Button>
-          </>
-        )}
-      </div>
+          </div>
 
-      {/* Discount Input */}
-      <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-        <span className="text-sm text-emerald-400 font-medium">Discount:</span>
-        {editingDiscount ? (
-          <>
-            <div className="flex rounded-lg overflow-hidden border border-emerald-500/30">
-              <button
-                type="button"
-                className={`px-2 py-1 text-xs font-medium transition-colors ${
-                  discountInputMode === "percentage"
-                    ? "bg-emerald-500 text-white"
-                    : "bg-transparent text-emerald-400 hover:bg-emerald-500/20"
-                }`}
-                onClick={() => {
-                  setDiscountInputMode("percentage");
-                  setDiscountInputValue(
-                    (expenseGroup.discountPercent || 0).toString()
-                  );
-                }}
-              >
-                <Percent className="w-3 h-3" />
-              </button>
-              <button
-                type="button"
-                className={`px-2 py-1 text-xs font-medium transition-colors ${
-                  discountInputMode === "value"
-                    ? "bg-emerald-500 text-white"
-                    : "bg-transparent text-emerald-400 hover:bg-emerald-500/20"
-                }`}
-                onClick={() => {
-                  setDiscountInputMode("value");
-                  setDiscountInputValue(
-                    (expenseGroup.discountValue || 0).toString()
-                  );
-                }}
-              >
-                <IndianRupee className="w-3 h-3" />
-              </button>
-            </div>
-            <Input
-              type="number"
-              value={discountInputValue}
-              onChange={(e) => setDiscountInputValue(e.target.value)}
-              className="w-24 h-8 text-sm"
-              min="0"
-              max={discountInputMode === "percentage" ? "100" : undefined}
-              step="0.1"
-              placeholder={discountInputMode === "percentage" ? "%" : "₹"}
-            />
-            <Button size="sm" onClick={handleSaveDiscount}>
-              <Save className="w-3 h-3" />
-              Save
-            </Button>
-          </>
-        ) : (
-          <>
-            {discountMode === "percentage" ? (
-              <span className="text-emerald-400 font-bold">
-                {expenseGroup.discountPercent || 0}%
-                {hasDiscount && (
-                  <span className="ml-1 font-normal text-emerald-400/70 text-xs">
-                    = ₹{discountDisplayValue}
-                  </span>
-                )}
-              </span>
+          {/* Discount Input */}
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+            <span className="text-sm text-emerald-400 font-medium">Discount:</span>
+            {editingDiscount ? (
+              <>
+                <div className="flex rounded-lg overflow-hidden border border-emerald-500/30">
+                  <button
+                    type="button"
+                    className={`px-2 py-1 text-xs font-medium transition-colors ${
+                      discountInputMode === "percentage"
+                        ? "bg-emerald-500 text-white"
+                        : "bg-transparent text-emerald-400 hover:bg-emerald-500/20"
+                    }`}
+                    onClick={() => {
+                      setDiscountInputMode("percentage");
+                      setDiscountInputValue(
+                        (expenseGroup.discountPercent || 0).toString()
+                      );
+                    }}
+                  >
+                    <Percent className="w-3 h-3" />
+                  </button>
+                  <button
+                    type="button"
+                    className={`px-2 py-1 text-xs font-medium transition-colors ${
+                      discountInputMode === "value"
+                        ? "bg-emerald-500 text-white"
+                        : "bg-transparent text-emerald-400 hover:bg-emerald-500/20"
+                    }`}
+                    onClick={() => {
+                      setDiscountInputMode("value");
+                      setDiscountInputValue(
+                        (expenseGroup.discountValue || 0).toString()
+                      );
+                    }}
+                  >
+                    <IndianRupee className="w-3 h-3" />
+                  </button>
+                </div>
+                <Input
+                  type="number"
+                  value={discountInputValue}
+                  onChange={(e) => setDiscountInputValue(e.target.value)}
+                  className="w-24 h-8 text-sm"
+                  min="0"
+                  max={discountInputMode === "percentage" ? "100" : undefined}
+                  step="0.1"
+                  placeholder={discountInputMode === "percentage" ? "%" : "₹"}
+                />
+                <Button size="sm" onClick={handleSaveDiscount}>
+                  <Save className="w-3 h-3" />
+                  Save
+                </Button>
+              </>
             ) : (
-              <span className="text-emerald-400 font-bold">
-                ₹{(expenseGroup.discountValue || 0).toFixed(2)}
-                {hasDiscount && totalAfterTax > 0 && (
-                  <span className="ml-1 font-normal text-emerald-400/70 text-xs">
-                    = {discountDisplayPercent}%
+              <>
+                {discountMode === "percentage" ? (
+                  <span className="text-emerald-400 font-bold">
+                    {expenseGroup.discountPercent || 0}%
+                    {hasDiscount && (
+                      <span className="ml-1 font-normal text-emerald-400/70 text-xs">
+                        = ₹{discountDisplayValue}
+                      </span>
+                    )}
+                  </span>
+                ) : (
+                  <span className="text-emerald-400 font-bold">
+                    ₹{(expenseGroup.discountValue || 0).toFixed(2)}
+                    {hasDiscount && totalAfterTax > 0 && (
+                      <span className="ml-1 font-normal text-emerald-400/70 text-xs">
+                        = {discountDisplayPercent}%
+                      </span>
+                    )}
                   </span>
                 )}
-              </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setDiscountInputMode(discountMode);
+                    setDiscountInputValue(
+                      discountMode === "value"
+                        ? (expenseGroup.discountValue || 0).toString()
+                        : (expenseGroup.discountPercent || 0).toString()
+                    );
+                    setEditingDiscount(true);
+                  }}
+                  className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/20"
+                >
+                  <Edit className="w-3 h-3" />
+                </Button>
+              </>
             )}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setDiscountInputMode(discountMode);
-                setDiscountInputValue(
-                  discountMode === "value"
-                    ? (expenseGroup.discountValue || 0).toString()
-                    : (expenseGroup.discountPercent || 0).toString()
-                );
-                setEditingDiscount(true);
-              }}
-              className="text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/20"
-            >
-              <Edit className="w-3 h-3" />
-            </Button>
-          </>
-        )}
-      </div>
+          </div>
+        </>
+      )}
 
       {/* Items Table */}
       <div className="overflow-x-auto rounded-xl border border-white/5">
@@ -332,6 +342,12 @@ export function ItemTable({
                   {f}
                 </TableHead>
               ))}
+              {isItemLevel && (
+                <TableHead className="text-center min-w-[80px]">Tax</TableHead>
+              )}
+              {isItemLevel && (
+                <TableHead className="text-center min-w-[80px]">Discount</TableHead>
+              )}
               <TableHead className="text-center">Total</TableHead>
               <TableHead className="w-[80px]"></TableHead>
             </TableRow>
@@ -342,6 +358,13 @@ export function ItemTable({
                 item.splitAmong.length > 0
                   ? item.amount / item.splitAmong.length
                   : 0;
+
+              const itemTaxDiscount = isItemLevel
+                ? calculateItemTaxDiscount(item)
+                : { tax: 0, discount: 0 };
+              const itemTotal = isItemLevel
+                ? item.amount + itemTaxDiscount.tax - itemTaxDiscount.discount
+                : item.amount;
 
               return (
                 <TableRow key={item.id}>
@@ -363,10 +386,34 @@ export function ItemTable({
                       )}
                     </TableCell>
                   ))}
+                  {isItemLevel && (
+                    <TableCell className="text-center text-amber-400">
+                      {itemTaxDiscount.tax > 0 ? (
+                        <span className="inline-flex items-center gap-0.5">
+                          +<IndianRupee className="w-3 h-3" />
+                          {itemTaxDiscount.tax.toFixed(2)}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                  )}
+                  {isItemLevel && (
+                    <TableCell className="text-center text-emerald-400">
+                      {itemTaxDiscount.discount > 0 ? (
+                        <span className="inline-flex items-center gap-0.5">
+                          -<IndianRupee className="w-3 h-3" />
+                          {itemTaxDiscount.discount.toFixed(2)}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                  )}
                   <TableCell className="text-center font-medium text-primary">
                     <span className="inline-flex items-center gap-0.5">
                       <IndianRupee className="w-3 h-3" />
-                      {item.amount.toFixed(2)}
+                      {itemTotal.toFixed(2)}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -397,8 +444,8 @@ export function ItemTable({
               );
             })}
 
-            {/* Tax Row */}
-            {hasTax && (
+            {/* Tax Row (group mode only) */}
+            {!isItemLevel && hasTax && (
               <TableRow className="bg-amber-500/5">
                 <TableCell className="font-medium text-amber-400">
                   Tax (
@@ -426,8 +473,8 @@ export function ItemTable({
               </TableRow>
             )}
 
-            {/* Discount Row */}
-            {hasDiscount && (
+            {/* Discount Row (group mode only) */}
+            {!isItemLevel && hasDiscount && (
               <TableRow className="bg-emerald-500/5">
                 <TableCell className="font-medium text-emerald-400">
                   Discount (
@@ -467,6 +514,8 @@ export function ItemTable({
                   </span>
                 </TableCell>
               ))}
+              {isItemLevel && <TableCell></TableCell>}
+              {isItemLevel && <TableCell></TableCell>}
               <TableCell className="text-center text-primary">
                 <span className="inline-flex items-center gap-0.5">
                   <IndianRupee className="w-3 h-3" />

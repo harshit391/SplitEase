@@ -10,6 +10,7 @@ export interface ExpenseGroup {
   discountPercent: number;
   discountValue: number;
   discountMode: "percentage" | "value";
+  taxDiscountLevel: "group" | "item";
 }
 
 export interface ExpenseGroupCreate {
@@ -24,4 +25,5 @@ export interface ExpenseGroupUpdate {
   discountPercent?: number;
   discountValue?: number;
   discountMode?: "percentage" | "value";
+  taxDiscountLevel?: "group" | "item";
 }

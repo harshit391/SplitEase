@@ -2,6 +2,7 @@ import type { Trip, Settlement } from "@/types";
 import {
   calculateSubTopicPersonTotals,
   calculateTotalSpentPerPerson,
+  calculateItemTaxDiscount,
 } from "./settlement.service";
 
 export function exportTripAsJSON(trip: Trip): void {
@@ -145,25 +146,57 @@ export function generateDetailedCSV(
     const { totals, baseTotals, totalTax, totalDiscount } =
       calculateSubTopicPersonTotals(sub, trip.friends);
     const subTopicTotal = sub.items.reduce((s, i) => s + i.amount, 0);
+    const isItemLevel = (sub.taxDiscountLevel || "group") === "item";
 
     // Individual item rows
     sub.items.forEach((item) => {
       const splitCount = item.splitAmong.length;
       const perPerson = splitCount > 0 ? item.amount / splitCount : 0;
-      const itemTotal = item.amount;
 
-      const row = [
-        sub.name,
-        item.name,
-        item.amount.toFixed(2),
-        item.paidBy,
-        `"${item.splitAmong.join(", ")}"`,
-        ...trip.friends.map((f) =>
-          item.splitAmong.includes(f) ? perPerson.toFixed(2) : "0.00"
-        ),
-        itemTotal.toFixed(2),
-      ];
-      rows.push(row);
+      if (isItemLevel) {
+        const { tax: itemTax, discount: itemDiscount } =
+          calculateItemTaxDiscount(item);
+        const itemTotal = item.amount + itemTax - itemDiscount;
+        const taxLabel =
+          (item.taxMode || "percentage") === "value"
+            ? `₹${(item.taxValue || 0).toFixed(2)}`
+            : `${item.taxPercent || 0}%`;
+        const discountLabel =
+          (item.discountMode || "percentage") === "value"
+            ? `₹${(item.discountValue || 0).toFixed(2)}`
+            : `${item.discountPercent || 0}%`;
+        const itemName =
+          `${item.name}` +
+          (itemTax > 0 ? ` [+tax ${taxLabel}]` : "") +
+          (itemDiscount > 0 ? ` [-disc ${discountLabel}]` : "");
+
+        const row = [
+          sub.name,
+          itemName,
+          item.amount.toFixed(2),
+          item.paidBy,
+          `"${item.splitAmong.join(", ")}"`,
+          ...trip.friends.map((f) =>
+            item.splitAmong.includes(f) ? perPerson.toFixed(2) : "0.00"
+          ),
+          itemTotal.toFixed(2),
+        ];
+        rows.push(row);
+      } else {
+        const itemTotal = item.amount;
+        const row = [
+          sub.name,
+          item.name,
+          item.amount.toFixed(2),
+          item.paidBy,
+          `"${item.splitAmong.join(", ")}"`,
+          ...trip.friends.map((f) =>
+            item.splitAmong.includes(f) ? perPerson.toFixed(2) : "0.00"
+          ),
+          itemTotal.toFixed(2),
+        ];
+        rows.push(row);
+      }
     });
 
     // Subtotal row
@@ -178,52 +211,53 @@ export function generateDetailedCSV(
       subtotalValue.toFixed(2),
     ]);
 
-    // Tax row (only if non-zero)
-    if (totalTax > 0) {
-      const taxLabel =
-        (sub.taxMode || "percentage") === "value"
-          ? `[Tax ₹${(sub.taxValue || 0).toFixed(2)}]`
-          : `[Tax ${sub.taxPercent}%]`;
-      rows.push([
-        sub.name,
-        taxLabel,
-        "",
-        "",
-        "",
-        ...trip.friends.map((f) =>
-          ((baseTotals[f] / (subTopicTotal || 1)) * totalTax).toFixed(2)
-        ),
-        totalTax.toFixed(2),
-      ]);
-    }
+    // Tax & Discount rows (group-level only)
+    if (!isItemLevel) {
+      if (totalTax > 0) {
+        const taxLabel =
+          (sub.taxMode || "percentage") === "value"
+            ? `[Tax ₹${(sub.taxValue || 0).toFixed(2)}]`
+            : `[Tax ${sub.taxPercent}%]`;
+        rows.push([
+          sub.name,
+          taxLabel,
+          "",
+          "",
+          "",
+          ...trip.friends.map((f) =>
+            ((baseTotals[f] / (subTopicTotal || 1)) * totalTax).toFixed(2)
+          ),
+          totalTax.toFixed(2),
+        ]);
+      }
 
-    // Discount row (only if non-zero)
-    if (totalDiscount > 0) {
-      const discountLabel =
-        (sub.discountMode || "percentage") === "value"
-          ? `[Discount ₹${(sub.discountValue || 0).toFixed(2)}]`
-          : `[Discount ${sub.discountPercent || 0}%]`;
-      const totalAfterTax = subTopicTotal + totalTax;
-      rows.push([
-        sub.name,
-        discountLabel,
-        "",
-        "",
-        "",
-        ...trip.friends.map((f) => {
-          const personAfterTax =
-            baseTotals[f] +
-            (subTopicTotal > 0
-              ? (baseTotals[f] / subTopicTotal) * totalTax
-              : 0);
-          const personDiscount =
-            totalAfterTax > 0
-              ? (personAfterTax / totalAfterTax) * totalDiscount
-              : 0;
-          return `-${personDiscount.toFixed(2)}`;
-        }),
-        `-${totalDiscount.toFixed(2)}`,
-      ]);
+      if (totalDiscount > 0) {
+        const discountLabel =
+          (sub.discountMode || "percentage") === "value"
+            ? `[Discount ₹${(sub.discountValue || 0).toFixed(2)}]`
+            : `[Discount ${sub.discountPercent || 0}%]`;
+        const totalAfterTax = subTopicTotal + totalTax;
+        rows.push([
+          sub.name,
+          discountLabel,
+          "",
+          "",
+          "",
+          ...trip.friends.map((f) => {
+            const personAfterTax =
+              baseTotals[f] +
+              (subTopicTotal > 0
+                ? (baseTotals[f] / subTopicTotal) * totalTax
+                : 0);
+            const personDiscount =
+              totalAfterTax > 0
+                ? (personAfterTax / totalAfterTax) * totalDiscount
+                : 0;
+            return `-${personDiscount.toFixed(2)}`;
+          }),
+          `-${totalDiscount.toFixed(2)}`,
+        ]);
+      }
     }
 
     // Group total row

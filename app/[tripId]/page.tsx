@@ -148,7 +148,18 @@ export default function TripPage() {
   };
 
   const handleAddItem = (
-    data: { name: string; amount: number; paidBy: string; splitAmong: string[] },
+    data: {
+      name: string;
+      amount: number;
+      paidBy: string;
+      splitAmong: string[];
+      taxPercent?: number;
+      taxValue?: number;
+      taxMode?: "percentage" | "value";
+      discountPercent?: number;
+      discountValue?: number;
+      discountMode?: "percentage" | "value";
+    },
     continueAdding: boolean
   ) => {
     if (activeExpenseGroupId) {
@@ -171,6 +182,12 @@ export default function TripPage() {
     amount: number;
     paidBy: string;
     splitAmong: string[];
+    taxPercent?: number;
+    taxValue?: number;
+    taxMode?: "percentage" | "value";
+    discountPercent?: number;
+    discountValue?: number;
+    discountMode?: "percentage" | "value";
   }) => {
     if (editingItem && activeExpenseGroupId) {
       updateItem.mutate(
@@ -410,6 +427,10 @@ export default function TripPage() {
         }}
         friends={trip.friends}
         defaultPayer={trip.defaultPayer}
+        taxDiscountLevel={
+          trip.subTopics.find((s) => s.id === activeExpenseGroupId)
+            ?.taxDiscountLevel || "group"
+        }
         onSubmit={handleAddItem}
       />
 
@@ -425,6 +446,10 @@ export default function TripPage() {
           }}
           item={editingItem}
           friends={trip.friends}
+          taxDiscountLevel={
+            trip.subTopics.find((s) => s.id === activeExpenseGroupId)
+              ?.taxDiscountLevel || "group"
+          }
           onSubmit={handleEditItem}
         />
       )}

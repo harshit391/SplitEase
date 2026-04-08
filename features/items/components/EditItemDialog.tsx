@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Save, DollarSign, User, Users } from "lucide-react";
+import { Save, DollarSign, User, Users, Percent, IndianRupee } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -22,6 +22,7 @@ interface EditItemDialogProps {
   onOpenChange: (open: boolean) => void;
   item: Item;
   friends: string[];
+  taxDiscountLevel?: "group" | "item";
   onSubmit: (data: EditItemFormData) => void;
 }
 
@@ -30,8 +31,18 @@ export function EditItemDialog({
   onOpenChange,
   item,
   friends,
+  taxDiscountLevel = "group",
   onSubmit,
 }: EditItemDialogProps) {
+  const isItemLevel = taxDiscountLevel === "item";
+
+  const [taxMode, setTaxMode] = useState<"percentage" | "value">(
+    item.taxMode || "percentage"
+  );
+  const [discountMode, setDiscountMode] = useState<"percentage" | "value">(
+    item.discountMode || "percentage"
+  );
+
   const {
     register,
     handleSubmit,
@@ -46,6 +57,12 @@ export function EditItemDialog({
       amount: item.amount,
       paidBy: item.paidBy,
       splitAmong: item.splitAmong,
+      taxPercent: item.taxPercent || 0,
+      taxValue: item.taxValue || 0,
+      taxMode: item.taxMode || "percentage",
+      discountPercent: item.discountPercent || 0,
+      discountValue: item.discountValue || 0,
+      discountMode: item.discountMode || "percentage",
     },
   });
 
@@ -60,7 +77,15 @@ export function EditItemDialog({
         amount: item.amount,
         paidBy: item.paidBy,
         splitAmong: item.splitAmong,
+        taxPercent: item.taxPercent || 0,
+        taxValue: item.taxValue || 0,
+        taxMode: item.taxMode || "percentage",
+        discountPercent: item.discountPercent || 0,
+        discountValue: item.discountValue || 0,
+        discountMode: item.discountMode || "percentage",
       });
+      setTaxMode(item.taxMode || "percentage");
+      setDiscountMode(item.discountMode || "percentage");
     }
   }, [open, item, reset]);
 
@@ -89,6 +114,22 @@ export function EditItemDialog({
       : "0.00";
 
   const handleFormSubmit = (data: EditItemFormData) => {
+    if (isItemLevel) {
+      if (taxMode === "percentage") {
+        data.taxMode = "percentage";
+        data.taxValue = 0;
+      } else {
+        data.taxMode = "value";
+        data.taxPercent = 0;
+      }
+      if (discountMode === "percentage") {
+        data.discountMode = "percentage";
+        data.discountValue = 0;
+      } else {
+        data.discountMode = "value";
+        data.discountPercent = 0;
+      }
+    }
     onSubmit(data);
   };
 
@@ -207,6 +248,107 @@ export function EditItemDialog({
               </p>
             )}
           </div>
+
+          {/* Item-level Tax & Discount */}
+          {isItemLevel && (
+            <>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label>Tax</Label>
+                  <div className="flex rounded-lg overflow-hidden border border-amber-500/30">
+                    <button
+                      type="button"
+                      className={`px-2.5 py-1 text-xs font-medium transition-colors ${
+                        taxMode === "percentage"
+                          ? "bg-amber-500 text-white"
+                          : "bg-transparent text-amber-400 hover:bg-amber-500/20"
+                      }`}
+                      onClick={() => setTaxMode("percentage")}
+                    >
+                      <Percent className="w-3 h-3" />
+                    </button>
+                    <button
+                      type="button"
+                      className={`px-2.5 py-1 text-xs font-medium transition-colors ${
+                        taxMode === "value"
+                          ? "bg-amber-500 text-white"
+                          : "bg-transparent text-amber-400 hover:bg-amber-500/20"
+                      }`}
+                      onClick={() => setTaxMode("value")}
+                    >
+                      <IndianRupee className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+                {taxMode === "percentage" ? (
+                  <Input
+                    type="number"
+                    {...register("taxPercent", { valueAsNumber: true })}
+                    placeholder="Tax percentage"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                  />
+                ) : (
+                  <Input
+                    type="number"
+                    {...register("taxValue", { valueAsNumber: true })}
+                    placeholder="Tax amount (₹)"
+                    min="0"
+                    step="0.01"
+                  />
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label>Discount</Label>
+                  <div className="flex rounded-lg overflow-hidden border border-emerald-500/30">
+                    <button
+                      type="button"
+                      className={`px-2.5 py-1 text-xs font-medium transition-colors ${
+                        discountMode === "percentage"
+                          ? "bg-emerald-500 text-white"
+                          : "bg-transparent text-emerald-400 hover:bg-emerald-500/20"
+                      }`}
+                      onClick={() => setDiscountMode("percentage")}
+                    >
+                      <Percent className="w-3 h-3" />
+                    </button>
+                    <button
+                      type="button"
+                      className={`px-2.5 py-1 text-xs font-medium transition-colors ${
+                        discountMode === "value"
+                          ? "bg-emerald-500 text-white"
+                          : "bg-transparent text-emerald-400 hover:bg-emerald-500/20"
+                      }`}
+                      onClick={() => setDiscountMode("value")}
+                    >
+                      <IndianRupee className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+                {discountMode === "percentage" ? (
+                  <Input
+                    type="number"
+                    {...register("discountPercent", { valueAsNumber: true })}
+                    placeholder="Discount percentage"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                  />
+                ) : (
+                  <Input
+                    type="number"
+                    {...register("discountValue", { valueAsNumber: true })}
+                    placeholder="Discount amount (₹)"
+                    min="0"
+                    step="0.01"
+                  />
+                )}
+              </div>
+            </>
+          )}
 
           <Button
             type="submit"

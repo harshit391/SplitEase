@@ -4,6 +4,12 @@ export interface Item {
   amount: number;
   paidBy: string;
   splitAmong: string[];
+  taxPercent: number;
+  taxValue: number;
+  taxMode: "percentage" | "value";
+  discountPercent: number;
+  discountValue: number;
+  discountMode: "percentage" | "value";
 }
 
 export interface ItemCreate {
@@ -11,6 +17,12 @@ export interface ItemCreate {
   amount: number;
   paidBy: string;
   splitAmong: string[];
+  taxPercent?: number;
+  taxValue?: number;
+  taxMode?: "percentage" | "value";
+  discountPercent?: number;
+  discountValue?: number;
+  discountMode?: "percentage" | "value";
 }
 
 export interface ItemUpdate {
@@ -18,4 +30,10 @@ export interface ItemUpdate {
   amount?: number;
   paidBy?: string;
   splitAmong?: string[];
+  taxPercent?: number;
+  taxValue?: number;
+  taxMode?: "percentage" | "value";
+  discountPercent?: number;
+  discountValue?: number;
+  discountMode?: "percentage" | "value";
 }

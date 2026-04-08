@@ -78,23 +78,40 @@ export function ExpenseGroupCard({
             <p className="text-xs text-muted-foreground mt-0.5">
               {expenseGroup.items.length} items ·{" "}
               {formatCurrency(subTopicTotal + totalTax - totalDiscount)}
-              {totalTax > 0 && (
-                <span className="ml-1 text-amber-400 font-medium">
-                  (+
-                  {(expenseGroup.taxMode || "percentage") === "value"
-                    ? `₹${(expenseGroup.taxValue || 0).toFixed(2)}`
-                    : `${expenseGroup.taxPercent}%`}{" "}
-                  tax)
-                </span>
-              )}
-              {totalDiscount > 0 && (
-                <span className="ml-1 text-emerald-400 font-medium">
-                  (-
-                  {(expenseGroup.discountMode || "percentage") === "value"
-                    ? `₹${(expenseGroup.discountValue || 0).toFixed(2)}`
-                    : `${expenseGroup.discountPercent}%`}{" "}
-                  discount)
-                </span>
+              {(expenseGroup.taxDiscountLevel || "group") === "item" ? (
+                <>
+                  {totalTax > 0 && (
+                    <span className="ml-1 text-amber-400 font-medium">
+                      (+₹{totalTax.toFixed(2)} tax)
+                    </span>
+                  )}
+                  {totalDiscount > 0 && (
+                    <span className="ml-1 text-emerald-400 font-medium">
+                      (-₹{totalDiscount.toFixed(2)} discount)
+                    </span>
+                  )}
+                </>
+              ) : (
+                <>
+                  {totalTax > 0 && (
+                    <span className="ml-1 text-amber-400 font-medium">
+                      (+
+                      {(expenseGroup.taxMode || "percentage") === "value"
+                        ? `₹${(expenseGroup.taxValue || 0).toFixed(2)}`
+                        : `${expenseGroup.taxPercent}%`}{" "}
+                      tax)
+                    </span>
+                  )}
+                  {totalDiscount > 0 && (
+                    <span className="ml-1 text-emerald-400 font-medium">
+                      (-
+                      {(expenseGroup.discountMode || "percentage") === "value"
+                        ? `₹${(expenseGroup.discountValue || 0).toFixed(2)}`
+                        : `${expenseGroup.discountPercent}%`}{" "}
+                      discount)
+                    </span>
+                  )}
+                </>
               )}
             </p>
           </div>

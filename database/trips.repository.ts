@@ -73,6 +73,16 @@ export const tripsRepository = {
         discountPercent: sub.discountPercent || 0,
         discountValue: sub.discountValue || 0,
         discountMode: sub.discountMode || "percentage",
+        taxDiscountLevel: sub.taxDiscountLevel || "group",
+        items: (sub.items || []).map((item) => ({
+          ...item,
+          taxPercent: item.taxPercent ?? 0,
+          taxValue: item.taxValue ?? 0,
+          taxMode: item.taxMode || "percentage",
+          discountPercent: item.discountPercent ?? 0,
+          discountValue: item.discountValue ?? 0,
+          discountMode: item.discountMode || "percentage",
+        })),
       })),
       createdAt: trip.createdAt || new Date().toISOString(),
       googleSheetUrl: trip.googleSheetUrl || null,
@@ -101,6 +111,7 @@ export const tripsRepository = {
       discountPercent: 0,
       discountValue: 0,
       discountMode: "percentage",
+      taxDiscountLevel: "group",
     };
 
     trip.subTopics.push(expenseGroup);
@@ -132,6 +143,8 @@ export const tripsRepository = {
       expenseGroup.discountValue = updates.discountValue;
     if (updates.discountMode !== undefined)
       expenseGroup.discountMode = updates.discountMode;
+    if (updates.taxDiscountLevel !== undefined)
+      expenseGroup.taxDiscountLevel = updates.taxDiscountLevel;
 
     await db.trips.put(trip);
     return expenseGroup;
@@ -166,6 +179,12 @@ export const tripsRepository = {
       amount: data.amount,
       paidBy: data.paidBy,
       splitAmong: data.splitAmong,
+      taxPercent: data.taxPercent ?? 0,
+      taxValue: data.taxValue ?? 0,
+      taxMode: data.taxMode ?? "percentage",
+      discountPercent: data.discountPercent ?? 0,
+      discountValue: data.discountValue ?? 0,
+      discountMode: data.discountMode ?? "percentage",
     };
 
     expenseGroup.items.push(item);
@@ -192,6 +211,12 @@ export const tripsRepository = {
     if (updates.amount !== undefined) item.amount = updates.amount;
     if (updates.paidBy !== undefined) item.paidBy = updates.paidBy;
     if (updates.splitAmong !== undefined) item.splitAmong = updates.splitAmong;
+    if (updates.taxPercent !== undefined) item.taxPercent = updates.taxPercent;
+    if (updates.taxValue !== undefined) item.taxValue = updates.taxValue;
+    if (updates.taxMode !== undefined) item.taxMode = updates.taxMode;
+    if (updates.discountPercent !== undefined) item.discountPercent = updates.discountPercent;
+    if (updates.discountValue !== undefined) item.discountValue = updates.discountValue;
+    if (updates.discountMode !== undefined) item.discountMode = updates.discountMode;
 
     await db.trips.put(trip);
     return item;
