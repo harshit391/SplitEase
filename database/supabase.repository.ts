@@ -55,7 +55,7 @@ export function createShareRepository(
         .eq("trip_id", tripId)
         .eq("shared_with_email", email)
         .eq("share_type", "private")
-        .single();
+        .maybeSingle();
 
       if (existing) return existing as DbTripShare;
 
@@ -87,7 +87,7 @@ export function createShareRepository(
         .select("*")
         .eq("trip_id", tripId)
         .eq("share_type", "public")
-        .single();
+        .maybeSingle();
 
       if (existing) return existing as DbTripShare;
 
@@ -124,7 +124,7 @@ export function createShareRepository(
         .select("trip_id")
         .eq("share_code", code)
         .eq("share_type", "public")
-        .single();
+        .maybeSingle();
 
       if (!share) return undefined;
 

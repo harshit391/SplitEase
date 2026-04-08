@@ -129,7 +129,11 @@ CREATE POLICY "Owners can delete trip shares" ON public.trip_shares
   FOR DELETE USING (user_id = auth.uid());
 CREATE POLICY "Recipients can view their shares" ON public.trip_shares
   FOR SELECT USING (
-    shared_with_email = (SELECT email FROM auth.users WHERE id = auth.uid())
+    shared_with_email = (auth.jwt() ->> 'email')
+  );
+CREATE POLICY "Anyone can view public shares by code" ON public.trip_shares
+  FOR SELECT USING (
+    share_type = 'public' AND share_code IS NOT NULL
   );
 
 -- Trips (owner + viewers via trip_shares)
@@ -140,7 +144,7 @@ CREATE POLICY "Users can view accessible trips" ON public.trips
       SELECT 1 FROM public.trip_shares
       WHERE trip_shares.trip_id = trips.id
       AND trip_shares.share_type = 'private'
-      AND trip_shares.shared_with_email = (SELECT email FROM auth.users WHERE id = auth.uid())
+      AND trip_shares.shared_with_email = (auth.jwt() ->> 'email')
     )
     OR EXISTS (
       SELECT 1 FROM public.trip_shares
@@ -167,7 +171,7 @@ CREATE POLICY "Users can view accessible expense groups" ON public.expense_group
           SELECT 1 FROM public.trip_shares
           WHERE trip_shares.trip_id = trips.id
           AND trip_shares.share_type = 'private'
-          AND trip_shares.shared_with_email = (SELECT email FROM auth.users WHERE id = auth.uid())
+          AND trip_shares.shared_with_email = (auth.jwt() ->> 'email')
         )
         OR EXISTS (
           SELECT 1 FROM public.trip_shares
@@ -202,7 +206,7 @@ CREATE POLICY "Users can view accessible items" ON public.items
           SELECT 1 FROM public.trip_shares
           WHERE trip_shares.trip_id = trips.id
           AND trip_shares.share_type = 'private'
-          AND trip_shares.shared_with_email = (SELECT email FROM auth.users WHERE id = auth.uid())
+          AND trip_shares.shared_with_email = (auth.jwt() ->> 'email')
         )
         OR EXISTS (
           SELECT 1 FROM public.trip_shares
