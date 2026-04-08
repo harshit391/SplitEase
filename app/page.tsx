@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -41,6 +41,8 @@ export default function HomePage() {
   const { user } = useAuth();
   const [savedTrips, setSavedTrips] = useState<Trip[]>([]);
 
+  const [activeTab, setActiveTab] = useState<"my" | "saved">("my");
+
   const { createTripDialogOpen, openCreateTripDialog, closeCreateTripDialog } =
     useUIStore();
 
@@ -50,6 +52,9 @@ export default function HomePage() {
     const savedRepo = createSavedTripsRepository(supabase, user.id);
     savedRepo.getSavedTrips().then(setSavedTrips);
   }, [user]);
+
+  const hasSavedTrips = savedTrips.length > 0;
+  const displayTrips = activeTab === "my" ? trips : savedTrips;
 
   const handleCreateTrip = async (data: { name: string; friends: string[] }) => {
     const newTrip = await createTrip.mutateAsync(data);
@@ -199,9 +204,68 @@ export default function HomePage() {
         </motion.div>
       </div>
 
-      {/* Trips Grid Section */}
+      {/* Trips Section with Tabs */}
       <div className="relative max-w-6xl mx-auto px-6 py-16 md:py-24">
-        {trips.length === 0 ? (
+        {/* Tab Bar */}
+        {(trips.length > 0 || hasSavedTrips) && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center justify-between mb-10"
+          >
+            <div className="flex items-center gap-2">
+              <div className="flex rounded-xl overflow-hidden border border-white/10 bg-white/[0.02]">
+                <button
+                  type="button"
+                  className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors ${
+                    activeTab === "my"
+                      ? "bg-primary text-white"
+                      : "bg-transparent text-muted-foreground hover:text-foreground"
+                  }`}
+                  onClick={() => setActiveTab("my")}
+                >
+                  <MapPin className="w-4 h-4" />
+                  Your Trips
+                  <span
+                    className={`text-xs px-1.5 py-0.5 rounded-full ${
+                      activeTab === "my"
+                        ? "bg-white/20 text-white"
+                        : "bg-white/5 text-muted-foreground"
+                    }`}
+                  >
+                    {trips.length}
+                  </span>
+                </button>
+                {hasSavedTrips && (
+                  <button
+                    type="button"
+                    className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors ${
+                      activeTab === "saved"
+                        ? "bg-primary text-white"
+                        : "bg-transparent text-muted-foreground hover:text-foreground"
+                    }`}
+                    onClick={() => setActiveTab("saved")}
+                  >
+                    <Bookmark className="w-4 h-4" />
+                    Saved
+                    <span
+                      className={`text-xs px-1.5 py-0.5 rounded-full ${
+                        activeTab === "saved"
+                          ? "bg-white/20 text-white"
+                          : "bg-white/5 text-muted-foreground"
+                      }`}
+                    >
+                      {savedTrips.length}
+                    </span>
+                  </button>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Content */}
+        {displayTrips.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -211,87 +275,40 @@ export default function HomePage() {
               <Receipt className="w-10 h-10 text-muted-foreground" />
             </div>
             <h3 className="text-xl font-semibold text-foreground mb-3">
-              No trips yet
+              {activeTab === "my" ? "No trips yet" : "No saved trips"}
             </h3>
             <p className="text-muted-foreground mb-8 max-w-sm mx-auto">
-              Create your first trip to start tracking expenses with friends.
+              {activeTab === "my"
+                ? "Create your first trip to start tracking expenses with friends."
+                : "Save trips shared with you and they'll appear here."}
             </p>
-            <Button onClick={openCreateTripDialog} variant="glow">
-              <Plus className="w-5 h-5" />
-              Create Trip
-            </Button>
+            {activeTab === "my" && (
+              <Button onClick={openCreateTripDialog} variant="glow">
+                <Plus className="w-5 h-5" />
+                Create Trip
+              </Button>
+            )}
           </motion.div>
         ) : (
-          <>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center justify-between mb-10"
-            >
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-                  <MapPin className="w-5 h-5 text-primary" />
-                </div>
-                Your Trips
-              </h2>
-              <span className="text-sm font-medium text-muted-foreground px-4 py-2 rounded-full border border-white/5 bg-card">
-                {trips.length} {trips.length === 1 ? "trip" : "trips"}
-              </span>
-            </motion.div>
-            <motion.div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-              initial="initial"
-              animate="animate"
-              variants={staggerContainer}
-            >
-              {trips.map((trip) => (
-                <TripCard
-                  key={trip.id}
-                  trip={trip}
-                  onDelete={handleDeleteTrip}
-                />
-              ))}
-            </motion.div>
-          </>
-        )}
-      </div>
-
-      {/* Saved Trips Section */}
-      {savedTrips.length > 0 && (
-        <div className="relative max-w-6xl mx-auto px-6 pb-16">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-between mb-10"
-          >
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-                <Bookmark className="w-5 h-5 text-amber-400" />
-              </div>
-              Saved Trips
-            </h2>
-            <span className="text-sm font-medium text-muted-foreground px-4 py-2 rounded-full border border-white/5 bg-card">
-              {savedTrips.length} saved
-            </span>
-          </motion.div>
-          <motion.div
+            key={activeTab}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
             initial="initial"
             animate="animate"
             variants={staggerContainer}
           >
-            {savedTrips.map((trip) => (
+            {displayTrips.map((trip) => (
               <TripCard
                 key={trip.id}
                 trip={trip}
-                onDelete={() => {}}
-                linkPrefix="/shared"
-                savedView
+                onDelete={activeTab === "my" ? handleDeleteTrip : () => {}}
+                linkPrefix={activeTab === "saved" ? "/shared" : undefined}
+                savedView={activeTab === "saved"}
               />
             ))}
           </motion.div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Footer */}
       <footer className="border-t border-white/5 py-8">
