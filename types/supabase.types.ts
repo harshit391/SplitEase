@@ -44,6 +44,15 @@ export interface DbItem {
   updated_at: string;
 }
 
+export interface DbTripShare {
+  id: string;
+  trip_id: string;
+  shared_with_email: string | null;
+  share_type: "private" | "public";
+  share_code: string | null;
+  created_at: string;
+}
+
 export interface DbProfile {
   id: string;
   email: string | null;

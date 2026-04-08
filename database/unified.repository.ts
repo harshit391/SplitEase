@@ -23,44 +23,54 @@ async function backgroundPush(tripId: string, userId: string): Promise<void> {
         const supabase = createClient();
         const trip = (await localRepository.getById(tripId)) as Trip | undefined;
         if (!trip) {
-          // Trip was deleted locally — delete remotely
           await supabase.from("trips").delete().eq("id", tripId);
           return;
         }
 
-        // Upsert trip
-        await supabase.from("trips").upsert(
+        // Upsert trip row
+        const { error: tripError } = await supabase.from("trips").upsert(
           {
             ...tripToDb(trip, userId),
             updated_at: new Date().toISOString(),
           },
           { onConflict: "id" }
         );
+        if (tripError) return; // Don't proceed if trip upsert failed
 
-        // Delete all existing groups for this trip (CASCADE deletes items)
-        await supabase
+        // Delete existing groups (CASCADE deletes items)
+        const { error: deleteError } = await supabase
           .from("expense_groups")
           .delete()
           .eq("trip_id", tripId);
+        if (deleteError) return;
 
-        // Re-insert all groups and items
+        // Re-insert groups and items — abort on any failure
+        let insertFailed = false;
         for (let gi = 0; gi < trip.subTopics.length; gi++) {
           const group = trip.subTopics[gi];
-          await supabase
+
+          const { error: groupError } = await supabase
             .from("expense_groups")
             .insert(expenseGroupToDb(group, tripId, gi));
+          if (groupError) { insertFailed = true; break; }
 
           if (group.items.length > 0) {
             const itemRows = group.items.map((item, ii) =>
               itemToDb(item, group.id, tripId, ii)
             );
-            await supabase.from("items").insert(itemRows);
+            const { error: itemsError } = await supabase
+              .from("items")
+              .insert(itemRows);
+            if (itemsError) { insertFailed = true; break; }
           }
         }
 
-        await localRepository.markSynced(tripId);
+        // Only mark synced if everything succeeded
+        if (!insertFailed) {
+          await localRepository.markSynced(tripId);
+        }
       } catch {
-        // Silent failure — will retry on next mutation or full sync
+        // Will retry on next mutation or full sync
       }
     }, 1000)
   );

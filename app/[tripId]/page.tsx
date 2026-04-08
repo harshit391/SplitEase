@@ -12,6 +12,7 @@ import {
   Edit,
   Receipt,
   TrendingUp,
+  Share2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTrip, useUpdateTrip } from "@/features/trips/hooks/useTrips";
@@ -48,6 +49,7 @@ import type { ExpenseGroup, ExpenseGroupUpdate, Item } from "@/types";
 import { UserMenu } from "@/components/user-menu";
 import { SyncStatusBadge } from "@/components/sync-status-badge";
 import { OfflineBanner } from "@/components/offline-banner";
+import { ShareTripDialog } from "@/components/share-trip-dialog";
 
 export default function TripPage() {
   const params = useParams();
@@ -76,6 +78,7 @@ export default function TripPage() {
   const [editExpenseGroupDialogOpen, setEditExpenseGroupDialogOpen] = useState(false);
   const [addItemDialogOpen, setAddItemDialogOpen] = useState(false);
   const [editItemDialogOpen, setEditItemDialogOpen] = useState(false);
+  const [shareTripDialogOpen, setShareTripDialogOpen] = useState(false);
 
   // Editing states
   const [editingExpenseGroup, setEditingExpenseGroup] = useState<ExpenseGroup | null>(null);
@@ -274,6 +277,15 @@ export default function TripPage() {
             <Button
               variant="outline"
               size="sm"
+              onClick={() => setShareTripDialogOpen(true)}
+              title="Share Trip"
+            >
+              <Share2 className="w-4 h-4" />
+              <span className="hidden md:inline">Share</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleExportTrip}
               title="Export This Trip"
             >
@@ -459,6 +471,13 @@ export default function TripPage() {
           onSubmit={handleEditItem}
         />
       )}
+
+      <ShareTripDialog
+        open={shareTripDialogOpen}
+        onOpenChange={setShareTripDialogOpen}
+        tripId={tripId}
+        tripName={trip.name}
+      />
     </div>
   );
 }

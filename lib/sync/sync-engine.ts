@@ -8,11 +8,11 @@ import type { Trip } from "@/types";
 async function pushTripToRemote(
   trip: Trip,
   userId: string
-): Promise<void> {
+): Promise<boolean> {
   const supabase = createClient();
 
-  // Upsert trip
-  await supabase.from("trips").upsert(
+  // Step 1: Upsert trip row
+  const { error: tripError } = await supabase.from("trips").upsert(
     {
       ...tripToDb(trip, userId),
       updated_at: new Date().toISOString(),
@@ -20,30 +20,59 @@ async function pushTripToRemote(
     { onConflict: "id" }
   );
 
-  // Delete all existing groups for this trip (CASCADE deletes items)
-  await supabase
+  if (tripError) {
+    console.error("[Sync] Failed to upsert trip:", tripError.message);
+    return false;
+  }
+
+  // Step 2: Delete existing groups (CASCADE deletes items)
+  const { error: deleteError } = await supabase
     .from("expense_groups")
     .delete()
     .eq("trip_id", trip.id);
 
-  // Re-insert all groups and items
+  if (deleteError) {
+    console.error("[Sync] Failed to delete groups:", deleteError.message);
+    return false;
+  }
+
+  // Step 3: Re-insert all groups and items, abort on any failure
   for (let gi = 0; gi < trip.subTopics.length; gi++) {
     const group = trip.subTopics[gi];
-    await supabase
+
+    const { error: groupError } = await supabase
       .from("expense_groups")
       .insert(expenseGroupToDb(group, trip.id, gi));
+
+    if (groupError) {
+      console.error("[Sync] Failed to insert group:", groupError.message);
+      return false;
+    }
 
     if (group.items.length > 0) {
       const itemRows = group.items.map((item, ii) =>
         itemToDb(item, group.id, trip.id, ii)
       );
-      await supabase.from("items").insert(itemRows);
+
+      const { error: itemsError } = await supabase
+        .from("items")
+        .insert(itemRows);
+
+      if (itemsError) {
+        console.error("[Sync] Failed to insert items:", itemsError.message);
+        return false;
+      }
     }
   }
+
+  return true;
 }
 
-export async function pushPendingChanges(userId: string): Promise<void> {
+export async function pushPendingChanges(
+  userId: string
+): Promise<Set<string>> {
   const pendingTrips = await localRepository.getPending();
+  const pushedIds = new Set<string>();
 
   const supabase = createClient();
   const remoteRepo = createSupabaseRepository(supabase, userId);
@@ -52,31 +81,52 @@ export async function pushPendingChanges(userId: string): Promise<void> {
     try {
       const remoteTrip = await remoteRepo.getById(localTrip.id);
 
+      let shouldPush = false;
+
       if (!remoteTrip) {
-        // New trip — push entirely
-        await pushTripToRemote(localTrip, userId);
+        shouldPush = true;
       } else {
-        // Compare timestamps — last write wins
         const localTime = new Date(localTrip.updated_at).getTime();
-        const remoteTime = new Date(
+        const remoteUpdatedAt =
           (remoteTrip as unknown as { updated_at?: string }).updated_at ||
-            remoteTrip.createdAt
-        ).getTime();
+          remoteTrip.createdAt;
+        const remoteTime = new Date(remoteUpdatedAt).getTime();
 
         if (localTime >= remoteTime) {
-          await pushTripToRemote(localTrip, userId);
+          shouldPush = true;
         }
-        // If remote is newer, skip — pull will handle it
       }
 
-      await localRepository.markSynced(localTrip.id);
-    } catch {
-      // Skip this trip, continue with others
+      if (shouldPush) {
+        const success = await pushTripToRemote(localTrip, userId);
+        if (success) {
+          await localRepository.markSynced(localTrip.id);
+          pushedIds.add(localTrip.id);
+        }
+        // If push failed, do NOT mark as synced — will retry next time
+      } else {
+        // Remote is newer, just mark synced (pull will handle update)
+        await localRepository.markSynced(localTrip.id);
+      }
+    } catch (err) {
+      console.error("[Sync] Push error for trip:", localTrip.id, err);
     }
   }
+
+  return pushedIds;
 }
 
-export async function pullRemoteChanges(userId: string): Promise<void> {
+function countTripItems(trip: Trip): number {
+  return trip.subTopics.reduce(
+    (sum, g) => sum + g.items.length,
+    0
+  );
+}
+
+export async function pullRemoteChanges(
+  userId: string,
+  justPushedIds: Set<string>
+): Promise<void> {
   const supabase = createClient();
   const remoteRepo = createSupabaseRepository(supabase, userId);
 
@@ -87,31 +137,49 @@ export async function pullRemoteChanges(userId: string): Promise<void> {
   const remoteIds = new Set(remoteTrips.map((t) => t.id));
 
   for (const remoteTrip of remoteTrips) {
+    // Skip trips we just pushed — local is the source of truth for those
+    if (justPushedIds.has(remoteTrip.id)) continue;
+
     const localTrip = localTripMap.get(remoteTrip.id);
 
     if (!localTrip) {
       // New from remote — import locally
       await localRepository.replaceTrip(remoteTrip);
-    } else if (localTrip.sync_status === "synced") {
-      // No local changes — safe to overwrite
-      await localRepository.replaceTrip(remoteTrip);
-    } else if (localTrip.sync_status === "pending") {
-      // Conflict — last write wins
-      const localTime = new Date(localTrip.updated_at).getTime();
-      const remoteTime = new Date(remoteTrip.createdAt).getTime();
-
-      if (remoteTime > localTime) {
-        await localRepository.replaceTrip(remoteTrip);
-      }
-      // If local is newer, keep local — will be pushed on next push cycle
+      continue;
     }
+
+    if (localTrip.sync_status === "pending") {
+      // Local has unsaved changes — don't overwrite
+      continue;
+    }
+
+    // Safety: don't replace local if remote has significantly less data
+    // (guards against corrupted/partial sync data)
+    const localItemCount = countTripItems(localTrip);
+    const remoteItemCount = countTripItems(remoteTrip);
+
+    if (
+      localItemCount > 0 &&
+      remoteItemCount === 0 &&
+      localTrip.subTopics.length > 0
+    ) {
+      console.warn(
+        `[Sync] Skipping pull for trip "${localTrip.name}" — remote has 0 items vs local ${localItemCount}. Possible data loss.`
+      );
+      continue;
+    }
+
+    // Safe to update local with remote
+    await localRepository.replaceTrip(remoteTrip);
   }
 
-  // Handle remote deletions: synced local trips not in remote
+  // Handle remote deletions: only delete local trips that are synced AND not in remote
+  // Do NOT delete trips that were never pushed (pending)
   for (const localTrip of localTrips) {
     if (
       localTrip.sync_status === "synced" &&
-      !remoteIds.has(localTrip.id)
+      !remoteIds.has(localTrip.id) &&
+      !justPushedIds.has(localTrip.id)
     ) {
       await localRepository.delete(localTrip.id);
     }
@@ -119,6 +187,6 @@ export async function pullRemoteChanges(userId: string): Promise<void> {
 }
 
 export async function fullSync(userId: string): Promise<void> {
-  await pushPendingChanges(userId);
-  await pullRemoteChanges(userId);
+  const pushedIds = await pushPendingChanges(userId);
+  await pullRemoteChanges(userId, pushedIds);
 }

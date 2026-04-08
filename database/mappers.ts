@@ -113,5 +113,6 @@ export function dbToTrip(
     createdAt: t.created_at,
     googleSheetUrl: t.google_sheet_url,
     defaultPayer: t.default_payer,
+    userId: t.user_id,
   };
 }

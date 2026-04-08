@@ -25,6 +25,7 @@ interface ItemTableProps {
   onEditItem: (item: Item) => void;
   onDeleteItem: (itemId: string) => void;
   onUpdateExpenseGroup: (updates: ExpenseGroupUpdate) => void;
+  readOnly?: boolean;
 }
 
 export function ItemTable({
@@ -34,6 +35,7 @@ export function ItemTable({
   onEditItem,
   onDeleteItem,
   onUpdateExpenseGroup,
+  readOnly = false,
 }: ItemTableProps) {
   const isItemLevel =
     (expenseGroup.taxDiscountLevel || "group") === "item";
@@ -129,18 +131,20 @@ export function ItemTable({
     return (
       <div className="text-center py-8">
         <p className="text-muted-foreground mb-4">No items yet</p>
-        <Button variant="outline" onClick={onAddItem}>
-          <Plus className="w-4 h-4" />
-          Add First Item
-        </Button>
+        {!readOnly && (
+          <Button variant="outline" onClick={onAddItem}>
+            <Plus className="w-4 h-4" />
+            Add First Item
+          </Button>
+        )}
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      {/* Group-level Tax/Discount Inputs (only in group mode) */}
-      {!isItemLevel && (
+      {/* Group-level Tax/Discount Inputs (only in group mode, not readOnly) */}
+      {!isItemLevel && !readOnly && (
         <>
           {/* Tax Input */}
           <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
@@ -349,7 +353,7 @@ export function ItemTable({
                 <TableHead className="text-center min-w-[80px]">Discount</TableHead>
               )}
               <TableHead className="text-center">Total</TableHead>
-              <TableHead className="w-[80px]"></TableHead>
+              {!readOnly && <TableHead className="w-[80px]"></TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -416,30 +420,32 @@ export function ItemTable({
                       {itemTotal.toFixed(2)}
                     </span>
                   </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        className="hover:bg-blue-500/20 text-muted-foreground hover:text-blue-400"
-                        onClick={() => onEditItem(item)}
-                      >
-                        <Edit className="w-3 h-3" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        className="hover:bg-destructive/20 text-muted-foreground hover:text-destructive"
-                        onClick={() => {
-                          if (window.confirm("Delete this item?")) {
-                            onDeleteItem(item.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
-                    </div>
-                  </TableCell>
+                  {!readOnly && (
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          className="hover:bg-blue-500/20 text-muted-foreground hover:text-blue-400"
+                          onClick={() => onEditItem(item)}
+                        >
+                          <Edit className="w-3 h-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-xs"
+                          className="hover:bg-destructive/20 text-muted-foreground hover:text-destructive"
+                          onClick={() => {
+                            if (window.confirm("Delete this item?")) {
+                              onDeleteItem(item.id);
+                            }
+                          }}
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  )}
                 </TableRow>
               );
             })}
@@ -528,10 +534,12 @@ export function ItemTable({
         </Table>
       </div>
 
-      <Button variant="outline" onClick={onAddItem} className="w-full">
-        <Plus className="w-4 h-4" />
-        Add Item
-      </Button>
+      {!readOnly && (
+        <Button variant="outline" onClick={onAddItem} className="w-full">
+          <Plus className="w-4 h-4" />
+          Add Item
+        </Button>
+      )}
     </div>
   );
 }

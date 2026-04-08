@@ -8,6 +8,9 @@ export interface Trip {
   createdAt: string;
   googleSheetUrl: string | null;
   defaultPayer: string | null;
+  userId?: string;
+  sharedWith?: string[];
+  shareCode?: string | null;
 }
 
 export interface TripCreate {

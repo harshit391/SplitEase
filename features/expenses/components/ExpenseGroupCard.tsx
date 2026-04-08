@@ -26,6 +26,7 @@ interface ExpenseGroupCardProps {
   onEdit: () => void;
   onAddItem: () => void;
   onDelete: () => void;
+  readOnly?: boolean;
   children?: React.ReactNode;
 }
 
@@ -39,6 +40,7 @@ export function ExpenseGroupCard({
   onEdit,
   onAddItem,
   onDelete,
+  readOnly = false,
   children,
 }: ExpenseGroupCardProps) {
   const { subTopicTotal, totalTax, totalDiscount } =
@@ -141,42 +143,46 @@ export function ExpenseGroupCard({
               <Eye className="w-4 h-4" />
             )}
           </Button>
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            className="text-muted-foreground hover:text-foreground hover:bg-white/5"
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit();
-            }}
-            title="Edit expense group"
-          >
-            <Edit className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            className="text-muted-foreground hover:text-primary hover:bg-primary/10"
-            onClick={(e) => {
-              e.stopPropagation();
-              onAddItem();
-            }}
-            title="Add item"
-          >
-            <Plus className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
-            title="Delete expense group"
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
+          {!readOnly && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                className="text-muted-foreground hover:text-foreground hover:bg-white/5"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit();
+                }}
+                title="Edit expense group"
+              >
+                <Edit className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                className="text-muted-foreground hover:text-primary hover:bg-primary/10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAddItem();
+                }}
+                title="Add item"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+                }}
+                title="Delete expense group"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </>
+          )}
           <motion.div
             animate={{ rotate: isExpanded ? 180 : 0 }}
             transition={{ duration: 0.2 }}

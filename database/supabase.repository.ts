@@ -9,6 +9,7 @@ import type {
   Item,
   ItemCreate,
   ItemUpdate,
+  DbTripShare,
 } from "@/types";
 import { generateTripId, generateId } from "@/utils";
 import type { ITripsRepository } from "./repository.interface";
@@ -20,6 +21,128 @@ import {
   dbToExpenseGroup,
   dbToItem,
 } from "./mappers";
+
+export interface ShareRepository {
+  getShares(tripId: string): Promise<DbTripShare[]>;
+  addPrivateShare(tripId: string, email: string): Promise<DbTripShare | null>;
+  removeShare(shareId: string): Promise<void>;
+  enablePublicShare(tripId: string): Promise<DbTripShare | null>;
+  disablePublicShare(tripId: string): Promise<void>;
+  getTripByShareCode(code: string): Promise<Trip | undefined>;
+}
+
+export function createShareRepository(
+  supabase: SupabaseClient
+): ShareRepository {
+  return {
+    async getShares(tripId: string): Promise<DbTripShare[]> {
+      const { data } = await supabase
+        .from("trip_shares")
+        .select("*")
+        .eq("trip_id", tripId);
+      return (data as DbTripShare[]) || [];
+    },
+
+    async addPrivateShare(
+      tripId: string,
+      email: string
+    ): Promise<DbTripShare | null> {
+      // Check if already shared
+      const { data: existing } = await supabase
+        .from("trip_shares")
+        .select("*")
+        .eq("trip_id", tripId)
+        .eq("shared_with_email", email)
+        .eq("share_type", "private")
+        .single();
+
+      if (existing) return existing as DbTripShare;
+
+      const { data, error } = await supabase
+        .from("trip_shares")
+        .insert({
+          trip_id: tripId,
+          shared_with_email: email,
+          share_type: "private",
+        })
+        .select()
+        .single();
+
+      if (error) return null;
+      return data as DbTripShare;
+    },
+
+    async removeShare(shareId: string): Promise<void> {
+      await supabase.from("trip_shares").delete().eq("id", shareId);
+    },
+
+    async enablePublicShare(
+      tripId: string
+    ): Promise<DbTripShare | null> {
+      // Check if already has public share
+      const { data: existing } = await supabase
+        .from("trip_shares")
+        .select("*")
+        .eq("trip_id", tripId)
+        .eq("share_type", "public")
+        .single();
+
+      if (existing) return existing as DbTripShare;
+
+      const shareCode =
+        Date.now().toString(36) +
+        Math.random().toString(36).substring(2, 8);
+
+      const { data, error } = await supabase
+        .from("trip_shares")
+        .insert({
+          trip_id: tripId,
+          share_type: "public",
+          share_code: shareCode,
+        })
+        .select()
+        .single();
+
+      if (error) return null;
+      return data as DbTripShare;
+    },
+
+    async disablePublicShare(tripId: string): Promise<void> {
+      await supabase
+        .from("trip_shares")
+        .delete()
+        .eq("trip_id", tripId)
+        .eq("share_type", "public");
+    },
+
+    async getTripByShareCode(code: string): Promise<Trip | undefined> {
+      const { data: share } = await supabase
+        .from("trip_shares")
+        .select("trip_id")
+        .eq("share_code", code)
+        .eq("share_type", "public")
+        .single();
+
+      if (!share) return undefined;
+
+      const tripId = share.trip_id;
+
+      const [tripResult, groupsResult, itemsResult] = await Promise.all([
+        supabase.from("trips").select("*").eq("id", tripId).single(),
+        supabase.from("expense_groups").select("*").eq("trip_id", tripId),
+        supabase.from("items").select("*").eq("trip_id", tripId),
+      ]);
+
+      if (!tripResult.data) return undefined;
+
+      return dbToTrip(
+        tripResult.data,
+        groupsResult.data || [],
+        itemsResult.data || []
+      );
+    },
+  };
+}
 
 export function createSupabaseRepository(
   supabase: SupabaseClient,
