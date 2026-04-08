@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { tripsRepository } from "@/database";
+import { useRepository } from "@/hooks/useRepository";
 import type { TripCreate, TripUpdate, Trip } from "@/types";
 
 export const tripKeys = {
@@ -10,25 +10,30 @@ export const tripKeys = {
 };
 
 export function useTrips() {
+  const repository = useRepository();
+
   return useQuery({
     queryKey: tripKeys.all,
-    queryFn: () => tripsRepository.getAll(),
+    queryFn: () => repository.getAll(),
   });
 }
 
 export function useTrip(id: string) {
+  const repository = useRepository();
+
   return useQuery({
     queryKey: tripKeys.detail(id),
-    queryFn: () => tripsRepository.getById(id),
+    queryFn: () => repository.getById(id),
     enabled: !!id,
   });
 }
 
 export function useCreateTrip() {
   const queryClient = useQueryClient();
+  const repository = useRepository();
 
   return useMutation({
-    mutationFn: (data: TripCreate) => tripsRepository.create(data),
+    mutationFn: (data: TripCreate) => repository.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tripKeys.all });
     },
@@ -37,10 +42,11 @@ export function useCreateTrip() {
 
 export function useUpdateTrip() {
   const queryClient = useQueryClient();
+  const repository = useRepository();
 
   return useMutation({
     mutationFn: ({ id, updates }: { id: string; updates: TripUpdate }) =>
-      tripsRepository.update(id, updates),
+      repository.update(id, updates),
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: tripKeys.all });
       queryClient.invalidateQueries({ queryKey: tripKeys.detail(id) });
@@ -50,9 +56,10 @@ export function useUpdateTrip() {
 
 export function useDeleteTrip() {
   const queryClient = useQueryClient();
+  const repository = useRepository();
 
   return useMutation({
-    mutationFn: (id: string) => tripsRepository.delete(id),
+    mutationFn: (id: string) => repository.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tripKeys.all });
     },
@@ -61,9 +68,10 @@ export function useDeleteTrip() {
 
 export function useImportTrip() {
   const queryClient = useQueryClient();
+  const repository = useRepository();
 
   return useMutation({
-    mutationFn: (trip: Trip) => tripsRepository.import(trip),
+    mutationFn: (trip: Trip) => repository.import(trip),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tripKeys.all });
     },

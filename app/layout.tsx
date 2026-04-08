@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { QueryProvider } from "@/lib/query-client";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AuthProvider } from "@/components/auth-provider";
+import { SyncProvider } from "@/components/sync-provider";
+import { MigrationDialog } from "@/components/migration-dialog";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -38,7 +41,14 @@ export default function RootLayout({
       </head>
       <body className="antialiased min-h-screen bg-background font-sans">
         <ThemeProvider>
-          <QueryProvider>{children}</QueryProvider>
+          <AuthProvider>
+            <QueryProvider>
+              <SyncProvider>
+                {children}
+                <MigrationDialog />
+              </SyncProvider>
+            </QueryProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

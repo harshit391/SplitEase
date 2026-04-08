@@ -22,6 +22,8 @@ import {
 import { useUIStore } from "@/store";
 import type { Trip } from "@/types";
 import { fadeInUp, staggerContainer } from "@/lib/animations";
+import { UserMenu } from "@/components/user-menu";
+import { SyncStatusBadge } from "@/components/sync-status-badge";
 
 export default function HomePage() {
   const router = useRouter();
@@ -100,13 +102,17 @@ export default function HomePage() {
             />
             <span className="font-semibold text-foreground text-lg">SplitEase</span>
           </div>
-          <Button
-            onClick={openCreateTripDialog}
-            size="sm"
-          >
-            <Plus className="w-4 h-4" />
-            New Trip
-          </Button>
+          <div className="flex items-center gap-2">
+            <SyncStatusBadge />
+            <Button
+              onClick={openCreateTripDialog}
+              size="sm"
+            >
+              <Plus className="w-4 h-4" />
+              New Trip
+            </Button>
+            <UserMenu />
+          </div>
         </div>
       </header>
 

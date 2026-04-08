@@ -1,12 +1,13 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { tripsRepository } from "@/database";
+import { useRepository } from "@/hooks/useRepository";
 import { tripKeys } from "@/features/trips/hooks/useTrips";
 import type { ItemCreate, ItemUpdate } from "@/types";
 
 export function useAddItem(tripId: string) {
   const queryClient = useQueryClient();
+  const repository = useRepository();
 
   return useMutation({
     mutationFn: ({
@@ -15,7 +16,7 @@ export function useAddItem(tripId: string) {
     }: {
       expenseGroupId: string;
       data: ItemCreate;
-    }) => tripsRepository.addItem(tripId, expenseGroupId, data),
+    }) => repository.addItem(tripId, expenseGroupId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tripKeys.all });
       queryClient.invalidateQueries({ queryKey: tripKeys.detail(tripId) });
@@ -25,6 +26,7 @@ export function useAddItem(tripId: string) {
 
 export function useUpdateItem(tripId: string) {
   const queryClient = useQueryClient();
+  const repository = useRepository();
 
   return useMutation({
     mutationFn: ({
@@ -35,7 +37,7 @@ export function useUpdateItem(tripId: string) {
       expenseGroupId: string;
       itemId: string;
       updates: ItemUpdate;
-    }) => tripsRepository.updateItem(tripId, expenseGroupId, itemId, updates),
+    }) => repository.updateItem(tripId, expenseGroupId, itemId, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tripKeys.all });
       queryClient.invalidateQueries({ queryKey: tripKeys.detail(tripId) });
@@ -45,6 +47,7 @@ export function useUpdateItem(tripId: string) {
 
 export function useDeleteItem(tripId: string) {
   const queryClient = useQueryClient();
+  const repository = useRepository();
 
   return useMutation({
     mutationFn: ({
@@ -53,7 +56,7 @@ export function useDeleteItem(tripId: string) {
     }: {
       expenseGroupId: string;
       itemId: string;
-    }) => tripsRepository.deleteItem(tripId, expenseGroupId, itemId),
+    }) => repository.deleteItem(tripId, expenseGroupId, itemId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tripKeys.all });
       queryClient.invalidateQueries({ queryKey: tripKeys.detail(tripId) });

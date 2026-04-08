@@ -45,6 +45,9 @@ import {
   exportTripAsJSON,
 } from "@/services";
 import type { ExpenseGroup, ExpenseGroupUpdate, Item } from "@/types";
+import { UserMenu } from "@/components/user-menu";
+import { SyncStatusBadge } from "@/components/sync-status-badge";
+import { OfflineBanner } from "@/components/offline-banner";
 
 export default function TripPage() {
   const params = useParams();
@@ -236,6 +239,7 @@ export default function TripPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <OfflineBanner />
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 glass">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -276,6 +280,7 @@ export default function TripPage() {
               <Download className="w-4 h-4" />
               <span className="hidden md:inline">Export</span>
             </Button>
+            <SyncStatusBadge />
             <Button
               size="sm"
               onClick={() => setAddExpenseGroupDialogOpen(true)}
@@ -283,6 +288,7 @@ export default function TripPage() {
               <Plus className="w-4 h-4" />
               <span className="hidden sm:inline">Add Expense</span>
             </Button>
+            <UserMenu />
           </div>
         </div>
       </header>

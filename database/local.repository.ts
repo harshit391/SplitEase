@@ -1,4 +1,4 @@
-import { db } from "./db";
+import { db, type LocalTrip } from "./db";
 import type {
   Trip,
   TripCreate,
@@ -11,9 +11,19 @@ import type {
   ItemUpdate,
 } from "@/types";
 import { generateTripId, generateId } from "@/utils";
+import type { ITripsRepository } from "./repository.interface";
 
-export const tripsRepository = {
-  // Trip operations
+function markPending(trip: LocalTrip): LocalTrip {
+  trip.updated_at = new Date().toISOString();
+  trip.sync_status = "pending";
+  return trip;
+}
+
+export const localRepository: ITripsRepository & {
+  markSynced(id: string): Promise<void>;
+  replaceTrip(trip: Trip): Promise<void>;
+  getPending(): Promise<LocalTrip[]>;
+} = {
   async getAll(): Promise<Trip[]> {
     return db.trips.orderBy("createdAt").reverse().toArray();
   },
@@ -24,14 +34,17 @@ export const tripsRepository = {
 
   async create(data: TripCreate): Promise<Trip> {
     const id = generateTripId(data.name);
-    const trip: Trip = {
+    const now = new Date().toISOString();
+    const trip: LocalTrip = {
       id,
       name: data.name,
       friends: data.friends,
       subTopics: [],
-      createdAt: new Date().toISOString(),
+      createdAt: now,
       googleSheetUrl: null,
       defaultPayer: data.defaultPayer || null,
+      updated_at: now,
+      sync_status: "pending",
     };
     await db.trips.add(trip);
     return trip;
@@ -41,16 +54,16 @@ export const tripsRepository = {
     const trip = await db.trips.get(id);
     if (!trip) return undefined;
 
-    const updatedTrip = { ...trip };
-    if (updates.name !== undefined) updatedTrip.name = updates.name;
-    if (updates.friends !== undefined) updatedTrip.friends = updates.friends;
+    if (updates.name !== undefined) trip.name = updates.name;
+    if (updates.friends !== undefined) trip.friends = updates.friends;
     if (updates.googleSheetUrl !== undefined)
-      updatedTrip.googleSheetUrl = updates.googleSheetUrl;
+      trip.googleSheetUrl = updates.googleSheetUrl;
     if (updates.defaultPayer !== undefined)
-      updatedTrip.defaultPayer = updates.defaultPayer;
+      trip.defaultPayer = updates.defaultPayer;
 
-    await db.trips.put(updatedTrip);
-    return updatedTrip;
+    markPending(trip);
+    await db.trips.put(trip);
+    return trip;
   },
 
   async delete(id: string): Promise<void> {
@@ -64,7 +77,8 @@ export const tripsRepository = {
       trip.id = `${trip.id}-imported-${timestamp}`;
     }
 
-    const importedTrip: Trip = {
+    const now = new Date().toISOString();
+    const importedTrip: LocalTrip = {
       ...trip,
       subTopics: (trip.subTopics || []).map((sub) => ({
         ...sub,
@@ -84,16 +98,17 @@ export const tripsRepository = {
           discountMode: item.discountMode || "percentage",
         })),
       })),
-      createdAt: trip.createdAt || new Date().toISOString(),
+      createdAt: trip.createdAt || now,
       googleSheetUrl: trip.googleSheetUrl || null,
       defaultPayer: trip.defaultPayer || null,
+      updated_at: now,
+      sync_status: "pending",
     };
 
     await db.trips.add(importedTrip);
     return importedTrip;
   },
 
-  // Expense group (SubTopic) operations
   async addExpenseGroup(
     tripId: string,
     data: ExpenseGroupCreate
@@ -115,6 +130,7 @@ export const tripsRepository = {
     };
 
     trip.subTopics.push(expenseGroup);
+    markPending(trip);
     await db.trips.put(trip);
     return expenseGroup;
   },
@@ -146,6 +162,7 @@ export const tripsRepository = {
     if (updates.taxDiscountLevel !== undefined)
       expenseGroup.taxDiscountLevel = updates.taxDiscountLevel;
 
+    markPending(trip);
     await db.trips.put(trip);
     return expenseGroup;
   },
@@ -158,10 +175,10 @@ export const tripsRepository = {
     if (!trip) return;
 
     trip.subTopics = trip.subTopics.filter((s) => s.id !== expenseGroupId);
+    markPending(trip);
     await db.trips.put(trip);
   },
 
-  // Item operations
   async addItem(
     tripId: string,
     expenseGroupId: string,
@@ -188,6 +205,7 @@ export const tripsRepository = {
     };
 
     expenseGroup.items.push(item);
+    markPending(trip);
     await db.trips.put(trip);
     return item;
   },
@@ -214,10 +232,14 @@ export const tripsRepository = {
     if (updates.taxPercent !== undefined) item.taxPercent = updates.taxPercent;
     if (updates.taxValue !== undefined) item.taxValue = updates.taxValue;
     if (updates.taxMode !== undefined) item.taxMode = updates.taxMode;
-    if (updates.discountPercent !== undefined) item.discountPercent = updates.discountPercent;
-    if (updates.discountValue !== undefined) item.discountValue = updates.discountValue;
-    if (updates.discountMode !== undefined) item.discountMode = updates.discountMode;
+    if (updates.discountPercent !== undefined)
+      item.discountPercent = updates.discountPercent;
+    if (updates.discountValue !== undefined)
+      item.discountValue = updates.discountValue;
+    if (updates.discountMode !== undefined)
+      item.discountMode = updates.discountMode;
 
+    markPending(trip);
     await db.trips.put(trip);
     return item;
   },
@@ -234,6 +256,28 @@ export const tripsRepository = {
     if (!expenseGroup) return;
 
     expenseGroup.items = expenseGroup.items.filter((i) => i.id !== itemId);
+    markPending(trip);
     await db.trips.put(trip);
+  },
+
+  // Sync helper methods
+  async markSynced(id: string): Promise<void> {
+    await db.trips.update(id, { sync_status: "synced" });
+  },
+
+  async replaceTrip(trip: Trip): Promise<void> {
+    const localTrip: LocalTrip = {
+      ...trip,
+      updated_at:
+        (trip as LocalTrip).updated_at ||
+        trip.createdAt ||
+        new Date().toISOString(),
+      sync_status: "synced",
+    };
+    await db.trips.put(localTrip);
+  },
+
+  async getPending(): Promise<LocalTrip[]> {
+    return db.trips.where("sync_status").equals("pending").toArray();
   },
 };

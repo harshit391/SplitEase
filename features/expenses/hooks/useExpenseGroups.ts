@@ -1,16 +1,17 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { tripsRepository } from "@/database";
+import { useRepository } from "@/hooks/useRepository";
 import { tripKeys } from "@/features/trips/hooks/useTrips";
 import type { ExpenseGroupCreate, ExpenseGroupUpdate } from "@/types";
 
 export function useAddExpenseGroup(tripId: string) {
   const queryClient = useQueryClient();
+  const repository = useRepository();
 
   return useMutation({
     mutationFn: (data: ExpenseGroupCreate) =>
-      tripsRepository.addExpenseGroup(tripId, data),
+      repository.addExpenseGroup(tripId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tripKeys.all });
       queryClient.invalidateQueries({ queryKey: tripKeys.detail(tripId) });
@@ -20,6 +21,7 @@ export function useAddExpenseGroup(tripId: string) {
 
 export function useUpdateExpenseGroup(tripId: string) {
   const queryClient = useQueryClient();
+  const repository = useRepository();
 
   return useMutation({
     mutationFn: ({
@@ -28,7 +30,7 @@ export function useUpdateExpenseGroup(tripId: string) {
     }: {
       expenseGroupId: string;
       updates: ExpenseGroupUpdate;
-    }) => tripsRepository.updateExpenseGroup(tripId, expenseGroupId, updates),
+    }) => repository.updateExpenseGroup(tripId, expenseGroupId, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tripKeys.all });
       queryClient.invalidateQueries({ queryKey: tripKeys.detail(tripId) });
@@ -38,10 +40,11 @@ export function useUpdateExpenseGroup(tripId: string) {
 
 export function useDeleteExpenseGroup(tripId: string) {
   const queryClient = useQueryClient();
+  const repository = useRepository();
 
   return useMutation({
     mutationFn: (expenseGroupId: string) =>
-      tripsRepository.deleteExpenseGroup(tripId, expenseGroupId),
+      repository.deleteExpenseGroup(tripId, expenseGroupId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tripKeys.all });
       queryClient.invalidateQueries({ queryKey: tripKeys.detail(tripId) });
