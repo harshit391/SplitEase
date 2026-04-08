@@ -32,7 +32,8 @@ export interface ShareRepository {
 }
 
 export function createShareRepository(
-  supabase: SupabaseClient
+  supabase: SupabaseClient,
+  userId?: string
 ): ShareRepository {
   return {
     async getShares(tripId: string): Promise<DbTripShare[]> {
@@ -62,6 +63,7 @@ export function createShareRepository(
         .from("trip_shares")
         .insert({
           trip_id: tripId,
+          user_id: userId,
           shared_with_email: email,
           share_type: "private",
         })
@@ -97,6 +99,7 @@ export function createShareRepository(
         .from("trip_shares")
         .insert({
           trip_id: tripId,
+          user_id: userId,
           share_type: "public",
           share_code: shareCode,
         })

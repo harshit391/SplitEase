@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createClient } from "@/lib/supabase/client";
 import { createShareRepository } from "@/database/supabase.repository";
+import { useAuth } from "./auth-provider";
 import type { DbTripShare } from "@/types";
 
 interface ShareTripDialogProps {
@@ -46,8 +47,9 @@ export function ShareTripDialog({
   const [addingEmail, setAddingEmail] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  const { user } = useAuth();
   const supabase = createClient();
-  const shareRepo = createShareRepository(supabase);
+  const shareRepo = createShareRepository(supabase, user?.id);
 
   const privateShares = shares.filter((s) => s.share_type === "private");
   const publicShare = shares.find((s) => s.share_type === "public");
