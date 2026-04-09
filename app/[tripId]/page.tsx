@@ -338,7 +338,11 @@ export default function TripPage() {
 
         {/* Settlements */}
         {settlements && (
-          <SettlementsList tripName={trip.name} settlementResult={settlements} />
+          <SettlementsList
+            tripName={trip.name}
+            settlementResult={settlements}
+            shareUrl={trip.shareCode ? `${window.location.origin}/shared/${trip.shareCode}` : undefined}
+          />
         )}
 
         {/* Expense Groups */}

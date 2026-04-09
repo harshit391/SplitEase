@@ -238,6 +238,7 @@ export default function SharedTripPage() {
           <SettlementsList
             tripName={trip.name}
             settlementResult={settlements}
+            shareUrl={`${window.location.origin}/shared/${code}`}
           />
         )}
 

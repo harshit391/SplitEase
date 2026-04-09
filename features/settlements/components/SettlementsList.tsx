@@ -20,11 +20,13 @@ import { formatCurrency } from "@/utils";
 interface SettlementsListProps {
   tripName: string;
   settlementResult: SettlementResult;
+  shareUrl?: string;
 }
 
 export function SettlementsList({
   tripName,
   settlementResult,
+  shareUrl,
 }: SettlementsListProps) {
   const [copied, setCopied] = useState(false);
   const [showSteps, setShowSteps] = useState(false);
@@ -32,7 +34,8 @@ export function SettlementsList({
   const { balances, nets, settlements, steps } = settlementResult;
 
   const handleCopy = async () => {
-    const text = `*Settlements (${tripName})*\n\n${formatSettlementsForWhatsApp(settlements)}`;
+    const link = shareUrl ? `\n\n${shareUrl}` : "";
+    const text = `*Settlements (${tripName})*\n\n${formatSettlementsForWhatsApp(settlements)}${link}`;
     const success = await copyToClipboard(text);
     if (success) {
       setCopied(true);
