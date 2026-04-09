@@ -7,12 +7,26 @@ import { MigrationDialog } from "@/components/migration-dialog";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ||
+      process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : "http://localhost:3000"
+  ),
   title: "SplitEase - Split bills, not friendships",
   description:
     "Track shared expenses, split bills fairly, and settle up with friends — all stored locally on your device.",
   icons: {
     icon: "/logo.png",
     apple: "/logo.png",
+  },
+  openGraph: {
+    title: "SplitEase - Split bills, not friendships",
+    description:
+      "Track shared expenses, split bills fairly, and settle up with friends.",
+    siteName: "SplitEase",
+    images: ["/og-image.png"],
+    type: "website",
   },
 };
 

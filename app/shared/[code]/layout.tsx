@@ -51,6 +51,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title: `${trip.name} | SplitEase`,
       description,
       siteName: "SplitEase",
+      images: ["/og-image.png"],
       type: "website",
     },
   };
