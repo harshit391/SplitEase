@@ -50,6 +50,7 @@ import { UserMenu } from "@/components/user-menu";
 import { SyncStatusBadge } from "@/components/sync-status-badge";
 import { OfflineBanner } from "@/components/offline-banner";
 import { ShareTripDialog } from "@/components/share-trip-dialog";
+import { createClient } from "@/lib/supabase/client";
 
 export default function TripPage() {
   const params = useParams();
@@ -84,6 +85,19 @@ export default function TripPage() {
   const [editingExpenseGroup, setEditingExpenseGroup] = useState<ExpenseGroup | null>(null);
   const [activeExpenseGroupId, setActiveExpenseGroupId] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<Item | null>(null);
+  const [shareCode, setShareCode] = useState<string | null>(null);
+
+  // Fetch public share code for WhatsApp copy
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("trip_shares")
+      .select("share_code")
+      .eq("trip_id", tripId)
+      .eq("share_type", "public")
+      .maybeSingle()
+      .then(({ data }) => setShareCode(data?.share_code ?? null));
+  }, [tripId]);
 
   // Redirect if trip not found
   useEffect(() => {
@@ -341,7 +355,7 @@ export default function TripPage() {
           <SettlementsList
             tripName={trip.name}
             settlementResult={settlements}
-            shareUrl={trip.shareCode ? `${window.location.origin}/shared/${trip.shareCode}` : undefined}
+            shareUrl={shareCode ? `${window.location.origin}/shared/${shareCode}` : undefined}
           />
         )}
 
