@@ -46,6 +46,7 @@ import {
   exportTripAsJSON,
 } from "@/services";
 import type { ExpenseGroup, ExpenseGroupUpdate, Item } from "@/types";
+import type { ParsedTemplate } from "@/services/template-parser";
 import { UserMenu } from "@/components/user-menu";
 import { SyncStatusBadge } from "@/components/sync-status-badge";
 import { OfflineBanner } from "@/components/offline-banner";
@@ -145,6 +146,39 @@ export default function TripPage() {
     addExpenseGroup.mutate(data, {
       onSuccess: () => setAddExpenseGroupDialogOpen(false),
     });
+  };
+
+  const handleQuickAddExpenseGroup = async (data: ParsedTemplate) => {
+    try {
+      const group = await addExpenseGroup.mutateAsync({ name: data.groupName });
+      if (!group) return;
+
+      for (const item of data.items) {
+        await addItem.mutateAsync({ expenseGroupId: group.id, data: item });
+      }
+
+      if (data.tax || data.discount) {
+        const updates: ExpenseGroupUpdate = {};
+        if (data.tax) {
+          updates.taxMode = data.tax.mode;
+          updates.taxPercent = data.tax.percent;
+          updates.taxValue = data.tax.value;
+        }
+        if (data.discount) {
+          updates.discountMode = data.discount.mode;
+          updates.discountPercent = data.discount.percent;
+          updates.discountValue = data.discount.value;
+        }
+        await updateExpenseGroup.mutateAsync({
+          expenseGroupId: group.id,
+          updates,
+        });
+      }
+
+      setAddExpenseGroupDialogOpen(false);
+    } catch {
+      // Mutations handle their own error states via TanStack Query
+    }
   };
 
   const handleEditExpenseGroup = (data: ExpenseGroupUpdate) => {
@@ -441,6 +475,8 @@ export default function TripPage() {
         open={addExpenseGroupDialogOpen}
         onOpenChange={setAddExpenseGroupDialogOpen}
         onSubmit={handleAddExpenseGroup}
+        friends={trip.friends}
+        onQuickSubmit={handleQuickAddExpenseGroup}
       />
 
       {editingExpenseGroup && (
