@@ -45,7 +45,7 @@ import {
   calculateSubTopicPersonTotals,
   exportTripAsJSON,
 } from "@/services";
-import type { ExpenseGroup, ExpenseGroupUpdate, Item } from "@/types";
+import type { ExpenseGroup, ExpenseGroupUpdate, Item, ItemCreate } from "@/types";
 import type { ParsedTemplate } from "@/services/template-parser";
 import { UserMenu } from "@/components/user-menu";
 import { SyncStatusBadge } from "@/components/sync-status-badge";
@@ -228,6 +228,19 @@ export default function TripPage() {
           },
         }
       );
+    }
+  };
+
+  const handleQuickAddItems = async (items: ItemCreate[]) => {
+    if (!activeExpenseGroupId) return;
+    try {
+      for (const item of items) {
+        await addItem.mutateAsync({ expenseGroupId: activeExpenseGroupId, data: item });
+      }
+      setAddItemDialogOpen(false);
+      setActiveExpenseGroupId(null);
+    } catch {
+      // Mutations handle their own error states via TanStack Query
     }
   };
 
@@ -504,6 +517,7 @@ export default function TripPage() {
             ?.taxDiscountLevel || "group"
         }
         onSubmit={handleAddItem}
+        onQuickSubmit={handleQuickAddItems}
       />
 
       {editingItem && (

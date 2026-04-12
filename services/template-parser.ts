@@ -34,6 +34,102 @@ function findFriend(name: string, friends: string[]): string | null {
   return match ?? null;
 }
 
+export type ItemsParseResult =
+  | { success: true; data: ItemCreate[] }
+  | { success: false; errors: ParseError[] };
+
+export function parseItemLines(
+  text: string,
+  friends: string[]
+): ItemsParseResult {
+  const rawLines = text.split("\n");
+  const lines: { text: string; originalIndex: number }[] = [];
+
+  for (let i = 0; i < rawLines.length; i++) {
+    const trimmed = rawLines[i].trim();
+    if (trimmed.length > 0) {
+      lines.push({ text: trimmed, originalIndex: i + 1 });
+    }
+  }
+
+  if (lines.length === 0) {
+    return { success: false, errors: [{ line: 1, message: "Template is empty" }] };
+  }
+
+  const errors: ParseError[] = [];
+  const items: ItemCreate[] = [];
+
+  for (const line of lines) {
+    const match = ITEM_REGEX.exec(line.text);
+    if (!match) {
+      errors.push({
+        line: line.originalIndex,
+        message: `Could not parse item. Expected format: "amount for friends paid by payer on itemName"`,
+      });
+      continue;
+    }
+
+    const amount = parseFloat(match[1]);
+    const splitRaw = match[2].trim();
+    const payerRaw = match[3].trim();
+    const itemName = match[4].trim();
+
+    if (amount <= 0) {
+      errors.push({ line: line.originalIndex, message: "Amount must be greater than 0" });
+      continue;
+    }
+
+    if (!itemName) {
+      errors.push({ line: line.originalIndex, message: "Item name is required after \"on\"" });
+      continue;
+    }
+
+    const payer = findFriend(payerRaw, friends);
+    if (!payer) {
+      errors.push({
+        line: line.originalIndex,
+        message: `"${payerRaw}" is not a friend in this trip`,
+      });
+      continue;
+    }
+
+    let splitAmong: string[];
+    if (splitRaw.toLowerCase() === "all") {
+      splitAmong = [...friends];
+    } else {
+      const names = splitRaw.split(",").map((n) => n.trim());
+      splitAmong = [];
+      let hasError = false;
+      for (const name of names) {
+        const resolved = findFriend(name, friends);
+        if (!resolved) {
+          errors.push({
+            line: line.originalIndex,
+            message: `"${name}" is not a friend in this trip`,
+          });
+          hasError = true;
+        } else {
+          splitAmong.push(resolved);
+        }
+      }
+      if (hasError) continue;
+    }
+
+    items.push({
+      name: itemName,
+      amount,
+      paidBy: payer,
+      splitAmong,
+    });
+  }
+
+  if (errors.length > 0) {
+    return { success: false, errors };
+  }
+
+  return { success: true, data: items };
+}
+
 export function parseExpenseTemplate(
   text: string,
   friends: string[]
