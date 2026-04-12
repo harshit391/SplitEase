@@ -35,6 +35,14 @@
 - **Default Payer** — Set a default payer per trip to speed up data entry
 - **Exclude Groups** — Temporarily exclude expense groups from settlement calculations
 
+### Quick Entry (Template Syntax)
+- **Bulk Add Expenses** — Type a text template to create an expense group with all items in one go
+- **Item Quick Entry** — Bulk-add multiple items to an existing expense group via text
+- **Simple Syntax** — `500 for all paid by Rahul on Burgers.`
+- **Smart Parsing** — Supports "all" keyword, comma-separated friends, case-insensitive matching
+- **Group Tax/Discount** — Add `tax is 5%` or `discount is 10rs` lines at the end
+- **Live Preview** — See parsed results and validation errors as you type
+
 ### Tax & Discount
 - **Group-Level Tax/Discount** — Apply tax or discount to an entire expense group (percentage or fixed value)
 - **Per-Item Tax/Discount** — Toggle to set individual tax and discount on each item within a group
@@ -149,6 +157,16 @@ Create expense groups (e.g., "Hotel", "Food", "Transport") and add individual it
 - Who should split the cost
 - Optional: tax and discount (group-level or per-item)
 
+**Quick Entry mode** — Switch to the "Quick Entry" tab in the Add Expense or Add Item dialog and type:
+```
+McDonald's
+500 for all paid by Rahul on Burgers.
+200 for Amit, Priya paid by Amit on Fries.
+tax is 5%
+discount is 10rs
+```
+This creates the entire expense group with items and tax/discount in one shot.
+
 ### 4. View Settlements
 The app automatically calculates:
 - **Net Balance** — How much each person paid vs. what they owe
@@ -218,7 +236,8 @@ splitease/
 │   └── mappers.ts             # DB ↔ app type converters
 ├── services/                   # Business logic
 │   ├── settlement.service.ts  # Settlement algorithm + tax/discount calc
-│   └── export.service.ts      # CSV, JSON, WhatsApp export
+│   ├── export.service.ts      # CSV, JSON, WhatsApp export
+│   └── template-parser.ts     # Quick Entry template parser
 ├── lib/                        # Shared utilities
 │   ├── supabase/              # Supabase client (browser, server, middleware)
 │   ├── sync/                  # Sync engine (push, pull, fullSync)
