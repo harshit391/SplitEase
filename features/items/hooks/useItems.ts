@@ -63,3 +63,25 @@ export function useDeleteItem(tripId: string) {
     },
   });
 }
+
+export function useMoveItem(tripId: string) {
+  const queryClient = useQueryClient();
+  const repository = useRepository();
+
+  return useMutation({
+    mutationFn: ({
+      sourceExpenseGroupId,
+      targetExpenseGroupId,
+      itemId,
+    }: {
+      sourceExpenseGroupId: string;
+      targetExpenseGroupId: string;
+      itemId: string;
+    }) =>
+      repository.moveItem(tripId, sourceExpenseGroupId, targetExpenseGroupId, itemId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: tripKeys.all });
+      queryClient.invalidateQueries({ queryKey: tripKeys.detail(tripId) });
+    },
+  });
+}

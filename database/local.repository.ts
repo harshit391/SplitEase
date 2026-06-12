@@ -88,6 +88,7 @@ export const localRepository: ITripsRepository & {
         discountValue: sub.discountValue || 0,
         discountMode: sub.discountMode || "percentage",
         taxDiscountLevel: sub.taxDiscountLevel || "group",
+        tags: sub.tags || [],
         items: (sub.items || []).map((item) => ({
           ...item,
           taxPercent: item.taxPercent ?? 0,
@@ -127,6 +128,7 @@ export const localRepository: ITripsRepository & {
       discountValue: 0,
       discountMode: "percentage",
       taxDiscountLevel: "group",
+      tags: data.tags || [],
     };
 
     trip.subTopics.push(expenseGroup);
@@ -161,6 +163,8 @@ export const localRepository: ITripsRepository & {
       expenseGroup.discountMode = updates.discountMode;
     if (updates.taxDiscountLevel !== undefined)
       expenseGroup.taxDiscountLevel = updates.taxDiscountLevel;
+    if (updates.tags !== undefined)
+      expenseGroup.tags = updates.tags;
 
     markPending(trip);
     await db.trips.put(trip);
@@ -258,6 +262,71 @@ export const localRepository: ITripsRepository & {
     expenseGroup.items = expenseGroup.items.filter((i) => i.id !== itemId);
     markPending(trip);
     await db.trips.put(trip);
+  },
+
+  async splitExpenseGroup(
+    tripId: string,
+    sourceExpenseGroupId: string,
+    newGroupName: string,
+    itemIds: string[]
+  ): Promise<ExpenseGroup | undefined> {
+    const trip = await db.trips.get(tripId);
+    if (!trip) return undefined;
+
+    const sourceGroup = trip.subTopics.find((s) => s.id === sourceExpenseGroupId);
+    if (!sourceGroup) return undefined;
+
+    const itemsToMove = sourceGroup.items.filter((i) => itemIds.includes(i.id));
+    if (itemsToMove.length === 0) return undefined;
+
+    sourceGroup.items = sourceGroup.items.filter((i) => !itemIds.includes(i.id));
+
+    const newGroup: ExpenseGroup = {
+      id: generateId(),
+      name: newGroupName,
+      items: itemsToMove,
+      taxPercent: 0,
+      taxMode: "percentage",
+      taxValue: 0,
+      discountPercent: 0,
+      discountValue: 0,
+      discountMode: "percentage",
+      taxDiscountLevel: sourceGroup.taxDiscountLevel,
+      tags: [...(sourceGroup.tags || [])],
+    };
+
+    const sourceIndex = trip.subTopics.findIndex((s) => s.id === sourceExpenseGroupId);
+    trip.subTopics.splice(sourceIndex + 1, 0, newGroup);
+
+    markPending(trip);
+    await db.trips.put(trip);
+    return newGroup;
+  },
+
+  async moveItem(
+    tripId: string,
+    sourceExpenseGroupId: string,
+    targetExpenseGroupId: string,
+    itemId: string
+  ): Promise<Item | undefined> {
+    const trip = await db.trips.get(tripId);
+    if (!trip) return undefined;
+
+    const sourceGroup = trip.subTopics.find((s) => s.id === sourceExpenseGroupId);
+    if (!sourceGroup) return undefined;
+
+    const targetGroup = trip.subTopics.find((s) => s.id === targetExpenseGroupId);
+    if (!targetGroup) return undefined;
+
+    const itemIndex = sourceGroup.items.findIndex((i) => i.id === itemId);
+    if (itemIndex === -1) return undefined;
+
+    const [item] = sourceGroup.items.splice(itemIndex, 1);
+    targetGroup.items.push(item);
+
+    markPending(trip);
+    await db.trips.put(trip);
+    return item;
   },
 
   // Sync helper methods

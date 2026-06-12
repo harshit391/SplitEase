@@ -21,6 +21,7 @@ export interface DbExpenseGroup {
   discount_mode: "percentage" | "value";
   tax_discount_level: "group" | "item";
   sort_order: number;
+  tags: string[];
   created_at: string;
   updated_at: string;
 }

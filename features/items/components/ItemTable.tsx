@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Trash2, Edit, Plus, IndianRupee, Save, Percent } from "lucide-react";
+import { Trash2, Edit, Plus, IndianRupee, Save, Percent, ArrowRightLeft } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -25,6 +25,7 @@ interface ItemTableProps {
   onEditItem: (item: Item) => void;
   onDeleteItem: (itemId: string) => void;
   onUpdateExpenseGroup: (updates: ExpenseGroupUpdate) => void;
+  onMoveItem?: (item: Item) => void;
   readOnly?: boolean;
 }
 
@@ -35,6 +36,7 @@ export function ItemTable({
   onEditItem,
   onDeleteItem,
   onUpdateExpenseGroup,
+  onMoveItem,
   readOnly = false,
 }: ItemTableProps) {
   const isItemLevel =
@@ -431,6 +433,17 @@ export function ItemTable({
                         >
                           <Edit className="w-3 h-3" />
                         </Button>
+                        {onMoveItem && (
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            className="hover:bg-purple-500/20 text-muted-foreground hover:text-purple-400"
+                            onClick={() => onMoveItem(item)}
+                            title="Move to another group"
+                          >
+                            <ArrowRightLeft className="w-3 h-3" />
+                          </Button>
+                        )}
                         <Button
                           variant="ghost"
                           size="icon-xs"

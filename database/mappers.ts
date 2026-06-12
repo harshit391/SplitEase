@@ -33,6 +33,7 @@ export function expenseGroupToDb(
     discount_mode: group.discountMode,
     tax_discount_level: group.taxDiscountLevel,
     sort_order: sortOrder,
+    tags: group.tags || [],
   };
 }
 
@@ -78,6 +79,7 @@ export function dbToExpenseGroup(
     discountValue: Number(g.discount_value),
     discountMode: g.discount_mode as "percentage" | "value",
     taxDiscountLevel: g.tax_discount_level as "group" | "item",
+    tags: g.tags || [],
   };
 }
 

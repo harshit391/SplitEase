@@ -20,11 +20,13 @@ import {
   useAddExpenseGroup,
   useUpdateExpenseGroup,
   useDeleteExpenseGroup,
+  useSplitExpenseGroup,
 } from "@/features/expenses/hooks/useExpenseGroups";
 import {
   useAddItem,
   useUpdateItem,
   useDeleteItem,
+  useMoveItem,
 } from "@/features/items/hooks/useItems";
 import { useUIStore } from "@/store";
 import { EditTripDialog } from "@/features/trips/components";
@@ -32,13 +34,16 @@ import {
   AddExpenseGroupDialog,
   EditExpenseGroupDialog,
   ExpenseGroupCard,
+  SplitExpenseGroupDialog,
 } from "@/features/expenses/components";
-import { AddItemDialog, EditItemDialog, ItemTable } from "@/features/items/components";
+import { AddItemDialog, EditItemDialog, ItemTable, MoveItemDialog } from "@/features/items/components";
 import { SettlementsList } from "@/features/settlements/components";
 import {
   SummaryTable,
   StatsGrid,
   PersonSpendingGrid,
+  PersonExpenseCards,
+  SpendingChart,
 } from "@/features/summary/components";
 import {
   calculateSettlements,
@@ -63,9 +68,11 @@ export default function TripPage() {
   const addExpenseGroup = useAddExpenseGroup(tripId);
   const updateExpenseGroup = useUpdateExpenseGroup(tripId);
   const deleteExpenseGroup = useDeleteExpenseGroup(tripId);
+  const splitExpenseGroup = useSplitExpenseGroup(tripId);
   const addItem = useAddItem(tripId);
   const updateItem = useUpdateItem(tripId);
   const deleteItem = useDeleteItem(tripId);
+  const moveItem = useMoveItem(tripId);
 
   const {
     expandedExpenseGroups,
@@ -81,11 +88,15 @@ export default function TripPage() {
   const [addItemDialogOpen, setAddItemDialogOpen] = useState(false);
   const [editItemDialogOpen, setEditItemDialogOpen] = useState(false);
   const [shareTripDialogOpen, setShareTripDialogOpen] = useState(false);
+  const [moveItemDialogOpen, setMoveItemDialogOpen] = useState(false);
+  const [splitExpenseGroupDialogOpen, setSplitExpenseGroupDialogOpen] = useState(false);
+  const [splittingExpenseGroup, setSplittingExpenseGroup] = useState<ExpenseGroup | null>(null);
 
   // Editing states
   const [editingExpenseGroup, setEditingExpenseGroup] = useState<ExpenseGroup | null>(null);
   const [activeExpenseGroupId, setActiveExpenseGroupId] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<Item | null>(null);
+  const [movingItem, setMovingItem] = useState<Item | null>(null);
   const [shareCode, setShareCode] = useState<string | null>(null);
 
   // Fetch public share code for WhatsApp copy
@@ -278,6 +289,43 @@ export default function TripPage() {
     deleteItem.mutate({ expenseGroupId, itemId });
   };
 
+  const handleMoveItem = (targetExpenseGroupId: string) => {
+    if (movingItem && activeExpenseGroupId) {
+      moveItem.mutate(
+        {
+          sourceExpenseGroupId: activeExpenseGroupId,
+          targetExpenseGroupId,
+          itemId: movingItem.id,
+        },
+        {
+          onSuccess: () => {
+            setMoveItemDialogOpen(false);
+            setMovingItem(null);
+            setActiveExpenseGroupId(null);
+          },
+        }
+      );
+    }
+  };
+
+  const handleSplitExpenseGroup = (newGroupName: string, itemIds: string[]) => {
+    if (splittingExpenseGroup) {
+      splitExpenseGroup.mutate(
+        {
+          sourceExpenseGroupId: splittingExpenseGroup.id,
+          newGroupName,
+          itemIds,
+        },
+        {
+          onSuccess: () => {
+            setSplitExpenseGroupDialogOpen(false);
+            setSplittingExpenseGroup(null);
+          },
+        }
+      );
+    }
+  };
+
   const handleUpdateExpenseGroupInline = (
     expenseGroupId: string,
     updates: ExpenseGroupUpdate
@@ -375,9 +423,19 @@ export default function TripPage() {
           perPerson={perPerson}
         />
 
+        {/* Spending Breakdown Chart */}
+        {trip.subTopics.length > 0 && (
+          <SpendingChart trip={trip} excludedExpenseGroups={excludedExpenseGroups} />
+        )}
+
         {/* Amount Spent by Each Person */}
         {settlements && (
           <PersonSpendingGrid friends={trip.friends} settlements={settlements} />
+        )}
+
+        {/* Person-Wise Expense Breakdown */}
+        {settlements && trip.subTopics.length > 0 && (
+          <PersonExpenseCards trip={trip} settlements={settlements} />
         )}
 
         {/* Summary Table */}
@@ -452,6 +510,10 @@ export default function TripPage() {
                   setAddItemDialogOpen(true);
                 }}
                 onDelete={() => handleDeleteExpenseGroup(expenseGroup.id)}
+                onSplit={expenseGroup.items.length >= 2 ? () => {
+                  setSplittingExpenseGroup(expenseGroup);
+                  setSplitExpenseGroupDialogOpen(true);
+                } : undefined}
               >
                 <ItemTable
                   trip={trip}
@@ -469,6 +531,11 @@ export default function TripPage() {
                   onUpdateExpenseGroup={(updates) =>
                     handleUpdateExpenseGroupInline(expenseGroup.id, updates)
                   }
+                  onMoveItem={trip.subTopics.length >= 2 ? (item) => {
+                    setActiveExpenseGroupId(expenseGroup.id);
+                    setMovingItem(item);
+                    setMoveItemDialogOpen(true);
+                  } : undefined}
                 />
               </ExpenseGroupCard>
             ))}
@@ -546,6 +613,35 @@ export default function TripPage() {
         tripId={tripId}
         tripName={trip.name}
       />
+
+      {movingItem && (
+        <MoveItemDialog
+          open={moveItemDialogOpen}
+          onOpenChange={(open) => {
+            setMoveItemDialogOpen(open);
+            if (!open) {
+              setMovingItem(null);
+              setActiveExpenseGroupId(null);
+            }
+          }}
+          item={movingItem}
+          sourceExpenseGroupId={activeExpenseGroupId!}
+          expenseGroups={trip.subTopics}
+          onSubmit={handleMoveItem}
+        />
+      )}
+
+      {splittingExpenseGroup && (
+        <SplitExpenseGroupDialog
+          open={splitExpenseGroupDialogOpen}
+          onOpenChange={(open) => {
+            setSplitExpenseGroupDialogOpen(open);
+            if (!open) setSplittingExpenseGroup(null);
+          }}
+          expenseGroup={splittingExpenseGroup}
+          onSubmit={handleSplitExpenseGroup}
+        />
+      )}
     </div>
   );
 }

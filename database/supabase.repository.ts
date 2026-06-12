@@ -516,5 +516,60 @@ export function createSupabaseRepository(
     ): Promise<void> {
       await supabase.from("items").delete().eq("id", itemId);
     },
+
+    async splitExpenseGroup(
+      tripId: string,
+      sourceExpenseGroupId: string,
+      newGroupName: string,
+      itemIds: string[]
+    ): Promise<ExpenseGroup | undefined> {
+      const id = generateId();
+
+      const { data: existing } = await supabase
+        .from("expense_groups")
+        .select("sort_order")
+        .eq("trip_id", tripId)
+        .order("sort_order", { ascending: false })
+        .limit(1);
+
+      const sortOrder = (existing?.[0]?.sort_order ?? -1) + 1;
+
+      const { data: group, error } = await supabase
+        .from("expense_groups")
+        .insert({ id, trip_id: tripId, name: newGroupName, sort_order: sortOrder })
+        .select()
+        .single();
+
+      if (error || !group) return undefined;
+
+      await supabase
+        .from("items")
+        .update({ expense_group_id: id })
+        .in("id", itemIds);
+
+      const { data: items } = await supabase
+        .from("items")
+        .select("*")
+        .eq("expense_group_id", id);
+
+      return dbToExpenseGroup(group, items || []);
+    },
+
+    async moveItem(
+      tripId: string,
+      sourceExpenseGroupId: string,
+      targetExpenseGroupId: string,
+      itemId: string
+    ): Promise<Item | undefined> {
+      const { data: item } = await supabase
+        .from("items")
+        .update({ expense_group_id: targetExpenseGroupId })
+        .eq("id", itemId)
+        .select()
+        .single();
+
+      if (!item) return undefined;
+      return dbToItem(item);
+    },
   };
 }

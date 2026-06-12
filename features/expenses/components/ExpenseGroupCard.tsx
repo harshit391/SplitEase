@@ -9,6 +9,7 @@ import {
   Eye,
   EyeOff,
   ChevronDown,
+  Scissors,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ interface ExpenseGroupCardProps {
   onEdit: () => void;
   onAddItem: () => void;
   onDelete: () => void;
+  onSplit?: () => void;
   readOnly?: boolean;
   children?: React.ReactNode;
 }
@@ -40,6 +42,7 @@ export function ExpenseGroupCard({
   onEdit,
   onAddItem,
   onDelete,
+  onSplit,
   readOnly = false,
   children,
 }: ExpenseGroupCardProps) {
@@ -61,7 +64,7 @@ export function ExpenseGroupCard({
             <Receipt className="w-5 h-5 text-primary" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <h3
                 className={`font-medium text-sm truncate ${
                   isExcluded
@@ -71,6 +74,14 @@ export function ExpenseGroupCard({
               >
                 {expenseGroup.name}
               </h3>
+              {expenseGroup.tags?.length > 0 && expenseGroup.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="text-[10px] px-2 py-0.5 bg-primary/15 text-primary rounded-full font-medium flex-shrink-0"
+                >
+                  {tag}
+                </span>
+              ))}
               {isExcluded && (
                 <span className="text-[10px] px-2 py-0.5 bg-amber-500/20 text-amber-400 rounded-full font-medium flex-shrink-0">
                   Excluded
@@ -169,6 +180,20 @@ export function ExpenseGroupCard({
               >
                 <Plus className="w-4 h-4" />
               </Button>
+              {onSplit && (
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  className="text-muted-foreground hover:text-purple-400 hover:bg-purple-500/10"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSplit();
+                  }}
+                  title="Split into groups"
+                >
+                  <Scissors className="w-4 h-4" />
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="icon-xs"

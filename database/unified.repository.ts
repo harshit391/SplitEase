@@ -164,5 +164,27 @@ export function createUnifiedRepository(
       await localRepository.deleteItem(tripId, expenseGroupId, itemId);
       if (userId) backgroundPush(tripId, userId);
     },
+
+    async moveItem(tripId, sourceExpenseGroupId, targetExpenseGroupId, itemId) {
+      const item = await localRepository.moveItem(
+        tripId,
+        sourceExpenseGroupId,
+        targetExpenseGroupId,
+        itemId
+      );
+      if (userId) backgroundPush(tripId, userId);
+      return item;
+    },
+
+    async splitExpenseGroup(tripId, sourceExpenseGroupId, newGroupName, itemIds) {
+      const group = await localRepository.splitExpenseGroup(
+        tripId,
+        sourceExpenseGroupId,
+        newGroupName,
+        itemIds
+      );
+      if (userId) backgroundPush(tripId, userId);
+      return group;
+    },
   };
 }

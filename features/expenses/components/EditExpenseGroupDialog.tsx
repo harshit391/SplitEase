@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Save, Receipt, Percent, IndianRupee } from "lucide-react";
+import { Save, Receipt, Percent, IndianRupee, X } from "lucide-react";
 import { z } from "zod";
 import {
   Dialog,
@@ -51,6 +51,8 @@ export function EditExpenseGroupDialog({
   const [taxDiscountLevel, setTaxDiscountLevel] = useState<"group" | "item">(
     expenseGroup.taxDiscountLevel || "group"
   );
+  const [tags, setTags] = useState<string[]>(expenseGroup.tags || []);
+  const [tagInput, setTagInput] = useState("");
 
   const {
     register,
@@ -76,6 +78,8 @@ export function EditExpenseGroupDialog({
       setTaxMode(tMode);
       setDiscountMode(dMode);
       setTaxDiscountLevel(expenseGroup.taxDiscountLevel || "group");
+      setTags(expenseGroup.tags || []);
+      setTagInput("");
       reset({
         name: expenseGroup.name,
         taxPercent: expenseGroup.taxPercent || 0,
@@ -86,8 +90,27 @@ export function EditExpenseGroupDialog({
     }
   }, [open, expenseGroup, reset]);
 
+  const addTag = (value: string) => {
+    const trimmed = value.trim();
+    if (trimmed && !tags.includes(trimmed)) {
+      setTags([...tags, trimmed]);
+    }
+    setTagInput("");
+  };
+
+  const removeTag = (tag: string) => {
+    setTags(tags.filter((t) => t !== tag));
+  };
+
+  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addTag(tagInput);
+    }
+  };
+
   const handleFormSubmit = (data: FormData) => {
-    const updates: ExpenseGroupUpdate = { name: data.name, taxDiscountLevel };
+    const updates: ExpenseGroupUpdate = { name: data.name, taxDiscountLevel, tags };
 
     if (taxMode === "percentage") {
       updates.taxPercent = data.taxPercent ?? 0;
@@ -144,6 +167,35 @@ export function EditExpenseGroupDialog({
               id="editExpenseGroupName"
               {...register("name")}
               placeholder="Expense group name"
+            />
+          </div>
+
+          {/* Tags */}
+          <div className="space-y-2">
+            <Label>Tags</Label>
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-primary/15 text-primary font-medium"
+                >
+                  {tag}
+                  <button
+                    type="button"
+                    onClick={() => removeTag(tag)}
+                    className="hover:bg-primary/30 rounded-full p-0.5"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+            <Input
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={handleTagKeyDown}
+              onBlur={() => { if (tagInput.trim()) addTag(tagInput); }}
+              placeholder="Type a tag and press Enter"
             />
           </div>
 

@@ -21,6 +21,8 @@ import {
   SummaryTable,
   StatsGrid,
   PersonSpendingGrid,
+  PersonExpenseCards,
+  SpendingChart,
 } from "@/features/summary/components";
 import {
   calculateSettlements,
@@ -208,12 +210,22 @@ export default function SharedTripPage() {
           perPerson={perPerson}
         />
 
+        {/* Spending Breakdown Chart */}
+        {trip.subTopics.length > 0 && (
+          <SpendingChart trip={trip} excludedExpenseGroups={excludedExpenseGroups} />
+        )}
+
         {/* Amount Spent by Each Person */}
         {settlements && (
           <PersonSpendingGrid
             friends={trip.friends}
             settlements={settlements}
           />
+        )}
+
+        {/* Person-Wise Expense Breakdown */}
+        {settlements && trip.subTopics.length > 0 && (
+          <PersonExpenseCards trip={trip} settlements={settlements} />
         )}
 
         {/* Summary Table */}

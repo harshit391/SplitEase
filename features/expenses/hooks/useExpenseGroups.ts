@@ -51,3 +51,24 @@ export function useDeleteExpenseGroup(tripId: string) {
     },
   });
 }
+
+export function useSplitExpenseGroup(tripId: string) {
+  const queryClient = useQueryClient();
+  const repository = useRepository();
+
+  return useMutation({
+    mutationFn: ({
+      sourceExpenseGroupId,
+      newGroupName,
+      itemIds,
+    }: {
+      sourceExpenseGroupId: string;
+      newGroupName: string;
+      itemIds: string[];
+    }) => repository.splitExpenseGroup(tripId, sourceExpenseGroupId, newGroupName, itemIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: tripKeys.all });
+      queryClient.invalidateQueries({ queryKey: tripKeys.detail(tripId) });
+    },
+  });
+}

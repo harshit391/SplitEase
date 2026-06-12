@@ -48,4 +48,18 @@ export interface ITripsRepository {
     expenseGroupId: string,
     itemId: string
   ): Promise<void>;
+
+  moveItem(
+    tripId: string,
+    sourceExpenseGroupId: string,
+    targetExpenseGroupId: string,
+    itemId: string
+  ): Promise<Item | undefined>;
+
+  splitExpenseGroup(
+    tripId: string,
+    sourceExpenseGroupId: string,
+    newGroupName: string,
+    itemIds: string[]
+  ): Promise<ExpenseGroup | undefined>;
 }
