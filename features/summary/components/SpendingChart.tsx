@@ -20,6 +20,7 @@ interface SpendingChartProps {
 interface ChartEntry {
   name: string;
   value: number;
+  color: string;
 }
 
 function ChartWithLegend({ data }: { data: ChartEntry[] }) {
@@ -47,10 +48,10 @@ function ChartWithLegend({ data }: { data: ChartEntry[] }) {
               dataKey="value"
               stroke="none"
             >
-              {data.map((_, index) => (
+              {data.map((entry, index) => (
                 <Cell
                   key={index}
-                  fill={COLORS[index % COLORS.length]}
+                  fill={entry.color}
                   opacity={0.85}
                 />
               ))}
@@ -74,13 +75,13 @@ function ChartWithLegend({ data }: { data: ChartEntry[] }) {
       </div>
 
       <div className="flex-1 space-y-2 w-full">
-        {data.map((entry, index) => {
+        {data.map((entry) => {
           const percentage = ((entry.value / total) * 100).toFixed(1);
           return (
             <div key={entry.name} className="flex items-center gap-3">
               <div
                 className="w-3 h-3 rounded-full shrink-0"
-                style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                style={{ backgroundColor: entry.color }}
               />
               <span className="text-sm text-foreground flex-1 truncate">
                 {entry.name}
@@ -109,7 +110,18 @@ export function SpendingChart({ trip, excludedExpenseGroups }: SpendingChartProp
     [trip.subTopics, excludedExpenseGroups]
   );
 
-  const allData = useMemo(() => {
+  // Stable color assignment: each group gets a fixed color based on its position in trip.subTopics
+  const groupColorMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    trip.subTopics.forEach((group, index) => {
+      map[group.name] = COLORS[index % COLORS.length];
+    });
+    return map;
+  }, [trip.subTopics]);
+
+  const getColor = (name: string) => groupColorMap[name] || COLORS[0];
+
+  const allData = useMemo((): ChartEntry[] => {
     if (viewMode === "tag" && hasTags) {
       const tagTotals: Record<string, number> = {};
       for (const group of included) {
@@ -123,8 +135,9 @@ export function SpendingChart({ trip, excludedExpenseGroups }: SpendingChartProp
           tagTotals[tag] = (tagTotals[tag] || 0) + perTag;
         }
       }
+      // For tag view, assign colors by tag order (stable within session)
       return Object.entries(tagTotals)
-        .map(([name, value]) => ({ name, value }))
+        .map(([name, value], index) => ({ name, value, color: COLORS[index % COLORS.length] }))
         .filter((d) => d.value > 0)
         .sort((a, b) => b.value - a.value);
     }
@@ -136,12 +149,13 @@ export function SpendingChart({ trip, excludedExpenseGroups }: SpendingChartProp
         return {
           name: group.name,
           value: subTopicTotal + totalTax - totalDiscount,
+          color: getColor(group.name),
         };
       })
       .filter((d) => d.value > 0);
-  }, [included, trip.friends, viewMode, hasTags]);
+  }, [included, trip.friends, viewMode, hasTags, getColor]);
 
-  const personData = useMemo(() => {
+  const personData = useMemo((): ChartEntry[] | null => {
     if (activeTab === "all") return null;
 
     const person = activeTab;
@@ -151,10 +165,11 @@ export function SpendingChart({ trip, excludedExpenseGroups }: SpendingChartProp
         return {
           name: group.name,
           value: totals[person] || 0,
+          color: getColor(group.name),
         };
       })
       .filter((d) => d.value > 0);
-  }, [activeTab, included, trip.friends]);
+  }, [activeTab, included, trip.friends, getColor]);
 
   const chartData = activeTab === "all" ? allData : (personData || []);
 
