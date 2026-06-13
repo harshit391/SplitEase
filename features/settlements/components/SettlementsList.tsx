@@ -185,28 +185,28 @@ export function SettlementsList({
             {settlements.map((s, i) => (
               <div
                 key={i}
-                className="flex items-center gap-4 rounded-xl bg-white/[0.02] border border-white/5 p-4 hover:border-primary/20 transition-colors"
+                className="flex items-center gap-2 sm:gap-4 rounded-xl bg-white/[0.02] border border-white/5 p-3 sm:p-4 hover:border-primary/20 transition-colors"
               >
-                <div className="flex items-center gap-3 flex-1">
-                  <span className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center text-sm font-semibold text-red-400 border border-red-500/30">
+                <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                  <span className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-red-500/10 flex items-center justify-center text-xs sm:text-sm font-semibold text-red-400 border border-red-500/30 shrink-0">
                     {s.from.charAt(0).toUpperCase()}
                   </span>
-                  <span className="text-foreground font-medium">{s.from}</span>
+                  <span className="text-foreground font-medium text-sm sm:text-base truncate">{s.from}</span>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <ArrowRight className="w-5 h-5 text-muted-foreground" />
-                  <div className="px-4 py-2 rounded-lg gradient-primary">
-                    <span className="text-white font-bold">
+                <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
+                  <div className="px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-lg gradient-primary">
+                    <span className="text-white font-bold text-xs sm:text-base">
                       {formatCurrency(s.amount)}
                     </span>
                   </div>
-                  <ArrowRight className="w-5 h-5 text-muted-foreground" />
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
                 </div>
 
-                <div className="flex items-center gap-3 flex-1 justify-end">
-                  <span className="text-foreground font-medium">{s.to}</span>
-                  <span className="w-10 h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-sm font-semibold text-emerald-400 border border-emerald-500/30">
+                <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 justify-end">
+                  <span className="text-foreground font-medium text-sm sm:text-base truncate">{s.to}</span>
+                  <span className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-emerald-500/10 flex items-center justify-center text-xs sm:text-sm font-semibold text-emerald-400 border border-emerald-500/30 shrink-0">
                     {s.to.charAt(0).toUpperCase()}
                   </span>
                 </div>
