@@ -13,7 +13,7 @@ export const metadata: Metadata = {
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
       : "http://localhost:3000"
   ),
-  title: "SplitEase - Split bills, not friendships",
+  title: "Split Solve - Split bills, not friendships",
   description:
     "Track shared expenses, split bills fairly, and settle up with friends — all stored locally on your device.",
   icons: {
@@ -21,10 +21,10 @@ export const metadata: Metadata = {
     apple: "/logo.png",
   },
   openGraph: {
-    title: "SplitEase - Split bills, not friendships",
+    title: "Split Solve - Split bills, not friendships",
     description:
       "Track shared expenses, split bills fairly, and settle up with friends.",
-    siteName: "SplitEase",
+    siteName: "Split Solve",
     images: ["/og-image.png"],
     type: "website",
   },

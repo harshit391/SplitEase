@@ -114,12 +114,12 @@ export default function HomePage() {
           <div className="flex items-center gap-3">
             <Image
               src="/logo.png"
-              alt="SplitEase"
+              alt="Split Solve"
               width={32}
               height={32}
               className="w-8 h-8"
             />
-            <span className="font-semibold text-foreground text-lg">SplitEase</span>
+            <span className="font-semibold text-foreground text-lg">Split Solve</span>
           </div>
           <div className="flex items-center gap-2">
             <SyncStatusBadge />

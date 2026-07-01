@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="public/logo.png" alt="SplitEase Logo" width="120" height="120" />
+  <img src="public/logo.png" alt="Split Solve Logo" width="120" height="120" />
 </p>
 
-<h1 align="center">SplitEase</h1>
+<h1 align="center">Split Solve</h1>
 
 <p align="center">
   <strong>Split bills, not friendships.</strong>
@@ -101,8 +101,8 @@
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/yourusername/splitease.git
-cd splitease
+git clone https://github.com/yourusername/splitsolve.git
+cd splitsolve
 npm install
 ```
 
@@ -204,7 +204,7 @@ UI Components
 ### Project Structure
 
 ```
-splitease/
+splitsolve/
 ├── app/                        # Next.js App Router pages
 │   ├── page.tsx               # Home page (trip list + saved trips)
 │   ├── [tripId]/page.tsx      # Trip detail page (owner view)

@@ -150,13 +150,13 @@ export default function SharedTripPage() {
           >
             <Image
               src="/logo.png"
-              alt="SplitEase"
+              alt="Split Solve"
               width={32}
               height={32}
               className="w-8 h-8"
             />
             <span className="font-semibold text-foreground hidden sm:inline">
-              SplitEase
+              Split Solve
             </span>
           </Link>
 

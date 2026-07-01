@@ -64,12 +64,12 @@ function AuthForm() {
           <div className="flex items-center justify-center gap-3 mb-4">
             <Image
               src="/logo.png"
-              alt="SplitEase"
+              alt="Split Solve"
               width={48}
               height={48}
               className="w-12 h-12"
             />
-            <h1 className="text-2xl font-bold gradient-text">SplitEase</h1>
+            <h1 className="text-2xl font-bold gradient-text">Split Solve</h1>
           </div>
           <p className="text-muted-foreground text-sm">
             Split bills, not friendships

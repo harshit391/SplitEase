@@ -6,7 +6,7 @@ export interface LocalTrip extends Trip {
   sync_status: "synced" | "pending" | "conflict";
 }
 
-export class SplitEaseDB extends Dexie {
+export class SplitSolveDB extends Dexie {
   trips!: Table<LocalTrip, string>;
 
   constructor() {
@@ -35,4 +35,4 @@ export class SplitEaseDB extends Dexie {
   }
 }
 
-export const db = new SplitEaseDB();
+export const db = new SplitSolveDB();

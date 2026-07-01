@@ -23,8 +23,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!share) {
     return {
-      title: "Shared Trip | SplitEase",
-      description: "View shared trip expenses on SplitEase.",
+      title: "Shared Trip | Split Solve",
+      description: "View shared trip expenses on Split Solve.",
     };
   }
 
@@ -36,21 +36,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   if (!trip) {
     return {
-      title: "Shared Trip | SplitEase",
-      description: "View shared trip expenses on SplitEase.",
+      title: "Shared Trip | Split Solve",
+      description: "View shared trip expenses on Split Solve.",
     };
   }
 
   const friendCount = trip.friends?.length ?? 0;
-  const description = `View expenses for ${trip.name}${friendCount > 0 ? ` with ${friendCount} people` : ""} on SplitEase.`;
+  const description = `View expenses for ${trip.name}${friendCount > 0 ? ` with ${friendCount} people` : ""} on Split Solve.`;
 
   return {
-    title: `${trip.name} | SplitEase`,
+    title: `${trip.name} | Split Solve`,
     description,
     openGraph: {
-      title: `${trip.name} | SplitEase`,
+      title: `${trip.name} | Split Solve`,
       description,
-      siteName: "SplitEase",
+      siteName: "Split Solve",
       images: ["/og-image.png"],
       type: "website",
     },
