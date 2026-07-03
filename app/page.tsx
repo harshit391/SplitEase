@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect, useMemo } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -28,6 +28,7 @@ import type { Trip } from "@/types";
 import { fadeInUp, staggerContainer } from "@/lib/animations";
 import { UserMenu } from "@/components/user-menu";
 import { SyncStatusBadge } from "@/components/sync-status-badge";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function HomePage() {
   const router = useRouter();
@@ -107,25 +108,30 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Ambient background blobs */}
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <div className="absolute -left-[180px] -top-[160px] h-[430px] w-[430px] rounded-full bg-sky-300/30 dark:bg-[#0A84FF]/15 blur-3xl" />
+        <div className="absolute -right-[130px] top-[80px] h-[480px] w-[480px] rounded-full bg-emerald-300/25 dark:bg-[#30D158]/10 blur-3xl" />
+        <div className="absolute bottom-[-210px] left-[35%] h-[440px] w-[440px] rounded-full bg-fuchsia-200/20 dark:bg-[#BF5AF2]/8 blur-3xl" />
+      </div>
+
       {/* Header / Navigation */}
       <header className="fixed top-0 left-0 right-0 z-50 glass">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Image
-              src="/logo.png"
-              alt="Split Solve"
-              width={32}
-              height={32}
-              className="w-8 h-8"
-            />
-            <span className="font-semibold text-foreground text-lg">Split Solve</span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 via-emerald-400 to-orange-400 shadow-lg">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <span className="font-extrabold text-foreground text-lg tracking-tight">Split Solve</span>
           </div>
           <div className="flex items-center gap-2">
             <SyncStatusBadge />
+            <ThemeToggle />
             <Button
               onClick={openCreateTripDialog}
               size="sm"
+              className="rounded-full"
             >
               <Plus className="w-4 h-4" />
               New Trip
@@ -135,7 +141,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Hero Section with Glow */}
+      {/* Hero Section */}
       <div className="relative hero-glow pt-16">
         <motion.div
           className="relative z-10 max-w-6xl mx-auto px-6 pt-20 pb-24 md:pt-28 md:pb-32"
@@ -147,16 +153,16 @@ export default function HomePage() {
             {/* Badge */}
             <motion.div
               variants={fadeInUp}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-white/10 bg-white/5 text-sm font-medium text-secondary-foreground mb-8"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-secondary/80 dark:bg-white/[0.06] text-sm font-medium text-secondary-foreground mb-8"
             >
-              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="h-2 w-2 rounded-full bg-accent" />
               Bill Splitting Made Easy
             </motion.div>
 
             {/* Hero Headline */}
             <motion.h1
               variants={fadeInUp}
-              className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground mb-6 tracking-tight leading-[1.1]"
+              className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-foreground mb-6 tracking-tight leading-[1.1]"
             >
               Split bills,{" "}
               <span className="gradient-text italic">not friendships</span>
@@ -180,6 +186,7 @@ export default function HomePage() {
                 onClick={openCreateTripDialog}
                 size="lg"
                 variant="glow"
+                className="rounded-full"
               >
                 <Plus className="w-5 h-5" />
                 Create New Trip
@@ -188,6 +195,7 @@ export default function HomePage() {
                 onClick={handleImportTrip}
                 size="lg"
                 variant="outline"
+                className="rounded-full"
               >
                 <Upload className="w-5 h-5" />
                 Import Trip
@@ -205,7 +213,7 @@ export default function HomePage() {
       </div>
 
       {/* Trips Section with Tabs */}
-      <div className="relative max-w-6xl mx-auto px-6 py-16 md:py-24">
+      <div className="relative z-10 max-w-6xl mx-auto px-6 py-16 md:py-24">
         {/* Tab Bar */}
         {(trips.length > 0 || hasSavedTrips) && (
           <motion.div
@@ -214,13 +222,13 @@ export default function HomePage() {
             className="flex items-center justify-between mb-10"
           >
             <div className="flex items-center gap-2">
-              <div className="flex rounded-xl overflow-hidden border border-white/10 bg-white/[0.02]">
+              <div className="flex items-center gap-1 rounded-full bg-secondary/80 dark:bg-white/[0.06] p-1 ring-1 ring-border">
                 <button
                   type="button"
-                  className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
                     activeTab === "my"
-                      ? "bg-primary text-white"
-                      : "bg-transparent text-muted-foreground hover:text-foreground"
+                      ? "bg-foreground text-background shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                   onClick={() => setActiveTab("my")}
                 >
@@ -229,8 +237,8 @@ export default function HomePage() {
                   <span
                     className={`text-xs px-1.5 py-0.5 rounded-full ${
                       activeTab === "my"
-                        ? "bg-white/20 text-white"
-                        : "bg-white/5 text-muted-foreground"
+                        ? "bg-background/20 text-background"
+                        : "bg-muted text-muted-foreground"
                     }`}
                   >
                     {trips.length}
@@ -239,10 +247,10 @@ export default function HomePage() {
                 {hasSavedTrips && (
                   <button
                     type="button"
-                    className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors ${
+                    className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold transition-all ${
                       activeTab === "saved"
-                        ? "bg-primary text-white"
-                        : "bg-transparent text-muted-foreground hover:text-foreground"
+                        ? "bg-foreground text-background shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
                     }`}
                     onClick={() => setActiveTab("saved")}
                   >
@@ -251,8 +259,8 @@ export default function HomePage() {
                     <span
                       className={`text-xs px-1.5 py-0.5 rounded-full ${
                         activeTab === "saved"
-                          ? "bg-white/20 text-white"
-                          : "bg-white/5 text-muted-foreground"
+                          ? "bg-background/20 text-background"
+                          : "bg-muted text-muted-foreground"
                       }`}
                     >
                       {savedTrips.length}
@@ -271,7 +279,7 @@ export default function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-center py-20"
           >
-            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-card border border-white/5 flex items-center justify-center">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-card border border-border flex items-center justify-center shadow-soft-sm">
               <Receipt className="w-10 h-10 text-muted-foreground" />
             </div>
             <h3 className="text-xl font-semibold text-foreground mb-3">
@@ -283,7 +291,7 @@ export default function HomePage() {
                 : "Save trips shared with you and they'll appear here."}
             </p>
             {activeTab === "my" && (
-              <Button onClick={openCreateTripDialog} variant="glow">
+              <Button onClick={openCreateTripDialog} variant="glow" className="rounded-full">
                 <Plus className="w-5 h-5" />
                 Create Trip
               </Button>
@@ -311,7 +319,7 @@ export default function HomePage() {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-white/5 py-8">
+      <footer className="relative z-10 border-t border-border py-8">
         <div className="max-w-6xl mx-auto px-6 text-center">
           <p className="text-sm text-muted-foreground">
             Built with care. All data stored locally on your device.

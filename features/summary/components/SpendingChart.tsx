@@ -8,8 +8,8 @@ import { calculateSubTopicPersonTotals } from "@/services";
 import { formatCurrency } from "@/utils";
 
 const COLORS = [
-  "#8b5cf6", "#06b6d4", "#f59e0b", "#10b981", "#ef4444",
-  "#ec4899", "#6366f1", "#14b8a6", "#f97316", "#84cc16",
+  "#007AFF", "#34C759", "#FF9500", "#AF52DE", "#FF2D55",
+  "#5AC8FA", "#FFCC00", "#FF3B30", "#64D2FF", "#30D158",
 ];
 
 interface SpendingChartProps {
@@ -61,7 +61,7 @@ function ChartWithLegend({ data }: { data: ChartEntry[] }) {
                 if (!active || !payload?.length) return null;
                 const item = payload[0];
                 return (
-                  <div className="bg-card border border-white/10 rounded-lg px-3 py-2 shadow-lg">
+                  <div className="bg-card border border-border rounded-lg px-3 py-2 shadow-lg">
                     <p className="text-xs text-foreground font-medium">{item.name}</p>
                     <p className="text-xs text-muted-foreground">
                       {formatCurrency(item.value as number)}
@@ -176,21 +176,16 @@ export function SpendingChart({ trip, excludedExpenseGroups }: SpendingChartProp
   if (allData.length === 0) return null;
 
   return (
-    <div className="rounded-2xl bg-card border border-white/5 p-6">
+    <div className="rounded-[28px] bg-card border border-border p-6 shadow-soft-sm dark:shadow-none">
       <div className="flex items-center justify-between mb-5">
-        <h3 className="flex items-center gap-3 text-foreground text-sm font-semibold">
-          <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
-            <PieChartIcon className="w-4 h-4 text-primary" />
-          </div>
-          Spending Breakdown
-        </h3>
+        <h3 className="font-extrabold text-foreground tracking-tight">Spending Breakdown</h3>
         {hasTags && activeTab === "all" && (
-          <div className="flex rounded-lg overflow-hidden border border-white/10 text-xs">
+          <div className="flex items-center gap-1 rounded-full bg-secondary/80 dark:bg-white/[0.06] p-1 ring-1 ring-border text-xs">
             <button
               type="button"
-              className={`px-3 py-1.5 font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-full font-bold transition-colors ${
                 viewMode === "group"
-                  ? "bg-primary text-white"
+                  ? "bg-foreground text-background shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
               onClick={() => setViewMode("group")}
@@ -199,9 +194,9 @@ export function SpendingChart({ trip, excludedExpenseGroups }: SpendingChartProp
             </button>
             <button
               type="button"
-              className={`px-3 py-1.5 font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-full font-bold transition-colors ${
                 viewMode === "tag"
-                  ? "bg-primary text-white"
+                  ? "bg-foreground text-background shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
               onClick={() => setViewMode("tag")}
@@ -216,10 +211,10 @@ export function SpendingChart({ trip, excludedExpenseGroups }: SpendingChartProp
       <div className="flex items-center gap-1 mb-5 overflow-x-auto pb-1">
         <button
           type="button"
-          className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors shrink-0 ${
+          className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors shrink-0 ${
             activeTab === "all"
-              ? "bg-primary text-white"
-              : "bg-white/5 text-muted-foreground hover:text-foreground hover:bg-white/10"
+              ? "bg-foreground text-background shadow-sm"
+              : "bg-secondary/80 dark:bg-white/[0.06] text-muted-foreground hover:text-foreground"
           }`}
           onClick={() => setActiveTab("all")}
         >
@@ -229,10 +224,10 @@ export function SpendingChart({ trip, excludedExpenseGroups }: SpendingChartProp
           <button
             key={friend}
             type="button"
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors shrink-0 ${
+            className={`px-3 py-1.5 rounded-full text-xs font-bold transition-colors shrink-0 ${
               activeTab === friend
-                ? "bg-primary text-white"
-                : "bg-white/5 text-muted-foreground hover:text-foreground hover:bg-white/10"
+                ? "bg-foreground text-background shadow-sm"
+                : "bg-secondary/80 dark:bg-white/[0.06] text-muted-foreground hover:text-foreground"
             }`}
             onClick={() => setActiveTab(friend)}
           >

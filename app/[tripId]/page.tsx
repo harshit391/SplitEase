@@ -56,6 +56,7 @@ import { UserMenu } from "@/components/user-menu";
 import { SyncStatusBadge } from "@/components/sync-status-badge";
 import { OfflineBanner } from "@/components/offline-banner";
 import { ShareTripDialog } from "@/components/share-trip-dialog";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
 
 export default function TripPage() {
@@ -350,26 +351,28 @@ export default function TripPage() {
   const perPerson = trip.friends.length > 0 ? grandTotal / trip.friends.length : 0;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Ambient background blobs */}
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <div className="absolute -left-[180px] -top-[160px] h-[430px] w-[430px] rounded-full bg-sky-300/30 dark:bg-[#0A84FF]/12 blur-3xl" />
+        <div className="absolute -right-[130px] top-[80px] h-[380px] w-[380px] rounded-full bg-emerald-300/20 dark:bg-[#30D158]/8 blur-3xl" />
+      </div>
+
       <OfflineBanner />
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 glass">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <Image
-              src="/logo.png"
-              alt="Split Solve"
-              width={32}
-              height={32}
-              className="w-8 h-8"
-            />
-            <span className="font-semibold text-foreground hidden sm:inline">Split Solve</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 via-emerald-400 to-orange-400">
+              <ArrowLeft className="w-4 h-4 text-white" />
+            </div>
+            <span className="font-extrabold text-foreground hidden sm:inline tracking-tight">Split Solve</span>
           </Link>
 
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/5">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/80 dark:bg-white/[0.06] ring-1 ring-border">
               <MapPin className="w-4 h-4 text-primary" />
-              <span className="font-medium text-foreground text-sm">{trip.name}</span>
+              <span className="font-semibold text-foreground text-sm">{trip.name}</span>
               <Button
                 variant="ghost"
                 size="icon-xs"
@@ -386,6 +389,7 @@ export default function TripPage() {
             <Button
               variant="outline"
               size="sm"
+              className="rounded-full"
               onClick={() => setShareTripDialogOpen(true)}
               title="Share Trip"
             >
@@ -395,6 +399,7 @@ export default function TripPage() {
             <Button
               variant="outline"
               size="sm"
+              className="rounded-full"
               onClick={handleExportTrip}
               title="Export This Trip"
             >
@@ -402,8 +407,10 @@ export default function TripPage() {
               <span className="hidden md:inline">Export</span>
             </Button>
             <SyncStatusBadge />
+            <ThemeToggle />
             <Button
               size="sm"
+              className="rounded-full"
               onClick={() => setAddExpenseGroupDialogOpen(true)}
             >
               <Plus className="w-4 h-4" />
@@ -414,7 +421,7 @@ export default function TripPage() {
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto px-6 pt-24 pb-16 space-y-10">
+      <div className="relative z-10 max-w-6xl mx-auto px-6 pt-24 pb-16 space-y-10">
         {/* Stats Row */}
         <StatsGrid
           friendsCount={trip.friends.length}
@@ -440,10 +447,10 @@ export default function TripPage() {
 
         {/* Summary Table */}
         {trip.subTopics.length > 0 && (
-          <div className="rounded-2xl bg-card border border-white/5 p-6">
-            <h2 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-primary" />
+          <div className="rounded-[28px] bg-card border border-border p-6 shadow-soft-sm dark:shadow-none">
+            <h2 className="text-lg font-extrabold text-foreground mb-6 flex items-center gap-3 tracking-tight">
+              <div className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-[#0A84FF]/15 ring-1 ring-sky-200 dark:ring-[#0A84FF]/30 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-sky-600 dark:text-[#64D2FF]" />
               </div>
               Overall Summary
             </h2>
@@ -467,7 +474,7 @@ export default function TripPage() {
         {/* Expense Groups */}
         {trip.subTopics.length === 0 ? (
           <div className="text-center py-20">
-            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-card border border-white/5 flex items-center justify-center">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-card border border-border flex items-center justify-center shadow-soft-sm">
               <Receipt className="w-10 h-10 text-muted-foreground" />
             </div>
             <h3 className="text-lg font-semibold text-foreground mb-3">
@@ -479,6 +486,7 @@ export default function TripPage() {
             <Button
               onClick={() => setAddExpenseGroupDialogOpen(true)}
               variant="glow"
+              className="rounded-full"
             >
               <Plus className="w-5 h-5" />
               Add First Expense
@@ -486,9 +494,9 @@ export default function TripPage() {
           </div>
         ) : (
           <div className="space-y-5">
-            <h2 className="text-lg font-semibold text-foreground flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-                <Receipt className="w-5 h-5 text-primary" />
+            <h2 className="text-lg font-extrabold text-foreground flex items-center gap-3 tracking-tight">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-[#30D158]/15 ring-1 ring-emerald-200 dark:ring-[#30D158]/30 flex items-center justify-center">
+                <Receipt className="w-5 h-5 text-emerald-600 dark:text-[#30D158]" />
               </div>
               Expense Groups
             </h2>

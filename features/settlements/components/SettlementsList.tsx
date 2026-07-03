@@ -54,18 +54,18 @@ export function SettlementsList({
   return (
     <div className="space-y-6">
       {/* Section 1: Net Balance Table */}
-      <div className="rounded-2xl bg-card border border-white/5 p-6">
-        <h2 className="text-lg font-semibold text-foreground mb-6 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-            <Info className="w-5 h-5 text-primary" />
+      <div className="rounded-[28px] bg-card border border-border p-6 shadow-soft-sm dark:shadow-none">
+        <h2 className="text-lg font-extrabold text-foreground mb-6 flex items-center gap-3 tracking-tight">
+          <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-[#FF9500]/15 ring-1 ring-orange-200 dark:ring-[#FF9500]/30 flex items-center justify-center">
+            <Info className="w-5 h-5 text-orange-600 dark:text-[#FF9F0A]" />
           </div>
           Net Balance
         </h2>
 
-        <div className="overflow-x-auto rounded-xl border border-white/5">
+        <div className="overflow-x-auto rounded-xl border border-border">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-white/5 bg-white/[0.02]">
+              <tr className="border-b border-border bg-secondary/50 dark:bg-white/[0.02]">
                 <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Person
                 </th>
@@ -89,7 +89,7 @@ export function SettlementsList({
                 return (
                   <tr
                     key={person}
-                    className="border-b border-white/5 last:border-0 hover:bg-white/[0.02] transition-colors"
+                    className="border-b border-border last:border-0 hover:bg-secondary/50 dark:hover:bg-white/[0.02] transition-colors"
                   >
                     <td className="py-3 px-4">
                       <div className="flex items-center gap-3">
@@ -144,7 +144,7 @@ export function SettlementsList({
           </table>
         </div>
 
-        <div className="mt-4 p-3 rounded-xl bg-white/[0.02] border border-white/5 text-sm text-muted-foreground">
+        <div className="mt-4 p-3 rounded-xl bg-secondary/50 dark:bg-white/[0.02] border border-border text-sm text-muted-foreground">
           <span className="text-red-400 font-medium">Negative</span> = owes
           money |{" "}
           <span className="text-emerald-400 font-medium">Positive</span> =
@@ -154,11 +154,11 @@ export function SettlementsList({
 
       {/* Section 2: Final Settlements */}
       {hasTransactions && (
-        <div className="rounded-2xl bg-card border border-white/5 p-6">
+        <div className="rounded-[28px] bg-card border border-border p-6 shadow-soft-sm dark:shadow-none">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-foreground flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-                <Wallet className="w-5 h-5 text-primary" />
+            <h2 className="text-lg font-extrabold text-foreground flex items-center gap-3 tracking-tight">
+              <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-[#BF5AF2]/15 ring-1 ring-purple-200 dark:ring-[#BF5AF2]/30 flex items-center justify-center">
+                <Wallet className="w-5 h-5 text-purple-600 dark:text-[#BF5AF2]" />
               </div>
               Settlements
             </h2>
@@ -185,7 +185,7 @@ export function SettlementsList({
             {settlements.map((s, i) => (
               <div
                 key={i}
-                className="flex items-center gap-2 sm:gap-4 rounded-xl bg-white/[0.02] border border-white/5 p-3 sm:p-4 hover:border-primary/20 transition-colors"
+                className="flex items-center gap-2 sm:gap-4 rounded-2xl bg-secondary/50 dark:bg-white/[0.02] ring-1 ring-border p-3 sm:p-4 hover:ring-primary/30 transition-colors"
               >
                 <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                   <span className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-red-500/10 flex items-center justify-center text-xs sm:text-sm font-semibold text-red-400 border border-red-500/30 shrink-0">
@@ -196,7 +196,7 @@ export function SettlementsList({
 
                 <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
                   <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground" />
-                  <div className="px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-lg gradient-primary">
+                  <div className="px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-lg bg-primary">
                     <span className="text-white font-bold text-xs sm:text-base">
                       {formatCurrency(s.amount)}
                     </span>
@@ -216,7 +216,7 @@ export function SettlementsList({
 
           {/* Section 3: Calculation Steps (Expandable) */}
           {steps.length > 0 && (
-            <div className="mt-6 pt-6 border-t border-white/5">
+            <div className="mt-6 pt-6 border-t border-border">
               <Button
                 variant="ghost"
                 onClick={() => setShowSteps(!showSteps)}
@@ -241,7 +241,7 @@ export function SettlementsList({
                     return (
                       <div
                         key={step.stepNumber}
-                        className="rounded-xl bg-white/[0.02] border border-white/5 p-4"
+                        className="rounded-xl bg-secondary/50 dark:bg-white/[0.02] border border-border p-4"
                       >
                         <div className="flex items-center gap-2 mb-3">
                           <span className="w-6 h-6 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-xs font-bold text-primary">
@@ -292,7 +292,7 @@ export function SettlementsList({
                               .map(([person, balance]) => (
                                 <div
                                   key={person}
-                                  className="flex items-center justify-between rounded-lg bg-card border border-white/5 px-2 py-1"
+                                  className="flex items-center justify-between rounded-lg bg-card border border-border px-2 py-1"
                                 >
                                   <span>{person}</span>
                                   <span

@@ -164,7 +164,7 @@ export function SummaryTable({
 
       {/* Link Input Section */}
       {showLinkInput && (
-        <div className="rounded-xl bg-white/[0.02] border border-white/5 p-4 space-y-3">
+        <div className="rounded-xl bg-secondary/50 dark:bg-white/[0.02] border border-border p-4 space-y-3">
           <label className="block text-sm font-medium text-foreground">
             Google Sheets URL
           </label>
@@ -200,10 +200,10 @@ export function SummaryTable({
       )}
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-xl border border-white/5">
+      <div className="overflow-x-auto rounded-xl border border-border">
         <Table>
           <TableHeader>
-            <TableRow className="bg-white/[0.02]">
+            <TableRow className="bg-secondary/50 dark:bg-white/[0.02]">
               <TableHead className="min-w-[120px]">Expense</TableHead>
               {trip.friends.map((f) => (
                 <TableHead

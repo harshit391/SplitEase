@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, IndianRupee, User, CreditCard, Split } from "lucide-react";
+import { ChevronDown, IndianRupee, CreditCard, Split } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Trip, SettlementResult } from "@/types";
 import { formatCurrency } from "@/utils";
@@ -17,6 +17,13 @@ interface PersonItemInfo {
   groupName: string;
   share?: number;
 }
+
+const PERSON_COLORS = [
+  { bg: "bg-sky-100 dark:bg-[#0A84FF]/15", text: "text-sky-700 dark:text-[#64D2FF]" },
+  { bg: "bg-emerald-100 dark:bg-[#30D158]/15", text: "text-emerald-700 dark:text-[#30D158]" },
+  { bg: "bg-orange-100 dark:bg-[#FF9500]/15", text: "text-orange-700 dark:text-[#FF9F0A]" },
+  { bg: "bg-purple-100 dark:bg-[#BF5AF2]/15", text: "text-purple-700 dark:text-[#BF5AF2]" },
+];
 
 export function PersonExpenseCards({ trip, settlements }: PersonExpenseCardsProps) {
   const [expandedPerson, setExpandedPerson] = useState<string | null>(null);
@@ -52,58 +59,56 @@ export function PersonExpenseCards({ trip, settlements }: PersonExpenseCardsProp
   };
 
   return (
-    <div className="rounded-2xl bg-card border border-white/5 p-6">
-      <h3 className="flex items-center gap-3 text-foreground text-sm font-semibold mb-5">
-        <div className="w-8 h-8 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
-          <User className="w-4 h-4 text-primary" />
-        </div>
-        Person-Wise Expenses
-      </h3>
+    <div className="rounded-[28px] bg-card border border-border p-6 shadow-soft-sm dark:shadow-none">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="font-extrabold text-foreground tracking-tight">Person-wise Expenses</h3>
+      </div>
 
       <div className="space-y-3">
-        {trip.friends.map((person) => {
+        {trip.friends.map((person, index) => {
           const balance = settlements.balances[person];
           const net = settlements.nets[person] || 0;
           const isExpanded = expandedPerson === person;
           const { paidFor, splitOn } = getPersonItems(person);
+          const colors = PERSON_COLORS[index % PERSON_COLORS.length];
 
           return (
             <div
               key={person}
-              className="rounded-xl border border-white/5 bg-white/[0.02] overflow-hidden"
+              className="rounded-2xl bg-secondary/50 dark:bg-white/[0.03] ring-1 ring-border overflow-hidden"
             >
               <button
                 type="button"
-                className="w-full flex items-center gap-3 p-4 hover:bg-white/[0.03] transition-colors"
+                className="w-full flex items-center gap-3 p-4 hover:bg-secondary/80 dark:hover:bg-white/[0.04] transition-colors"
                 onClick={() => setExpandedPerson(isExpanded ? null : person)}
               >
-                <span className="w-9 h-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-sm font-semibold text-primary shrink-0">
+                <span className={`w-10 h-10 rounded-full ${colors.bg} flex items-center justify-center text-sm font-extrabold ${colors.text} shrink-0`}>
                   {person.charAt(0).toUpperCase()}
                 </span>
 
                 <div className="flex-1 text-left min-w-0">
-                  <span className="font-medium text-foreground text-sm truncate block">
+                  <span className="font-extrabold text-foreground text-sm truncate block">
                     {person}
                   </span>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
-                    <span>Paid: {formatCurrency(balance?.paid || 0)}</span>
-                    <span>Owes: {formatCurrency(balance?.owes || 0)}</span>
+                    <span>Paid {formatCurrency(balance?.paid || 0)}</span>
+                    <span>·</span>
+                    <span>Owes {formatCurrency(balance?.owes || 0)}</span>
                   </div>
                 </div>
 
                 <span
-                  className={`text-sm font-bold shrink-0 ${
+                  className={`text-sm font-extrabold shrink-0 ${
                     net > 0.01
-                      ? "text-emerald-400"
+                      ? "text-emerald-600 dark:text-emerald-400"
                       : net < -0.01
-                      ? "text-red-400"
+                      ? "text-red-500 dark:text-red-400"
                       : "text-muted-foreground"
                   }`}
                 >
-                  {net > 0.01 ? "+" : ""}
-                  {formatCurrency(Math.abs(net))}
-                  {net > 0.01 && <span className="text-[10px] font-normal ml-1">gets back</span>}
-                  {net < -0.01 && <span className="text-[10px] font-normal ml-1">to pay</span>}
+                  {net > 0.01 && formatCurrency(Math.abs(net)) + " gets back"}
+                  {net < -0.01 && formatCurrency(Math.abs(net)) + " to pay"}
+                  {Math.abs(net) <= 0.01 && "Settled"}
                 </span>
 
                 <ChevronDown
@@ -133,7 +138,7 @@ export function PersonExpenseCards({ trip, settlements }: PersonExpenseCardsProp
                             {paidFor.map((item, i) => (
                               <div
                                 key={i}
-                                className="flex items-center justify-between py-1.5 px-3 rounded-lg bg-white/[0.03]"
+                                className="flex items-center justify-between py-1.5 px-3 rounded-lg bg-background/50 dark:bg-white/[0.03]"
                               >
                                 <div className="min-w-0">
                                   <span className="text-sm text-foreground truncate block">
@@ -163,7 +168,7 @@ export function PersonExpenseCards({ trip, settlements }: PersonExpenseCardsProp
                             {splitOn.map((item, i) => (
                               <div
                                 key={i}
-                                className="flex items-center justify-between py-1.5 px-3 rounded-lg bg-white/[0.03]"
+                                className="flex items-center justify-between py-1.5 px-3 rounded-lg bg-background/50 dark:bg-white/[0.03]"
                               >
                                 <div className="min-w-0">
                                   <span className="text-sm text-foreground truncate block">

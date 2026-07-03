@@ -51,17 +51,17 @@ export function ExpenseGroupCard({
 
   return (
     <Card
-      className={`overflow-hidden transition-all duration-200 rounded-2xl ${
-        isExcluded ? "border-white/[0.02] opacity-60" : "border-white/5 hover:border-primary/20"
+      className={`overflow-hidden transition-all duration-200 rounded-[24px] ${
+        isExcluded ? "border-border/50 opacity-60" : "border-border hover:border-primary/30"
       }`}
     >
       <div
-        className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-white/[0.02] transition-colors"
+        className="flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-secondary/50 dark:hover:bg-white/[0.02] transition-colors"
         onClick={onToggleExpand}
       >
         <div className="flex items-center gap-4 min-w-0 flex-1">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
-            <Receipt className="w-5 h-5 text-primary" />
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-[#30D158]/15 ring-1 ring-emerald-200 dark:ring-[#30D158]/30 flex items-center justify-center flex-shrink-0">
+            <Receipt className="w-5 h-5 text-emerald-600 dark:text-[#30D158]" />
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
@@ -226,7 +226,7 @@ export function ExpenseGroupCard({
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="border-t border-white/5 p-5 bg-white/[0.01]">{children}</div>
+            <div className="border-t border-border p-5 bg-secondary/30 dark:bg-white/[0.01]">{children}</div>
           </motion.div>
         )}
       </AnimatePresence>
