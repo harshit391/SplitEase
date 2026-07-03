@@ -24,7 +24,7 @@ export function PersonSpendingGrid({
   const minAmount = Math.min(...amounts.filter((a) => a > 0));
 
   return (
-    <div className="rounded-[28px] bg-card border-[1.5px] border-[#d4d4d8] dark:border-[rgba(255,255,255,0.1)] p-6">
+    <div className="rounded-[28px] bg-card [border:1.5px_solid_#c4c4c8] dark:[border:1.5px_solid_rgba(255,255,255,0.1)] p-6">
       <h3 className="font-extrabold text-foreground tracking-tight mb-5">By Person</h3>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
         {friends.map((f, index) => {

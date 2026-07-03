@@ -54,7 +54,7 @@ export function SettlementsList({
   return (
     <div className="space-y-6">
       {/* Section 1: Net Balance Table */}
-      <div className="rounded-[28px] bg-card border-[1.5px] border-[#d4d4d8] dark:border-[rgba(255,255,255,0.1)] p-6">
+      <div className="rounded-[28px] bg-card [border:1.5px_solid_#c4c4c8] dark:[border:1.5px_solid_rgba(255,255,255,0.1)] p-6">
         <h2 className="text-lg font-extrabold text-foreground mb-6 flex items-center gap-3 tracking-tight">
           <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-[#FF9500]/15 ring-1 ring-orange-200 dark:ring-[#FF9500]/30 flex items-center justify-center">
             <Info className="w-5 h-5 text-orange-600 dark:text-[#FF9F0A]" />
@@ -154,7 +154,7 @@ export function SettlementsList({
 
       {/* Section 2: Final Settlements */}
       {hasTransactions && (
-        <div className="rounded-[28px] bg-card border-[1.5px] border-[#d4d4d8] dark:border-[rgba(255,255,255,0.1)] p-6">
+        <div className="rounded-[28px] bg-card [border:1.5px_solid_#c4c4c8] dark:[border:1.5px_solid_rgba(255,255,255,0.1)] p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-extrabold text-foreground flex items-center gap-3 tracking-tight">
               <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-[#BF5AF2]/15 ring-1 ring-purple-200 dark:ring-[#BF5AF2]/30 flex items-center justify-center">

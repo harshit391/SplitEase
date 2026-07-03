@@ -54,7 +54,7 @@ export function TripCard({ trip, onDelete, savedView, linkPrefix }: TripCardProp
       className="hover-lift"
     >
       <Link href={linkPrefix ? `${linkPrefix}/${trip.shareCode || trip.id}` : `/${trip.id}`}>
-        <div className="group relative rounded-[28px] border-[1.5px] border-[#d4d4d8] dark:border-[rgba(255,255,255,0.1)] bg-white dark:bg-white/[0.065] p-6 cursor-pointer transition-all duration-200 hover:border-[#a1a1aa] dark:hover:border-[rgba(255,255,255,0.2)]">
+        <div className="group relative rounded-[28px] bg-white dark:bg-white/[0.065] p-6 cursor-pointer transition-all duration-200" style={{ border: '1.5px solid #c4c4c8' }}>
           {/* Delete button */}
           {!savedView && (
             <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-10">
