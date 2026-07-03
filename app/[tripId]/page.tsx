@@ -39,8 +39,6 @@ import { AddItemDialog, EditItemDialog, ItemTable, MoveItemDialog } from "@/feat
 import { SettlementsList } from "@/features/settlements/components";
 import {
   SummaryTable,
-  StatsGrid,
-  PersonSpendingGrid,
   PersonExpenseCards,
   SpendingChart,
 } from "@/features/summary/components";
@@ -56,12 +54,15 @@ import { SyncStatusBadge } from "@/components/sync-status-badge";
 import { OfflineBanner } from "@/components/offline-banner";
 import { ShareTripDialog } from "@/components/share-trip-dialog";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useTheme } from "@/components/theme-provider";
 import { createClient } from "@/lib/supabase/client";
 
 export default function TripPage() {
   const params = useParams();
   const router = useRouter();
   const tripId = params.tripId as string;
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
 
   const { data: trip, isLoading } = useTrip(tripId);
   const updateTrip = useUpdateTrip();
@@ -347,8 +348,6 @@ export default function TripPage() {
     });
   };
 
-  const perPerson = trip.friends.length > 0 ? grandTotal / trip.friends.length : 0;
-
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Ambient background blobs */}
@@ -424,54 +423,63 @@ export default function TripPage() {
         </div>
       </header>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6 pt-24 pb-16 space-y-10">
-        {/* 1. Stats */}
-        <StatsGrid
-          friendsCount={trip.friends.length}
-          expensesCount={trip.subTopics.length}
-          totalSpent={grandTotal}
-          perPerson={perPerson}
-        />
-
-        {/* 2. Chart */}
-        {trip.subTopics.length > 0 && (
-          <SpendingChart trip={trip} excludedExpenseGroups={excludedExpenseGroups} />
-        )}
-
-        {/* 3. Person (spending per person) */}
-        {settlements && (
-          <PersonSpendingGrid friends={trip.friends} settlements={settlements} />
-        )}
-
-        {/* 4. Summary Table */}
-        {trip.subTopics.length > 0 && (
-          <div className="rounded-[28px] bg-card [border:1.5px_solid_#c4c4c8] dark:[border:1.5px_solid_rgba(255,255,255,0.1)] p-6">
-            <h2 className="text-lg font-extrabold text-foreground mb-6 flex items-center gap-3 tracking-tight">
-              <div className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-[#0A84FF]/15 ring-1 ring-sky-200 dark:ring-[#0A84FF]/30 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-sky-600 dark:text-[#64D2FF]" />
+      <div className="relative z-10 max-w-6xl mx-auto px-6 pt-24 pb-16 space-y-8">
+        {/* Hero: Trip summary bar */}
+        <div
+          className="rounded-[20px] p-6 md:p-8"
+          style={{
+            background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
+            border: "1px solid rgba(255,255,255,.06)",
+          }}
+        >
+          <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">{trip.name}</h1>
+              <p className="text-sm text-slate-400 mt-1">{new Date(trip.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-5 ml-auto text-sm">
+              <div className="text-center">
+                <div className="text-white font-bold text-lg">{trip.friends.length}</div>
+                <div className="text-slate-400 text-xs">Friends</div>
               </div>
-              Overall Summary
-            </h2>
-            <SummaryTable
-              trip={trip}
-              excludedSubTopicIds={excludedExpenseGroups}
-              onUpdateGoogleSheetUrl={handleUpdateGoogleSheetUrl}
-            />
+              <div className="text-center">
+                <div className="text-white font-bold text-lg">{trip.subTopics.length}</div>
+                <div className="text-slate-400 text-xs">Expenses</div>
+              </div>
+              <div className="text-center">
+                <div className="text-white font-bold text-lg">₹{grandTotal.toFixed(0)}</div>
+                <div className="text-slate-400 text-xs">Total</div>
+              </div>
+              {settlements && settlements.settlements.length > 0 && (
+                <div className="text-center">
+                  <div className="text-amber-400 font-bold text-lg">{settlements.settlements.length}</div>
+                  <div className="text-slate-400 text-xs">Pending</div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Settlement + Chart: Side by side on desktop */}
+        {trip.subTopics.length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Settlement (primary — what users came for) */}
+            {settlements && (
+              <SettlementsList
+                tripName={trip.name}
+                settlementResult={settlements}
+                shareUrl={shareCode ? `${window.location.origin}/shared/${shareCode}` : undefined}
+              />
+            )}
+
+            {/* Chart */}
+            <SpendingChart trip={trip} excludedExpenseGroups={excludedExpenseGroups} />
           </div>
         )}
 
-        {/* 5. Balance (person-wise breakdown) */}
+        {/* Participants: Combined person view (replaces PersonSpendingGrid + PersonExpenseCards) */}
         {settlements && trip.subTopics.length > 0 && (
           <PersonExpenseCards trip={trip} settlements={settlements} />
-        )}
-
-        {/* 6. Settlement */}
-        {settlements && (
-          <SettlementsList
-            tripName={trip.name}
-            settlementResult={settlements}
-            shareUrl={shareCode ? `${window.location.origin}/shared/${shareCode}` : undefined}
-          />
         )}
 
         {/* Expense Groups */}
@@ -551,6 +559,35 @@ export default function TripPage() {
               </ExpenseGroupCard>
             ))}
           </div>
+        )}
+
+        {/* Detailed Expense Table (expandable) */}
+        {trip.subTopics.length > 0 && (
+          <details className="group">
+            <summary
+              className="list-none cursor-pointer rounded-[20px] p-5 flex items-center justify-between"
+              style={{
+                background: isDark ? '#16181D' : '#FFFFFF',
+                border: isDark ? '1px solid rgba(255,255,255,.08)' : '1px solid #E8EAF1',
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <TrendingUp className="w-5 h-5 text-muted-foreground" />
+                <span className="font-semibold text-foreground">Detailed Expense Table</span>
+              </div>
+              <span className="text-muted-foreground text-sm group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <div className="mt-4 rounded-[20px] p-6" style={{
+              background: isDark ? '#16181D' : '#FFFFFF',
+              border: isDark ? '1px solid rgba(255,255,255,.08)' : '1px solid #E8EAF1',
+            }}>
+              <SummaryTable
+                trip={trip}
+                excludedSubTopicIds={excludedExpenseGroups}
+                onUpdateGoogleSheetUrl={handleUpdateGoogleSheetUrl}
+              />
+            </div>
+          </details>
         )}
       </div>
 
