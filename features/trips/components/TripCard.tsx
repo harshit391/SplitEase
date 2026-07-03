@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import type { Trip } from "@/types";
 import { staggerItem } from "@/lib/animations";
 import { useTheme } from "@/components/theme-provider";
+import { useConfirm } from "@/components/confirm-dialog";
 
 interface TripCardProps {
   trip: Trip;
@@ -56,6 +57,7 @@ const DARK = {
 };
 
 export function TripCard({ trip, onDelete, savedView, linkPrefix }: TripCardProps) {
+  const { confirm } = useConfirm();
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
   const t = isDark ? DARK : LIGHT;
@@ -71,12 +73,11 @@ export function TripCard({ trip, onDelete, savedView, linkPrefix }: TripCardProp
 
   const status = trip.subTopics.length === 0 ? "New" : "Active";
 
-  const handleDelete = (e: React.MouseEvent) => {
+  const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (window.confirm("Delete this trip permanently?")) {
-      onDelete(trip.id);
-    }
+    const yes = await confirm({ title: "Delete this trip permanently?", variant: "destructive", confirmText: "Delete" });
+    if (yes) onDelete(trip.id);
   };
 
   return (

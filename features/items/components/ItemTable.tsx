@@ -17,6 +17,7 @@ import {
   calculateSubTopicPersonTotals,
   calculateItemTaxDiscount,
 } from "@/services";
+import { useConfirm } from "@/components/confirm-dialog";
 
 interface ItemTableProps {
   trip: Trip;
@@ -39,6 +40,7 @@ export function ItemTable({
   onMoveItem,
   readOnly = false,
 }: ItemTableProps) {
+  const { confirm } = useConfirm();
   const isItemLevel =
     (expenseGroup.taxDiscountLevel || "group") === "item";
   const taxMode = expenseGroup.taxMode || "percentage";
@@ -430,6 +432,7 @@ export function ItemTable({
                           size="icon-xs"
                           className="hover:bg-blue-500/20 text-muted-foreground hover:text-blue-400"
                           onClick={() => onEditItem(item)}
+                          aria-label="Edit item"
                         >
                           <Edit className="w-3 h-3" />
                         </Button>
@@ -448,10 +451,10 @@ export function ItemTable({
                           variant="ghost"
                           size="icon-xs"
                           className="hover:bg-destructive/20 text-muted-foreground hover:text-destructive"
-                          onClick={() => {
-                            if (window.confirm("Delete this item?")) {
-                              onDeleteItem(item.id);
-                            }
+                          aria-label="Delete item"
+                          onClick={async () => {
+                            const yes = await confirm({ title: "Delete this item?", variant: "destructive", confirmText: "Delete" });
+                            if (yes) onDeleteItem(item.id);
                           }}
                         >
                           <Trash2 className="w-3 h-3" />

@@ -103,9 +103,8 @@ export async function pushPendingChanges(
           await localRepository.markSynced(localTrip.id);
           pushedIds.add(localTrip.id);
         }
-        // If push failed, do NOT mark as synced — will retry next time
-      } else {
-        // Remote is newer, just mark synced (pull will handle update)
+      } else if (remoteTrip) {
+        await localRepository.replaceTrip(remoteTrip);
         await localRepository.markSynced(localTrip.id);
       }
     } catch (err) {

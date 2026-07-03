@@ -256,13 +256,13 @@ export function createSupabaseRepository(
     },
 
     async getById(id: string): Promise<Trip | undefined> {
-      const { data: trip } = await supabase
+      const { data: trip, error } = await supabase
         .from("trips")
         .select("*")
         .eq("id", id)
         .single();
 
-      if (!trip) return undefined;
+      if (error || !trip) return undefined;
 
       const [groupsResult, itemsResult] = await Promise.all([
         supabase
@@ -320,7 +320,7 @@ export function createSupabaseRepository(
         .from("trips")
         .select("id")
         .eq("id", trip.id)
-        .single();
+        .maybeSingle();
 
       let tripId = trip.id;
       if (existing) {
@@ -405,14 +405,14 @@ export function createSupabaseRepository(
       if (updates.taxDiscountLevel !== undefined)
         dbUpdates.tax_discount_level = updates.taxDiscountLevel;
 
-      const { data: group } = await supabase
+      const { data: group, error: updateError } = await supabase
         .from("expense_groups")
         .update(dbUpdates)
         .eq("id", expenseGroupId)
         .select()
         .single();
 
-      if (!group) return undefined;
+      if (updateError || !group) return undefined;
 
       const { data: items } = await supabase
         .from("items")

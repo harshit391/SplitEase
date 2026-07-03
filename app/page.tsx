@@ -28,10 +28,12 @@ import { fadeInUp, staggerContainer } from "@/lib/animations";
 import { UserMenu } from "@/components/user-menu";
 import { SyncStatusBadge } from "@/components/sync-status-badge";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useConfirm } from "@/components/confirm-dialog";
 
 export default function HomePage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { alert: showAlert } = useConfirm();
 
   const { data: trips = [], isLoading } = useTrips();
   const createTrip = useCreateTrip();
@@ -81,10 +83,10 @@ export default function HomePage() {
         try {
           const tripData = JSON.parse(jsonString) as Trip;
           const importedTrip = await importTrip.mutateAsync(tripData);
-          alert(`Trip "${importedTrip.name}" imported successfully!`);
+          showAlert("Import Successful", `Trip "${importedTrip.name}" imported.`);
           router.push(`/${importedTrip.id}`);
         } catch {
-          alert("Failed to import trip. Please check the file format.");
+          showAlert("Import Failed", "Please check the file format.");
         }
       }
     };

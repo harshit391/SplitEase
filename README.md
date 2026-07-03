@@ -70,9 +70,13 @@
 - **Google Sheets Copy** — Tab-separated format for pasting into spreadsheets
 
 ### UI/UX
-- **Modern Dark UI** — Sleek dark SaaS design with purple gradient accents
-- **Smooth Animations** — Page transitions, card hovers, and list stagger effects via Framer Motion
+- **Light & Dark Themes** — System-preference-aware with manual toggle, Apple-inspired color system
+- **Dashboard Layout** — Balanced 2-column analytics grid with settlement-first design
+- **Premium Trip Cards** — Gradient icon badges, hover animations, accent colors, typography hierarchy
+- **Smooth Animations** — Page transitions, card hovers, floating icons, and list stagger effects via Framer Motion
+- **PWA** — Installable on mobile/desktop, works offline with service worker caching
 - **Responsive** — Works on desktop, tablet, and mobile
+- **Custom Confirm Dialogs** — No native alert/confirm — all interactions use styled Radix dialogs
 
 ## Tech Stack
 
@@ -89,6 +93,8 @@
 | Animations | [Framer Motion](https://www.framer.com/motion/) |
 | Forms | [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/) |
 | Icons | [Lucide React](https://lucide.dev/) |
+| Charts | [Recharts](https://recharts.org/) |
+| PWA | Custom service worker + Web App Manifest |
 
 ## Getting Started
 
@@ -101,8 +107,8 @@
 ### 1. Clone & Install
 
 ```bash
-git clone https://github.com/yourusername/splitsolve.git
-cd splitsolve
+git clone https://github.com/harshit391/splitease.git
+cd splitease
 npm install
 ```
 
@@ -248,6 +254,10 @@ splitsolve/
 ├── store/                      # Zustand UI state
 ├── types/                      # TypeScript type definitions
 ├── utils/                      # Helper functions (currency, dates, IDs)
+├── public/
+│   ├── manifest.json          # PWA manifest
+│   ├── sw.js                  # Service worker (offline caching)
+│   └── *.png                  # App icons (16-512px)
 ├── middleware.ts               # Auth session refresh + route protection
 ├── supabase-complete-schema.sql      # Full DB schema (run for fresh setup)
 └── supabase-saved-trips-migration.sql # Saved trips table migration
@@ -287,6 +297,16 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+## PWA
+
+Split Solve is a fully installable Progressive Web App:
+
+- **Service Worker** — Stale-while-revalidate for pages, network-first for dynamic assets
+- **Offline Support** — Cached pages and static assets available without internet
+- **Installable** — "Add to Home Screen" on Android, iOS, and desktop
+- **Standalone** — Runs without browser chrome when installed
+- **Theme Color** — Adapts to light/dark system preference
 
 ## License
 

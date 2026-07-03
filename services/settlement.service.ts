@@ -47,6 +47,7 @@ function calculateGroupLevelTotals(
     const splitCount = item.splitAmong.length;
     if (splitCount === 0) return;
     const perPerson = item.amount / splitCount;
+    if (!isFinite(perPerson)) return;
     item.splitAmong.forEach((person) => {
       if (baseTotals[person] !== undefined) {
         baseTotals[person] += perPerson;
@@ -132,6 +133,7 @@ function calculateItemLevelTotals(
     if (splitCount === 0) return;
 
     const perPerson = item.amount / splitCount;
+    if (!isFinite(perPerson)) return;
     subTopicTotal += item.amount;
 
     const { tax: itemTax, discount: itemDiscount } =
@@ -139,8 +141,8 @@ function calculateItemLevelTotals(
     totalTax += itemTax;
     totalDiscount += itemDiscount;
 
-    const taxPerPersonForItem = itemTax / splitCount;
-    const discountPerPersonForItem = itemDiscount / splitCount;
+    const taxPerPersonForItem = splitCount > 0 ? itemTax / splitCount : 0;
+    const discountPerPersonForItem = splitCount > 0 ? itemDiscount / splitCount : 0;
     const totalPerPersonForItem =
       perPerson + taxPerPersonForItem - discountPerPersonForItem;
 
@@ -341,7 +343,7 @@ export function calculateTotalSpentPerPerson(
 export function findLowestSpender(
   totals: Record<string, number>
 ): string | null {
-  const entries = Object.entries(totals);
+  const entries = Object.entries(totals).filter(([, v]) => isFinite(v));
   if (entries.length === 0) return null;
 
   let lowest = entries[0];

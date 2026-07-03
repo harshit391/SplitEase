@@ -55,6 +55,7 @@ import { OfflineBanner } from "@/components/offline-banner";
 import { ShareTripDialog } from "@/components/share-trip-dialog";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useTheme } from "@/components/theme-provider";
+import { useConfirm } from "@/components/confirm-dialog";
 import { createClient } from "@/lib/supabase/client";
 
 export default function TripPage() {
@@ -63,6 +64,7 @@ export default function TripPage() {
   const tripId = params.tripId as string;
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
+  const { confirm } = useConfirm();
 
   const { data: trip, isLoading } = useTrip(tripId);
   const updateTrip = useUpdateTrip();
@@ -207,10 +209,9 @@ export default function TripPage() {
     }
   };
 
-  const handleDeleteExpenseGroup = (expenseGroupId: string) => {
-    if (window.confirm("Delete this expense group?")) {
-      deleteExpenseGroup.mutate(expenseGroupId);
-    }
+  const handleDeleteExpenseGroup = async (expenseGroupId: string) => {
+    const yes = await confirm({ title: "Delete this expense group?", variant: "destructive", confirmText: "Delete" });
+    if (yes) deleteExpenseGroup.mutate(expenseGroupId);
   };
 
   const handleAddItem = (
@@ -697,7 +698,7 @@ export default function TripPage() {
             }
           }}
           item={movingItem}
-          sourceExpenseGroupId={activeExpenseGroupId!}
+          sourceExpenseGroupId={activeExpenseGroupId || ""}
           expenseGroups={trip.subTopics}
           onSubmit={handleMoveItem}
         />
