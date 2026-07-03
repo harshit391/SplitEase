@@ -54,7 +54,7 @@ export function TripCard({ trip, onDelete, savedView, linkPrefix }: TripCardProp
       className="hover-lift"
     >
       <Link href={linkPrefix ? `${linkPrefix}/${trip.shareCode || trip.id}` : `/${trip.id}`}>
-        <div className="group relative rounded-[28px] border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.065] p-6 cursor-pointer transition-all duration-300 shadow-[0_4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.10)] dark:hover:shadow-[0_12px_40px_rgba(10,132,255,0.08)] hover:border-slate-300 dark:hover:border-white/20">
+        <div className="group relative rounded-[28px] border border-slate-200/80 dark:border-white/10 bg-white dark:bg-white/[0.065] p-6 cursor-pointer transition-all duration-200 hover:border-slate-300 dark:hover:border-white/20">
           {/* Delete button */}
           {!savedView && (
             <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-10">
@@ -93,7 +93,7 @@ export function TripCard({ trip, onDelete, savedView, linkPrefix }: TripCardProp
 
           {/* Expense Summary */}
           {grandTotal > 0 ? (
-            <div className="mb-5 rounded-2xl bg-slate-900 dark:bg-black/40 p-4">
+            <div className="mb-5 rounded-2xl bg-[#0f172a] dark:bg-black/40 p-4">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-slate-400">Total Expenses</span>
                 <span className={`font-extrabold text-sm ${colors.accent}`}>

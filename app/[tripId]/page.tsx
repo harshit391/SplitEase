@@ -450,7 +450,7 @@ export default function TripPage() {
 
         {/* Summary Table */}
         {trip.subTopics.length > 0 && (
-          <div className="rounded-[28px] bg-card border border-border p-6 shadow-soft-sm dark:shadow-none">
+          <div className="rounded-[28px] bg-card border border-slate-200/80 dark:border-white/10 p-6">
             <h2 className="text-lg font-extrabold text-foreground mb-6 flex items-center gap-3 tracking-tight">
               <div className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-[#0A84FF]/15 ring-1 ring-sky-200 dark:ring-[#0A84FF]/30 flex items-center justify-center">
                 <TrendingUp className="w-5 h-5 text-sky-600 dark:text-[#64D2FF]" />

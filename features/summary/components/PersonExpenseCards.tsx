@@ -59,7 +59,7 @@ export function PersonExpenseCards({ trip, settlements }: PersonExpenseCardsProp
   };
 
   return (
-    <div className="rounded-[28px] bg-card border border-border p-6 shadow-soft-sm dark:shadow-none">
+    <div className="rounded-[28px] bg-card border border-slate-200/80 dark:border-white/10 p-6">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="font-extrabold text-foreground tracking-tight">Person-wise Expenses</h3>
       </div>
