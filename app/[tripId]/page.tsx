@@ -374,16 +374,7 @@ export default function TripPage() {
           <div className="flex items-center gap-2">
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-secondary/80 dark:bg-white/[0.06] ring-1 ring-border">
               <MapPin className="w-4 h-4 text-primary" />
-              <span className="font-semibold text-foreground text-sm">{trip.name}</span>
-              <Button
-                variant="ghost"
-                size="icon-xs"
-                onClick={() => setEditTripDialogOpen(true)}
-                className="ml-1 text-muted-foreground hover:text-foreground"
-                title="Edit trip details"
-              >
-                <Edit className="w-3.5 h-3.5" />
-              </Button>
+              <span className="font-semibold text-foreground text-sm max-w-[150px] truncate">{trip.name}</span>
             </div>
           </div>
 
@@ -424,36 +415,69 @@ export default function TripPage() {
       </header>
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 pt-24 pb-16 space-y-8">
-        {/* Hero: Trip summary bar */}
+        {/* Hero */}
         <div
-          className="rounded-[20px] p-6 md:p-8"
+          className="relative overflow-hidden rounded-[20px] p-6 md:p-8"
           style={{
-            background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)",
-            border: "1px solid rgba(255,255,255,.06)",
+            background: isDark
+              ? "linear-gradient(145deg, #131D34 0%, #0B0D10 100%)"
+              : "linear-gradient(145deg, #1e3a5f 0%, #0f172a 100%)",
+            border: isDark ? "1px solid rgba(255,255,255,.06)" : "1px solid rgba(255,255,255,.08)",
           }}
         >
-          <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
-            <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">{trip.name}</h1>
-              <p className="text-sm text-slate-400 mt-1">{new Date(trip.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+          {/* Subtle radial accent */}
+          <div className="absolute top-0 right-0 w-[300px] h-[300px] pointer-events-none" style={{ background: "radial-gradient(circle at top right, rgba(59,130,246,.12), transparent)" }} />
+
+          <div className="relative">
+            {/* Top row: Title + meta */}
+            <div className="flex items-start justify-between gap-4 mb-6">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-lg">✈️</span>
+                  <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">{trip.name}</h1>
+                </div>
+                <p className="text-sm text-slate-400">
+                  {new Date(trip.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                  {" · "}
+                  {trip.friends.length} Friends
+                  {" · "}
+                  {trip.subTopics.length} Expenses
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setEditTripDialogOpen(true)}
+                className="text-slate-400 hover:text-white hover:bg-white/10 rounded-full"
+              >
+                <Edit className="w-4 h-4" />
+              </Button>
             </div>
-            <div className="flex flex-wrap items-center gap-5 ml-auto text-sm">
-              <div className="text-center">
-                <div className="text-white font-bold text-lg">{trip.friends.length}</div>
-                <div className="text-slate-400 text-xs">Friends</div>
+
+            {/* Stats row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="rounded-[14px] p-4" style={{ background: "rgba(255,255,255,.05)" }}>
+                <div className="text-2xl font-bold text-white">₹{grandTotal.toFixed(0)}</div>
+                <div className="text-xs text-slate-400 mt-1">Total Spent</div>
               </div>
-              <div className="text-center">
-                <div className="text-white font-bold text-lg">{trip.subTopics.length}</div>
-                <div className="text-slate-400 text-xs">Expenses</div>
+              <div className="rounded-[14px] p-4" style={{ background: "rgba(255,255,255,.05)" }}>
+                <div className="text-2xl font-bold text-white">
+                  ₹{trip.friends.length > 0 ? (grandTotal / trip.friends.length).toFixed(0) : 0}
+                </div>
+                <div className="text-xs text-slate-400 mt-1">Per Person</div>
               </div>
-              <div className="text-center">
-                <div className="text-white font-bold text-lg">₹{grandTotal.toFixed(0)}</div>
-                <div className="text-slate-400 text-xs">Total</div>
+              <div className="rounded-[14px] p-4" style={{ background: "rgba(255,255,255,.05)" }}>
+                <div className="text-2xl font-bold text-white">{trip.friends.length}</div>
+                <div className="text-xs text-slate-400 mt-1">People</div>
               </div>
-              {settlements && settlements.settlements.length > 0 && (
-                <div className="text-center">
-                  <div className="text-amber-400 font-bold text-lg">{settlements.settlements.length}</div>
-                  <div className="text-slate-400 text-xs">Pending</div>
+              {settlements && (
+                <div className="rounded-[14px] p-4" style={{ background: settlements.settlements.length > 0 ? "rgba(251,191,36,.08)" : "rgba(52,211,153,.08)" }}>
+                  <div className={`text-2xl font-bold ${settlements.settlements.length > 0 ? "text-amber-400" : "text-emerald-400"}`}>
+                    {settlements.settlements.length > 0 ? `₹${settlements.settlements.reduce((s, t) => s + t.amount, 0).toFixed(0)}` : "✓"}
+                  </div>
+                  <div className="text-xs text-slate-400 mt-1">
+                    {settlements.settlements.length > 0 ? "Pending" : "Settled"}
+                  </div>
                 </div>
               )}
             </div>
