@@ -425,7 +425,7 @@ export default function TripPage() {
       </header>
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 pt-24 pb-16 space-y-10">
-        {/* Stats Row */}
+        {/* 1. Stats */}
         <StatsGrid
           friendsCount={trip.friends.length}
           expensesCount={trip.subTopics.length}
@@ -433,22 +433,17 @@ export default function TripPage() {
           perPerson={perPerson}
         />
 
-        {/* Spending Breakdown Chart */}
+        {/* 2. Chart */}
         {trip.subTopics.length > 0 && (
           <SpendingChart trip={trip} excludedExpenseGroups={excludedExpenseGroups} />
         )}
 
-        {/* Amount Spent by Each Person */}
+        {/* 3. Person (spending per person) */}
         {settlements && (
           <PersonSpendingGrid friends={trip.friends} settlements={settlements} />
         )}
 
-        {/* Person-Wise Expense Breakdown */}
-        {settlements && trip.subTopics.length > 0 && (
-          <PersonExpenseCards trip={trip} settlements={settlements} />
-        )}
-
-        {/* Summary Table */}
+        {/* 4. Summary Table */}
         {trip.subTopics.length > 0 && (
           <div className="rounded-[28px] bg-card [border:1.5px_solid_#c4c4c8] dark:[border:1.5px_solid_rgba(255,255,255,0.1)] p-6">
             <h2 className="text-lg font-extrabold text-foreground mb-6 flex items-center gap-3 tracking-tight">
@@ -465,7 +460,12 @@ export default function TripPage() {
           </div>
         )}
 
-        {/* Settlements */}
+        {/* 5. Balance (person-wise breakdown) */}
+        {settlements && trip.subTopics.length > 0 && (
+          <PersonExpenseCards trip={trip} settlements={settlements} />
+        )}
+
+        {/* 6. Settlement */}
         {settlements && (
           <SettlementsList
             tripName={trip.name}

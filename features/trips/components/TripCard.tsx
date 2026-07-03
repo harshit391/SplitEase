@@ -13,8 +13,6 @@ import {
 import { Button } from "@/components/ui/button";
 import type { Trip } from "@/types";
 import { staggerItem } from "@/lib/animations";
-import { calculateSettlements } from "@/services";
-import { useMemo } from "react";
 import { useTheme } from "@/components/theme-provider";
 
 interface TripCardProps {
@@ -70,20 +68,6 @@ export function TripCard({ trip, onDelete, savedView, linkPrefix }: TripCardProp
 
   const accentIndex = trip.name.length % ACCENT_PALETTE.length;
   const accent = ACCENT_PALETTE[accentIndex];
-
-  const settlementProgress = useMemo(() => {
-    if (trip.friends.length < 2 || trip.subTopics.length === 0) return 0;
-    try {
-      const result = calculateSettlements(trip, []);
-      const totalOwed = Object.values(result.nets).reduce(
-        (sum, n) => sum + Math.max(0, -n), 0
-      );
-      if (totalOwed === 0) return 100;
-      return Math.min(100, Math.round(((grandTotal - totalOwed) / grandTotal) * 100));
-    } catch {
-      return 0;
-    }
-  }, [trip, grandTotal]);
 
   const status = trip.subTopics.length === 0 ? "New" : "Active";
 
@@ -224,32 +208,6 @@ export function TripCard({ trip, onDelete, savedView, linkPrefix }: TripCardProp
             </div>
           )}
 
-          {/* Progress Bar */}
-          {grandTotal > 0 && (
-            <div className="relative mb-5">
-              <div className="flex items-center justify-between mb-2">
-                <span style={{ fontSize: 13, fontWeight: 500, color: t.secondary }}>
-                  Settlement Progress
-                </span>
-                <span style={{ fontSize: 13, fontWeight: 600, color: accent.color }}>
-                  {settlementProgress}%
-                </span>
-              </div>
-              <div
-                className="h-[5px] rounded-full overflow-hidden"
-                style={{ backgroundColor: t.progressTrack }}
-              >
-                <div
-                  className="h-full rounded-full shimmer-bar"
-                  style={{
-                    width: `${settlementProgress}%`,
-                    background: `linear-gradient(90deg, ${accent.color}, ${accent.color}88, ${accent.color})`,
-                    transition: "width 600ms ease",
-                  }}
-                />
-              </div>
-            </div>
-          )}
 
           {/* Footer */}
           <div
