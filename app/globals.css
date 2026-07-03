@@ -149,7 +149,7 @@
 
   /* Shadow utilities */
   .shadow-soft {
-    box-shadow: 0 18px 60px rgba(15, 23, 42, 0.10);
+    box-shadow: 0 18px 60px rgba(15, 23, 42, 0.12);
   }
 
   .dark .shadow-soft {
@@ -157,7 +157,7 @@
   }
 
   .shadow-soft-sm {
-    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+    box-shadow: 0 2px 16px rgba(15, 23, 42, 0.08);
   }
 
   .dark .shadow-soft-sm {

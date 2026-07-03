@@ -9,7 +9,6 @@ import {
   MapPin,
   Calendar,
   ArrowRight,
-  IndianRupee,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Trip } from "@/types";
@@ -23,10 +22,10 @@ interface TripCardProps {
 }
 
 const CARD_COLORS = [
-  { bg: "bg-sky-50 dark:bg-[#0A84FF]/15", text: "text-sky-600 dark:text-[#64D2FF]", ring: "ring-sky-200 dark:ring-[#0A84FF]/30", accent: "text-[#007AFF] dark:text-[#64D2FF]" },
-  { bg: "bg-emerald-50 dark:bg-[#30D158]/15", text: "text-emerald-600 dark:text-[#30D158]", ring: "ring-emerald-200 dark:ring-[#30D158]/30", accent: "text-[#34C759] dark:text-[#30D158]" },
-  { bg: "bg-purple-50 dark:bg-[#BF5AF2]/15", text: "text-purple-600 dark:text-[#BF5AF2]", ring: "ring-purple-200 dark:ring-[#BF5AF2]/30", accent: "text-[#AF52DE] dark:text-[#BF5AF2]" },
-  { bg: "bg-orange-50 dark:bg-[#FF9500]/15", text: "text-orange-600 dark:text-[#FF9F0A]", ring: "ring-orange-200 dark:ring-[#FF9500]/30", accent: "text-[#FF9500] dark:text-[#FF9F0A]" },
+  { iconBg: "bg-[#007AFF]", accent: "text-[#007AFF] dark:text-[#64D2FF]" },
+  { iconBg: "bg-[#34C759]", accent: "text-[#34C759] dark:text-[#30D158]" },
+  { iconBg: "bg-[#AF52DE]", accent: "text-[#AF52DE] dark:text-[#BF5AF2]" },
+  { iconBg: "bg-[#FF9500]", accent: "text-[#FF9500] dark:text-[#FF9F0A]" },
 ];
 
 export function TripCard({ trip, onDelete, savedView, linkPrefix }: TripCardProps) {
@@ -55,7 +54,7 @@ export function TripCard({ trip, onDelete, savedView, linkPrefix }: TripCardProp
       className="hover-lift"
     >
       <Link href={linkPrefix ? `${linkPrefix}/${trip.shareCode || trip.id}` : `/${trip.id}`}>
-        <div className="group relative rounded-[28px] border border-border bg-card p-6 cursor-pointer transition-all duration-300 card-hover-glow dark:bg-white/[0.065]">
+        <div className="group relative rounded-[28px] border border-slate-200 dark:border-white/10 bg-white dark:bg-white/[0.065] p-6 cursor-pointer transition-all duration-300 shadow-[0_4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_24px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_40px_rgba(0,0,0,0.10)] dark:hover:shadow-[0_12px_40px_rgba(10,132,255,0.08)] hover:border-slate-300 dark:hover:border-white/20">
           {/* Delete button */}
           {!savedView && (
             <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity z-10">
@@ -71,12 +70,12 @@ export function TripCard({ trip, onDelete, savedView, linkPrefix }: TripCardProp
           )}
 
           {/* Icon */}
-          <div className={`w-12 h-12 rounded-2xl ${colors.bg} ring-1 ${colors.ring} flex items-center justify-center mb-6`}>
-            <MapPin className={`w-5 h-5 ${colors.text}`} />
+          <div className={`w-12 h-12 rounded-2xl ${colors.iconBg} flex items-center justify-center mb-6 shadow-lg`}>
+            <MapPin className="w-5 h-5 text-white" />
           </div>
 
           {/* Title */}
-          <h3 className="text-lg font-extrabold text-foreground mb-3 pr-8 tracking-tight">
+          <h3 className="text-lg font-extrabold text-foreground mb-2 pr-8 tracking-tight">
             {trip.name}
           </h3>
 
@@ -94,22 +93,22 @@ export function TripCard({ trip, onDelete, savedView, linkPrefix }: TripCardProp
 
           {/* Expense Summary */}
           {grandTotal > 0 ? (
-            <div className="mb-5 rounded-2xl bg-secondary/60 dark:bg-black/25 p-4 ring-1 ring-border dark:ring-white/10">
-              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                <span>Total Expenses</span>
+            <div className="mb-5 rounded-2xl bg-slate-900 dark:bg-black/40 p-4">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-400">Total Expenses</span>
                 <span className={`font-extrabold text-sm ${colors.accent}`}>
                   ₹{grandTotal.toFixed(0)}
                 </span>
               </div>
-              <div className="flex items-center justify-between text-xs text-muted-foreground mt-3">
-                <span>Per Person</span>
-                <span className="font-extrabold text-sm text-foreground">
+              <div className="flex items-center justify-between text-xs mt-3">
+                <span className="text-slate-400">Per Person</span>
+                <span className="font-extrabold text-sm text-white">
                   ₹{trip.friends.length > 0 ? (grandTotal / trip.friends.length).toFixed(0) : 0}
                 </span>
               </div>
             </div>
           ) : (
-            <div className="mb-5 py-4 px-4 rounded-2xl bg-secondary/60 dark:bg-black/25 ring-1 ring-border dark:ring-white/10 text-center">
+            <div className="mb-5 py-4 px-4 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/5 text-center">
               <span className="text-xs text-muted-foreground">
                 No expenses added yet
               </span>
@@ -117,7 +116,7 @@ export function TripCard({ trip, onDelete, savedView, linkPrefix }: TripCardProp
           )}
 
           {/* Footer */}
-          <div className="flex items-center justify-between pt-4 border-t border-border">
+          <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-white/5">
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <Calendar className="w-3.5 h-3.5" />
               {new Date(trip.createdAt).toLocaleDateString()}

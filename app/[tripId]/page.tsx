@@ -5,7 +5,6 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  ArrowLeft,
   Plus,
   MapPin,
   Download,
@@ -363,9 +362,13 @@ export default function TripPage() {
       <header className="fixed top-0 left-0 right-0 z-50 glass">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 via-emerald-400 to-orange-400">
-              <ArrowLeft className="w-4 h-4 text-white" />
-            </div>
+            <Image
+              src="/logo.png"
+              alt="Split Solve"
+              width={32}
+              height={32}
+              className="w-8 h-8 rounded-lg"
+            />
             <span className="font-extrabold text-foreground hidden sm:inline tracking-tight">Split Solve</span>
           </Link>
 

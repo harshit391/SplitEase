@@ -7,7 +7,6 @@ import { motion } from "framer-motion";
 import {
   Plus,
   Receipt,
-  Sparkles,
   MapPin,
   Upload,
   Bookmark,
@@ -120,9 +119,13 @@ export default function HomePage() {
       <header className="fixed top-0 left-0 right-0 z-50 glass">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 via-emerald-400 to-orange-400 shadow-lg">
-              <Sparkles className="w-5 h-5 text-white" />
-            </div>
+            <Image
+              src="/logo.png"
+              alt="Split Solve"
+              width={36}
+              height={36}
+              className="w-9 h-9 rounded-xl"
+            />
             <span className="font-extrabold text-foreground text-lg tracking-tight">Split Solve</span>
           </div>
           <div className="flex items-center gap-2">
