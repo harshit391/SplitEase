@@ -18,7 +18,7 @@ export function StatsGrid({
 }: StatsGridProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div className="rounded-[24px] bg-card border border-slate-200/80 dark:border-white/10 p-5 transition-all duration-200">
+      <div className="rounded-[24px] bg-card border-[1.5px] border-[#d4d4d8] dark:border-[rgba(255,255,255,0.1)] p-5 transition-all duration-200">
         <div className="mb-5 flex h-9 w-9 items-center justify-center rounded-full bg-sky-50 dark:bg-[#0A84FF]/15 text-sky-600 dark:text-[#64D2FF]">
           <Users className="w-4 h-4" />
         </div>
@@ -26,7 +26,7 @@ export function StatsGrid({
         <div className="text-xs font-medium text-muted-foreground mt-1">Friends</div>
       </div>
 
-      <div className="rounded-[24px] bg-card border border-slate-200/80 dark:border-white/10 p-5 transition-all duration-200">
+      <div className="rounded-[24px] bg-card border-[1.5px] border-[#d4d4d8] dark:border-[rgba(255,255,255,0.1)] p-5 transition-all duration-200">
         <div className="mb-5 flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 dark:bg-[#30D158]/15 text-emerald-600 dark:text-[#30D158]">
           <Receipt className="w-4 h-4" />
         </div>

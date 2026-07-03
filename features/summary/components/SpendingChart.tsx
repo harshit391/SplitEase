@@ -176,7 +176,7 @@ export function SpendingChart({ trip, excludedExpenseGroups }: SpendingChartProp
   if (allData.length === 0) return null;
 
   return (
-    <div className="rounded-[28px] bg-card border border-slate-200/80 dark:border-white/10 p-6">
+    <div className="rounded-[28px] bg-card border-[1.5px] border-[#d4d4d8] dark:border-[rgba(255,255,255,0.1)] p-6">
       <div className="flex items-center justify-between mb-5">
         <h3 className="font-extrabold text-foreground tracking-tight">Spending Breakdown</h3>
         {hasTags && activeTab === "all" && (
