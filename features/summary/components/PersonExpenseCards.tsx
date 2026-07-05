@@ -58,7 +58,7 @@ export function PersonExpenseCards({ trip, settlements }: PersonExpenseCardsProp
         Members
       </h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         {trip.friends.map((person, index) => {
           const balance = settlements.balances[person];
           const net = settlements.nets[person] || 0;

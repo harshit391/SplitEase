@@ -207,7 +207,7 @@ export function SpendingChart({ trip, excludedExpenseGroups }: SpendingChartProp
   if (allData.length === 0) return null;
 
   return (
-    <div className="rounded-[28px] bg-card [border:1.5px_solid_#c4c4c8] dark:[border:1.5px_solid_rgba(255,255,255,0.1)] p-6">
+    <div className="rounded-[28px] bg-card [border:1.5px_solid_#c4c4c8] dark:[border:1.5px_solid_rgba(255,255,255,0.1)] p-6 h-full">
       <div className="flex items-center justify-between mb-5">
         <h3 className="font-extrabold text-foreground tracking-tight flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-[#007AFF]/15 ring-1 ring-blue-200 dark:ring-[#007AFF]/30 flex items-center justify-center">

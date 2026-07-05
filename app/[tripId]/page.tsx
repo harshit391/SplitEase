@@ -388,7 +388,7 @@ export default function TripPage() {
       <OfflineBanner />
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 glass">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
             <Image
               src="/logo.png"
@@ -443,7 +443,7 @@ export default function TripPage() {
         </div>
       </header>
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6 pt-24 pb-16 space-y-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 pt-24 pb-16 space-y-8">
         {/* Hero */}
         <div
           className="relative overflow-hidden rounded-[20px] p-6 md:p-8"
@@ -515,7 +515,7 @@ export default function TripPage() {
 
         {/* Settlement + Chart: Side by side on desktop */}
         {trip.subTopics.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
             {/* Settlement (primary — what users came for) */}
             {settlements && (
               <SettlementsList
@@ -533,6 +533,35 @@ export default function TripPage() {
         {/* Participants: Combined person view (replaces PersonSpendingGrid + PersonExpenseCards) */}
         {settlements && trip.subTopics.length > 0 && (
           <PersonExpenseCards trip={trip} settlements={settlements} />
+        )}
+
+        {/* Detailed Expense Table (expandable) */}
+        {trip.subTopics.length > 0 && (
+          <details className="group">
+            <summary
+              className="list-none cursor-pointer rounded-[20px] p-5 flex items-center justify-between"
+              style={{
+                background: isDark ? '#16181D' : '#FFFFFF',
+                border: isDark ? '1px solid rgba(255,255,255,.08)' : '1px solid #E8EAF1',
+              }}
+            >
+              <div className="flex items-center gap-3">
+                <TrendingUp className="w-5 h-5 text-muted-foreground" />
+                <span className="font-semibold text-foreground">Detailed Expense Table</span>
+              </div>
+              <span className="text-muted-foreground text-sm group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <div className="mt-4 rounded-[20px] p-6" style={{
+              background: isDark ? '#16181D' : '#FFFFFF',
+              border: isDark ? '1px solid rgba(255,255,255,.08)' : '1px solid #E8EAF1',
+            }}>
+              <SummaryTable
+                trip={trip}
+                excludedSubTopicIds={excludedExpenseGroups}
+                onUpdateGoogleSheetUrl={handleUpdateGoogleSheetUrl}
+              />
+            </div>
+          </details>
         )}
 
         {/* Expense Groups */}
@@ -614,34 +643,6 @@ export default function TripPage() {
           </div>
         )}
 
-        {/* Detailed Expense Table (expandable) */}
-        {trip.subTopics.length > 0 && (
-          <details className="group">
-            <summary
-              className="list-none cursor-pointer rounded-[20px] p-5 flex items-center justify-between"
-              style={{
-                background: isDark ? '#16181D' : '#FFFFFF',
-                border: isDark ? '1px solid rgba(255,255,255,.08)' : '1px solid #E8EAF1',
-              }}
-            >
-              <div className="flex items-center gap-3">
-                <TrendingUp className="w-5 h-5 text-muted-foreground" />
-                <span className="font-semibold text-foreground">Detailed Expense Table</span>
-              </div>
-              <span className="text-muted-foreground text-sm group-open:rotate-180 transition-transform">▼</span>
-            </summary>
-            <div className="mt-4 rounded-[20px] p-6" style={{
-              background: isDark ? '#16181D' : '#FFFFFF',
-              border: isDark ? '1px solid rgba(255,255,255,.08)' : '1px solid #E8EAF1',
-            }}>
-              <SummaryTable
-                trip={trip}
-                excludedSubTopicIds={excludedExpenseGroups}
-                onUpdateGoogleSheetUrl={handleUpdateGoogleSheetUrl}
-              />
-            </div>
-          </details>
-        )}
       </div>
 
       {/* Dialogs */}
