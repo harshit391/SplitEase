@@ -23,7 +23,7 @@ interface ChartEntry {
   color: string;
 }
 
-function ChartWithLegend({ data }: { data: ChartEntry[] }) {
+function ChartWithTable({ data }: { data: ChartEntry[] }) {
   const total = data.reduce((s, d) => s + d.value, 0);
 
   if (data.length === 0) {
@@ -35,16 +35,16 @@ function ChartWithLegend({ data }: { data: ChartEntry[] }) {
   }
 
   return (
-    <div className="flex flex-col md:flex-row items-center gap-6">
-      <div className="w-[200px] h-[200px] shrink-0">
+    <div className="flex flex-col items-center gap-6">
+      <div className="w-[260px] h-[260px]">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={data}
               cx="50%"
               cy="50%"
-              innerRadius={55}
-              outerRadius={90}
+              innerRadius={70}
+              outerRadius={120}
               dataKey="value"
               stroke="none"
             >
@@ -74,27 +74,58 @@ function ChartWithLegend({ data }: { data: ChartEntry[] }) {
         </ResponsiveContainer>
       </div>
 
-      <div className="flex-1 space-y-2 w-full">
-        {data.map((entry) => {
-          const percentage = ((entry.value / total) * 100).toFixed(1);
-          return (
-            <div key={entry.name} className="flex items-center gap-3">
-              <div
-                className="w-3 h-3 rounded-full shrink-0"
-                style={{ backgroundColor: entry.color }}
-              />
-              <span className="text-sm text-foreground flex-1 truncate">
-                {entry.name}
-              </span>
-              <span className="text-xs text-muted-foreground shrink-0">
-                {percentage}%
-              </span>
-              <span className="text-sm font-medium text-foreground shrink-0">
-                {formatCurrency(entry.value)}
-              </span>
-            </div>
-          );
-        })}
+      <div className="w-full overflow-x-auto rounded-xl border border-border">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-border bg-secondary/50 dark:bg-white/[0.02]">
+              <th className="text-left py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Category
+              </th>
+              <th className="text-right py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Amount
+              </th>
+              <th className="text-right py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Share
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((entry, index) => {
+              const percentage = ((entry.value / total) * 100).toFixed(1);
+              return (
+                <tr
+                  key={entry.name}
+                  className={index < data.length - 1 ? "border-b border-border" : ""}
+                >
+                  <td className="py-3 px-4">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-3 h-3 rounded-full shrink-0"
+                        style={{ backgroundColor: entry.color }}
+                      />
+                      <span className="text-sm text-foreground">{entry.name}</span>
+                    </div>
+                  </td>
+                  <td className="py-3 px-4 text-right font-mono text-sm font-medium text-foreground">
+                    {formatCurrency(entry.value)}
+                  </td>
+                  <td className="py-3 px-4 text-right text-sm text-muted-foreground">
+                    {percentage}%
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+          <tfoot>
+            <tr className="border-t border-border bg-secondary/50 dark:bg-white/[0.02]">
+              <td className="py-3 px-4 text-sm font-semibold text-foreground">Total</td>
+              <td className="py-3 px-4 text-right font-mono text-sm font-bold text-foreground">
+                {formatCurrency(total)}
+              </td>
+              <td className="py-3 px-4 text-right text-sm text-muted-foreground">100%</td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
     </div>
   );
@@ -178,7 +209,12 @@ export function SpendingChart({ trip, excludedExpenseGroups }: SpendingChartProp
   return (
     <div className="rounded-[28px] bg-card [border:1.5px_solid_#c4c4c8] dark:[border:1.5px_solid_rgba(255,255,255,0.1)] p-6">
       <div className="flex items-center justify-between mb-5">
-        <h3 className="font-extrabold text-foreground tracking-tight">Spending Breakdown</h3>
+        <h3 className="font-extrabold text-foreground tracking-tight flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-blue-50 dark:bg-[#007AFF]/15 ring-1 ring-blue-200 dark:ring-[#007AFF]/30 flex items-center justify-center">
+            <PieChartIcon className="w-5 h-5 text-blue-600 dark:text-[#0A84FF]" />
+          </div>
+          Spending Breakdown
+        </h3>
         {hasTags && activeTab === "all" && (
           <div className="flex items-center gap-1 rounded-full bg-secondary/80 dark:bg-white/[0.06] p-1 ring-1 ring-border text-xs">
             <button
@@ -236,7 +272,7 @@ export function SpendingChart({ trip, excludedExpenseGroups }: SpendingChartProp
         ))}
       </div>
 
-      <ChartWithLegend data={chartData} />
+      <ChartWithTable data={chartData} />
     </div>
   );
 }

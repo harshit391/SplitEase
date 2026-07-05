@@ -62,4 +62,12 @@ export interface ITripsRepository {
     newGroupName: string,
     itemIds: string[]
   ): Promise<ExpenseGroup | undefined>;
+
+  replaceExpenseGroupFromTemplate(
+    tripId: string,
+    expenseGroupId: string,
+    templateText: string,
+    items: ItemCreate[],
+    updates: ExpenseGroupUpdate
+  ): Promise<ExpenseGroup | undefined>;
 }

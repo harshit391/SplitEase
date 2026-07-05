@@ -186,5 +186,17 @@ export function createUnifiedRepository(
       if (userId) backgroundPush(tripId, userId);
       return group;
     },
+
+    async replaceExpenseGroupFromTemplate(tripId, expenseGroupId, templateText, items, updates) {
+      const group = await localRepository.replaceExpenseGroupFromTemplate(
+        tripId,
+        expenseGroupId,
+        templateText,
+        items,
+        updates
+      );
+      if (userId) backgroundPush(tripId, userId);
+      return group;
+    },
   };
 }

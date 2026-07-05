@@ -34,6 +34,7 @@ export function expenseGroupToDb(
     tax_discount_level: group.taxDiscountLevel,
     sort_order: sortOrder,
     tags: group.tags || [],
+    template_text: group.templateText || null,
   };
 }
 
@@ -80,6 +81,7 @@ export function dbToExpenseGroup(
     discountMode: g.discount_mode as "percentage" | "value",
     taxDiscountLevel: g.tax_discount_level as "group" | "item",
     tags: g.tags || [],
+    templateText: g.template_text || undefined,
   };
 }
 

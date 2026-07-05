@@ -20,6 +20,7 @@ import {
   useUpdateExpenseGroup,
   useDeleteExpenseGroup,
   useSplitExpenseGroup,
+  useReplaceExpenseGroupFromTemplate,
 } from "@/features/expenses/hooks/useExpenseGroups";
 import {
   useAddItem,
@@ -72,6 +73,7 @@ export default function TripPage() {
   const updateExpenseGroup = useUpdateExpenseGroup(tripId);
   const deleteExpenseGroup = useDeleteExpenseGroup(tripId);
   const splitExpenseGroup = useSplitExpenseGroup(tripId);
+  const replaceExpenseGroupFromTemplate = useReplaceExpenseGroupFromTemplate(tripId);
   const addItem = useAddItem(tripId);
   const updateItem = useUpdateItem(tripId);
   const deleteItem = useDeleteItem(tripId);
@@ -162,7 +164,7 @@ export default function TripPage() {
     });
   };
 
-  const handleQuickAddExpenseGroup = async (data: ParsedTemplate) => {
+  const handleQuickAddExpenseGroup = async (data: ParsedTemplate, templateText: string) => {
     try {
       const group = await addExpenseGroup.mutateAsync({ name: data.groupName });
       if (!group) return;
@@ -171,23 +173,21 @@ export default function TripPage() {
         await addItem.mutateAsync({ expenseGroupId: group.id, data: item });
       }
 
-      if (data.tax || data.discount) {
-        const updates: ExpenseGroupUpdate = {};
-        if (data.tax) {
-          updates.taxMode = data.tax.mode;
-          updates.taxPercent = data.tax.percent;
-          updates.taxValue = data.tax.value;
-        }
-        if (data.discount) {
-          updates.discountMode = data.discount.mode;
-          updates.discountPercent = data.discount.percent;
-          updates.discountValue = data.discount.value;
-        }
-        await updateExpenseGroup.mutateAsync({
-          expenseGroupId: group.id,
-          updates,
-        });
+      const updates: ExpenseGroupUpdate = { templateText };
+      if (data.tax) {
+        updates.taxMode = data.tax.mode;
+        updates.taxPercent = data.tax.percent;
+        updates.taxValue = data.tax.value;
       }
+      if (data.discount) {
+        updates.discountMode = data.discount.mode;
+        updates.discountPercent = data.discount.percent;
+        updates.discountValue = data.discount.value;
+      }
+      await updateExpenseGroup.mutateAsync({
+        expenseGroupId: group.id,
+        updates,
+      });
 
       setAddExpenseGroupDialogOpen(false);
     } catch {
@@ -206,6 +206,31 @@ export default function TripPage() {
           },
         }
       );
+    }
+  };
+
+  const handleQuickEditExpenseGroup = async (data: ParsedTemplate, templateText: string) => {
+    if (!editingExpenseGroup) return;
+    try {
+      const updates: ExpenseGroupUpdate = {
+        name: data.groupName,
+        taxMode: data.tax ? data.tax.mode : "percentage",
+        taxPercent: data.tax ? data.tax.percent : 0,
+        taxValue: data.tax ? data.tax.value : 0,
+        discountMode: data.discount ? data.discount.mode : "percentage",
+        discountPercent: data.discount ? data.discount.percent : 0,
+        discountValue: data.discount ? data.discount.value : 0,
+      };
+      await replaceExpenseGroupFromTemplate.mutateAsync({
+        expenseGroupId: editingExpenseGroup.id,
+        templateText,
+        items: data.items,
+        updates,
+      });
+      setEditExpenseGroupDialogOpen(false);
+      setEditingExpenseGroup(null);
+    } catch {
+      // Handled by TanStack Query
     }
   };
 
@@ -640,7 +665,9 @@ export default function TripPage() {
             if (!open) setEditingExpenseGroup(null);
           }}
           expenseGroup={editingExpenseGroup}
+          friends={trip.friends}
           onSubmit={handleEditExpenseGroup}
+          onQuickEditSubmit={handleQuickEditExpenseGroup}
         />
       )}
 

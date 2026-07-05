@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRepository } from "@/hooks/useRepository";
 import { tripKeys } from "@/features/trips/hooks/useTrips";
-import type { ExpenseGroupCreate, ExpenseGroupUpdate } from "@/types";
+import type { ExpenseGroupCreate, ExpenseGroupUpdate, ItemCreate } from "@/types";
 
 export function useAddExpenseGroup(tripId: string) {
   const queryClient = useQueryClient();
@@ -66,6 +66,29 @@ export function useSplitExpenseGroup(tripId: string) {
       newGroupName: string;
       itemIds: string[];
     }) => repository.splitExpenseGroup(tripId, sourceExpenseGroupId, newGroupName, itemIds),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: tripKeys.all });
+      queryClient.invalidateQueries({ queryKey: tripKeys.detail(tripId) });
+    },
+  });
+}
+
+export function useReplaceExpenseGroupFromTemplate(tripId: string) {
+  const queryClient = useQueryClient();
+  const repository = useRepository();
+
+  return useMutation({
+    mutationFn: ({
+      expenseGroupId,
+      templateText,
+      items,
+      updates,
+    }: {
+      expenseGroupId: string;
+      templateText: string;
+      items: ItemCreate[];
+      updates: ExpenseGroupUpdate;
+    }) => repository.replaceExpenseGroupFromTemplate(tripId, expenseGroupId, templateText, items, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: tripKeys.all });
       queryClient.invalidateQueries({ queryKey: tripKeys.detail(tripId) });

@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Save, Receipt, Percent, IndianRupee, X } from "lucide-react";
+import { Save, Receipt, Percent, IndianRupee, X, FileText, Zap, Plus } from "lucide-react";
 import { z } from "zod";
 import {
   Dialog,
@@ -16,6 +16,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { ExpenseGroup, ExpenseGroupUpdate } from "@/types";
+import {
+  parseExpenseTemplate,
+  type ParsedTemplate,
+} from "@/services/template-parser";
 
 const editExpenseGroupSchema = z.object({
   name: z
@@ -34,14 +38,18 @@ interface EditExpenseGroupDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   expenseGroup: ExpenseGroup;
+  friends?: string[];
   onSubmit: (data: ExpenseGroupUpdate) => void;
+  onQuickEditSubmit?: (data: ParsedTemplate, templateText: string) => void;
 }
 
 export function EditExpenseGroupDialog({
   open,
   onOpenChange,
   expenseGroup,
+  friends = [],
   onSubmit,
+  onQuickEditSubmit,
 }: EditExpenseGroupDialogProps) {
   const currentTaxMode = expenseGroup.taxMode || "percentage";
   const currentDiscountMode = expenseGroup.discountMode || "percentage";
@@ -53,6 +61,9 @@ export function EditExpenseGroupDialog({
   );
   const [tags, setTags] = useState<string[]>(expenseGroup.tags || []);
   const [tagInput, setTagInput] = useState("");
+  const [activeTab, setActiveTab] = useState<"form" | "quick">("form");
+  const [templateText, setTemplateText] = useState(expenseGroup.templateText || "");
+  const [quickSubmitErrors, setQuickSubmitErrors] = useState<{ line: number; message: string }[]>([]);
 
   const {
     register,
@@ -80,6 +91,9 @@ export function EditExpenseGroupDialog({
       setTaxDiscountLevel(expenseGroup.taxDiscountLevel || "group");
       setTags(expenseGroup.tags || []);
       setTagInput("");
+      setActiveTab("form");
+      setTemplateText(expenseGroup.templateText || "");
+      setQuickSubmitErrors([]);
       reset({
         name: expenseGroup.name,
         taxPercent: expenseGroup.taxPercent || 0,
@@ -135,6 +149,27 @@ export function EditExpenseGroupDialog({
     onSubmit(updates);
   };
 
+  const parseResult = useMemo(() => {
+    if (!templateText.trim()) return null;
+    return parseExpenseTemplate(templateText, friends);
+  }, [templateText, friends]);
+
+  const handleQuickSubmit = () => {
+    if (!templateText.trim()) {
+      setQuickSubmitErrors([{ line: 1, message: "Template is empty" }]);
+      return;
+    }
+    const result = parseExpenseTemplate(templateText, friends);
+    if (!result.success) {
+      setQuickSubmitErrors(result.errors);
+      return;
+    }
+    setQuickSubmitErrors([]);
+    onQuickEditSubmit?.(result.data, templateText);
+  };
+
+  const showQuickTab = friends.length > 0 && !!onQuickEditSubmit;
+
   const hasErrors = errors.name || errors.taxPercent || errors.taxValue || errors.discountPercent || errors.discountValue;
 
   return (
@@ -150,7 +185,131 @@ export function EditExpenseGroupDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+        {/* Tab toggle */}
+        {showQuickTab && (
+          <div className="flex rounded-xl overflow-hidden border border-white/10 bg-white/[0.02]">
+            <button
+              type="button"
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors ${
+                activeTab === "form"
+                  ? "bg-primary text-white"
+                  : "bg-transparent text-muted-foreground hover:text-foreground"
+              }`}
+              onClick={() => setActiveTab("form")}
+            >
+              <FileText className="w-4 h-4" />
+              Form
+            </button>
+            <button
+              type="button"
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors ${
+                activeTab === "quick"
+                  ? "bg-primary text-white"
+                  : "bg-transparent text-muted-foreground hover:text-foreground"
+              }`}
+              onClick={() => setActiveTab("quick")}
+            >
+              <Zap className="w-4 h-4" />
+              Quick Entry
+            </button>
+          </div>
+        )}
+
+        {/* Quick Entry tab */}
+        {activeTab === "quick" && (
+          <div className="space-y-4">
+            {quickSubmitErrors.length > 0 && (
+              <div className="px-4 py-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm space-y-1">
+                {quickSubmitErrors.map((err, i) => (
+                  <div key={i}>
+                    <span className="font-medium">Line {err.line}:</span>{" "}
+                    {err.message}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="editQuickTemplate">Template</Label>
+              <textarea
+                id="editQuickTemplate"
+                value={templateText}
+                onChange={(e) => {
+                  setTemplateText(e.target.value);
+                  setQuickSubmitErrors([]);
+                }}
+                placeholder={`${expenseGroup.name}\npaid by <default payer>\namount for friends on itemName`}
+                rows={8}
+                className="w-full min-w-0 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-foreground transition-all duration-200 outline-none placeholder:text-muted-foreground hover:border-white/20 hover:bg-white/[0.07] focus:border-primary/50 focus:bg-white/[0.07] focus:ring-2 focus:ring-primary/20 resize-none font-mono"
+              />
+              <p className="text-xs text-muted-foreground">
+                Line 1: Group name. Line 2 (optional): paid by &lt;default payer&gt;.
+                Items: amount for friends on itemName. Submitting replaces all existing items.
+              </p>
+            </div>
+
+            {/* Live preview */}
+            {parseResult && parseResult.success && (
+              <div className="px-4 py-3 rounded-xl bg-primary/5 border border-primary/20 text-sm space-y-1">
+                <div className="font-medium text-foreground">
+                  {parseResult.data.groupName}
+                </div>
+                <div className="text-muted-foreground">
+                  {parseResult.data.items.length} item
+                  {parseResult.data.items.length !== 1 ? "s" : ""}
+                  {parseResult.data.tax && (
+                    <span>
+                      {" "}&middot; Tax:{" "}
+                      {parseResult.data.tax.mode === "percentage"
+                        ? `${parseResult.data.tax.percent}%`
+                        : `₹${parseResult.data.tax.value}`}
+                    </span>
+                  )}
+                  {parseResult.data.discount && (
+                    <span>
+                      {" "}&middot; Discount:{" "}
+                      {parseResult.data.discount.mode === "percentage"
+                        ? `${parseResult.data.discount.percent}%`
+                        : `₹${parseResult.data.discount.value}`}
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Live parse errors */}
+            {parseResult && !parseResult.success && quickSubmitErrors.length === 0 && (
+              <div className="px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm space-y-1">
+                {parseResult.errors.map((err, i) => (
+                  <div key={i}>
+                    <span className="font-medium">Line {err.line}:</span>{" "}
+                    {err.message}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!templateText.trim() && !expenseGroup.templateText && (
+              <div className="px-4 py-3 rounded-xl bg-primary/5 border border-primary/10 text-sm text-muted-foreground">
+                No saved template. Write a new template to replace all items in this group.
+              </div>
+            )}
+
+            <Button
+              type="button"
+              className="w-full"
+              variant="glow"
+              onClick={handleQuickSubmit}
+              disabled={!templateText.trim()}
+            >
+              <Plus className="w-5 h-5" />
+              Replace Items from Template
+            </Button>
+          </div>
+        )}
+
+        {/* Form tab */}
+        {activeTab === "form" && <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
           {hasErrors && (
             <div className="px-4 py-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm">
               {errors.name?.message ||
@@ -340,7 +499,7 @@ export function EditExpenseGroupDialog({
             <Save className="w-5 h-5" />
             Save Changes
           </Button>
-        </form>
+        </form>}
       </DialogContent>
     </Dialog>
   );

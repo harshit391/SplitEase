@@ -28,11 +28,12 @@ interface AddExpenseGroupDialogProps {
   onOpenChange: (open: boolean) => void;
   onSubmit: (data: CreateExpenseGroupFormData) => void;
   friends?: string[];
-  onQuickSubmit?: (data: ParsedTemplate) => void;
+  onQuickSubmit?: (data: ParsedTemplate, templateText: string) => void;
 }
 
 const PLACEHOLDER_TEMPLATE = `McDonald's
-500 for all paid by Rahul on Burgers.
+paid by Rahul
+500 for all on Burgers.
 200 for Amit, Priya paid by Amit on Fries.
 tax is 5%
 discount is 10rs`;
@@ -102,7 +103,7 @@ export function AddExpenseGroupDialog({
     }
 
     setQuickSubmitErrors([]);
-    onQuickSubmit?.(result.data);
+    onQuickSubmit?.(result.data, templateText);
     setTemplateText("");
   };
 
@@ -207,7 +208,8 @@ export function AddExpenseGroupDialog({
                 className="w-full min-w-0 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-sm text-foreground transition-all duration-200 outline-none placeholder:text-muted-foreground hover:border-white/20 hover:bg-white/[0.07] focus:border-primary/50 focus:bg-white/[0.07] focus:ring-2 focus:ring-primary/20 resize-none font-mono"
               />
               <p className="text-xs text-muted-foreground">
-                Format: amount for friends paid by payer on itemName
+                Line 1: Group name. Line 2 (optional): paid by &lt;default payer&gt;.
+                Items: amount for friends on itemName (uses default payer if &quot;paid by&quot; omitted)
               </p>
             </div>
 

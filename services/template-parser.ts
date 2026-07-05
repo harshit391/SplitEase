@@ -26,6 +26,11 @@ const TAX_DISCOUNT_REGEX =
 const ITEM_REGEX =
   /^(\d+(?:\.\d+)?)\s+for\s+(.+?)\s+paid\s+by\s+(.+?)\s+on\s+(.+?)\.?$/i;
 
+const ITEM_NO_PAYER_REGEX =
+  /^(\d+(?:\.\d+)?)\s+for\s+(.+?)\s+on\s+(.+?)\.?$/i;
+
+const DEFAULT_PAYER_REGEX = /^paid\s+by\s+(.+)$/i;
+
 function findFriend(name: string, friends: string[]): string | null {
   const trimmed = name.trim();
   const match = friends.find(
@@ -40,7 +45,8 @@ export type ItemsParseResult =
 
 export function parseItemLines(
   text: string,
-  friends: string[]
+  friends: string[],
+  defaultPayer?: string
 ): ItemsParseResult {
   const rawLines = text.split("\n");
   const lines: { text: string; originalIndex: number }[] = [];
@@ -61,18 +67,39 @@ export function parseItemLines(
 
   for (const line of lines) {
     const match = ITEM_REGEX.exec(line.text);
-    if (!match) {
+    const matchNoPayer = !match ? ITEM_NO_PAYER_REGEX.exec(line.text) : null;
+
+    if (!match && !matchNoPayer) {
       errors.push({
         line: line.originalIndex,
-        message: `Could not parse item. Expected format: "amount for friends paid by payer on itemName"`,
+        message: `Could not parse item. Expected format: "amount for friends paid by payer on itemName" or "amount for friends on itemName"`,
       });
       continue;
     }
 
-    const amount = parseFloat(match[1]);
-    const splitRaw = match[2].trim();
-    const payerRaw = match[3].trim();
-    const itemName = match[4].trim();
+    let amount: number;
+    let splitRaw: string;
+    let payerRaw: string;
+    let itemName: string;
+
+    if (match) {
+      amount = parseFloat(match[1]);
+      splitRaw = match[2].trim();
+      payerRaw = match[3].trim();
+      itemName = match[4].trim();
+    } else {
+      amount = parseFloat(matchNoPayer![1]);
+      splitRaw = matchNoPayer![2].trim();
+      itemName = matchNoPayer![3].trim();
+      if (!defaultPayer) {
+        errors.push({
+          line: line.originalIndex,
+          message: `No "paid by" specified and no default payer set. Add "paid by <name>" after the title.`,
+        });
+        continue;
+      }
+      payerRaw = defaultPayer;
+    }
 
     if (amount <= 0) {
       errors.push({ line: line.originalIndex, message: "Amount must be greater than 0" });
@@ -156,12 +183,33 @@ export function parseExpenseTemplate(
     };
   }
 
+  // Check for optional default payer on line 2
+  let defaultPayer: string | undefined;
+  let itemStartIndex = 1;
+
+  const defaultPayerMatch = DEFAULT_PAYER_REGEX.exec(lines[1].text);
+  if (defaultPayerMatch) {
+    const payerName = defaultPayerMatch[1].trim();
+    const resolved = findFriend(payerName, friends);
+    if (!resolved) {
+      return {
+        success: false,
+        errors: [{
+          line: lines[1].originalIndex,
+          message: `Default payer "${payerName}" is not a friend in this trip`,
+        }],
+      };
+    }
+    defaultPayer = resolved;
+    itemStartIndex = 2;
+  }
+
   // Parse tax/discount lines from the end
   let tax: ParsedTemplate["tax"] = undefined;
   let discount: ParsedTemplate["discount"] = undefined;
   let itemEndIndex = lines.length;
 
-  for (let i = lines.length - 1; i >= 1; i--) {
+  for (let i = lines.length - 1; i >= itemStartIndex; i--) {
     const match = TAX_DISCOUNT_REGEX.exec(lines[i].text);
     if (!match) break;
 
@@ -201,7 +249,7 @@ export function parseExpenseTemplate(
   // Parse item lines
   const errors: ParseError[] = [];
   const items: ItemCreate[] = [];
-  const itemLines = lines.slice(1, itemEndIndex);
+  const itemLines = lines.slice(itemStartIndex, itemEndIndex);
 
   if (itemLines.length === 0) {
     errors.push({ line: lines[0].originalIndex, message: "No item lines found" });
@@ -210,18 +258,39 @@ export function parseExpenseTemplate(
 
   for (const line of itemLines) {
     const match = ITEM_REGEX.exec(line.text);
-    if (!match) {
+    const matchNoPayer = !match ? ITEM_NO_PAYER_REGEX.exec(line.text) : null;
+
+    if (!match && !matchNoPayer) {
       errors.push({
         line: line.originalIndex,
-        message: `Could not parse item. Expected format: "amount for friends paid by payer on itemName"`,
+        message: `Could not parse item. Expected format: "amount for friends paid by payer on itemName" or "amount for friends on itemName"`,
       });
       continue;
     }
 
-    const amount = parseFloat(match[1]);
-    const splitRaw = match[2].trim();
-    const payerRaw = match[3].trim();
-    const itemName = match[4].trim();
+    let amount: number;
+    let splitRaw: string;
+    let payerRaw: string;
+    let itemName: string;
+
+    if (match) {
+      amount = parseFloat(match[1]);
+      splitRaw = match[2].trim();
+      payerRaw = match[3].trim();
+      itemName = match[4].trim();
+    } else {
+      amount = parseFloat(matchNoPayer![1]);
+      splitRaw = matchNoPayer![2].trim();
+      itemName = matchNoPayer![3].trim();
+      if (!defaultPayer) {
+        errors.push({
+          line: line.originalIndex,
+          message: `No "paid by" specified and no default payer set. Add "paid by <name>" after the title.`,
+        });
+        continue;
+      }
+      payerRaw = defaultPayer;
+    }
 
     if (amount <= 0) {
       errors.push({ line: line.originalIndex, message: "Amount must be greater than 0" });

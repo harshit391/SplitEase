@@ -129,6 +129,7 @@ export const localRepository: ITripsRepository & {
       discountMode: "percentage",
       taxDiscountLevel: "group",
       tags: data.tags || [],
+      templateText: data.templateText,
     };
 
     trip.subTopics.push(expenseGroup);
@@ -165,6 +166,11 @@ export const localRepository: ITripsRepository & {
       expenseGroup.taxDiscountLevel = updates.taxDiscountLevel;
     if (updates.tags !== undefined)
       expenseGroup.tags = updates.tags;
+    if (updates.templateText === null) {
+      delete expenseGroup.templateText;
+    } else if (updates.templateText !== undefined) {
+      expenseGroup.templateText = updates.templateText;
+    }
 
     markPending(trip);
     await db.trips.put(trip);
@@ -209,6 +215,7 @@ export const localRepository: ITripsRepository & {
     };
 
     expenseGroup.items.push(item);
+    delete expenseGroup.templateText;
     markPending(trip);
     await db.trips.put(trip);
     return item;
@@ -243,6 +250,7 @@ export const localRepository: ITripsRepository & {
     if (updates.discountMode !== undefined)
       item.discountMode = updates.discountMode;
 
+    delete expenseGroup.templateText;
     markPending(trip);
     await db.trips.put(trip);
     return item;
@@ -260,6 +268,7 @@ export const localRepository: ITripsRepository & {
     if (!expenseGroup) return;
 
     expenseGroup.items = expenseGroup.items.filter((i) => i.id !== itemId);
+    delete expenseGroup.templateText;
     markPending(trip);
     await db.trips.put(trip);
   },
@@ -280,6 +289,7 @@ export const localRepository: ITripsRepository & {
     if (itemsToMove.length === 0) return undefined;
 
     sourceGroup.items = sourceGroup.items.filter((i) => !itemIds.includes(i.id));
+    delete sourceGroup.templateText;
 
     const newGroup: ExpenseGroup = {
       id: generateId(),
@@ -323,10 +333,55 @@ export const localRepository: ITripsRepository & {
 
     const [item] = sourceGroup.items.splice(itemIndex, 1);
     targetGroup.items.push(item);
+    delete sourceGroup.templateText;
+    delete targetGroup.templateText;
 
     markPending(trip);
     await db.trips.put(trip);
     return item;
+  },
+
+  async replaceExpenseGroupFromTemplate(
+    tripId: string,
+    expenseGroupId: string,
+    templateText: string,
+    items: ItemCreate[],
+    updates: ExpenseGroupUpdate
+  ): Promise<ExpenseGroup | undefined> {
+    const trip = await db.trips.get(tripId);
+    if (!trip) return undefined;
+
+    const expenseGroup = trip.subTopics.find((s) => s.id === expenseGroupId);
+    if (!expenseGroup) return undefined;
+
+    expenseGroup.items = items.map((data) => ({
+      id: generateId(),
+      name: data.name,
+      amount: data.amount,
+      paidBy: data.paidBy,
+      splitAmong: data.splitAmong,
+      taxPercent: data.taxPercent ?? 0,
+      taxValue: data.taxValue ?? 0,
+      taxMode: data.taxMode ?? "percentage",
+      discountPercent: data.discountPercent ?? 0,
+      discountValue: data.discountValue ?? 0,
+      discountMode: data.discountMode ?? "percentage",
+    }));
+
+    if (updates.name !== undefined) expenseGroup.name = updates.name;
+    if (updates.taxPercent !== undefined) expenseGroup.taxPercent = updates.taxPercent;
+    if (updates.taxMode !== undefined) expenseGroup.taxMode = updates.taxMode;
+    if (updates.taxValue !== undefined) expenseGroup.taxValue = updates.taxValue;
+    if (updates.discountPercent !== undefined) expenseGroup.discountPercent = updates.discountPercent;
+    if (updates.discountValue !== undefined) expenseGroup.discountValue = updates.discountValue;
+    if (updates.discountMode !== undefined) expenseGroup.discountMode = updates.discountMode;
+    if (updates.taxDiscountLevel !== undefined) expenseGroup.taxDiscountLevel = updates.taxDiscountLevel;
+
+    expenseGroup.templateText = templateText;
+
+    markPending(trip);
+    await db.trips.put(trip);
+    return expenseGroup;
   },
 
   // Sync helper methods

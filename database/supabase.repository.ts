@@ -571,5 +571,17 @@ export function createSupabaseRepository(
       if (!item) return undefined;
       return dbToItem(item);
     },
+
+    async replaceExpenseGroupFromTemplate(
+      _tripId: string,
+      _expenseGroupId: string,
+      _templateText: string,
+      _items: ItemCreate[],
+      _updates: ExpenseGroupUpdate
+    ): Promise<ExpenseGroup | undefined> {
+      // Not used directly — unified repository delegates to localRepository
+      // and background push handles Supabase sync atomically
+      return undefined;
+    },
   };
 }

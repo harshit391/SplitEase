@@ -22,6 +22,7 @@ export interface DbExpenseGroup {
   tax_discount_level: "group" | "item";
   sort_order: number;
   tags: string[];
+  template_text: string | null;
   created_at: string;
   updated_at: string;
 }
