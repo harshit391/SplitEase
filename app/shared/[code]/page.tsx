@@ -58,20 +58,23 @@ export default function SharedTripPage() {
 
   useEffect(() => {
     async function loadSharedTrip() {
-      const supabase = createClient();
-      const shareRepo = createShareRepository(supabase);
-      const tripData = await shareRepo.getTripByShareCode(code);
+      try {
+        const supabase = createClient();
+        const shareRepo = createShareRepository(supabase);
+        const tripData = await shareRepo.getTripByShareCode(code);
 
-      if (!tripData) {
-        setError("Trip not found or link is no longer valid.");
-      } else {
-        setTrip(tripData);
-        // Check if user has saved this trip
-        if (user) {
-          const savedRepo = createSavedTripsRepository(supabase, user.id);
-          const saved = await savedRepo.isTripSaved(tripData.id);
-          setIsSaved(saved);
+        if (!tripData) {
+          setError("Trip not found or link is no longer valid.");
+        } else {
+          setTrip(tripData);
+          if (user) {
+            const savedRepo = createSavedTripsRepository(supabase, user.id);
+            const saved = await savedRepo.isTripSaved(tripData.id).catch(() => false);
+            setIsSaved(saved);
+          }
         }
+      } catch {
+        setError("Failed to load trip. Please try again.");
       }
       setLoading(false);
     }

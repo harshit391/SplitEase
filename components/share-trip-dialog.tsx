@@ -46,6 +46,7 @@ export function ShareTripDialog({
   const [loading, setLoading] = useState(false);
   const [addingEmail, setAddingEmail] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const { user } = useAuth();
   const supabase = createClient();
@@ -56,8 +57,13 @@ export function ShareTripDialog({
 
   const loadShares = useCallback(async () => {
     setLoading(true);
-    const data = await shareRepo.getShares(tripId);
-    setShares(data);
+    setError(null);
+    try {
+      const data = await shareRepo.getShares(tripId);
+      setShares(data);
+    } catch {
+      setError("Failed to load shares.");
+    }
     setLoading(false);
   }, [tripId]);
 
@@ -70,32 +76,52 @@ export function ShareTripDialog({
   const handleAddEmail = async () => {
     if (!email.trim()) return;
     setAddingEmail(true);
-    await shareRepo.addPrivateShare(tripId, email.trim().toLowerCase());
-    setEmail("");
-    await loadShares();
+    setError(null);
+    try {
+      await shareRepo.addPrivateShare(tripId, email.trim().toLowerCase());
+      setEmail("");
+      await loadShares();
+    } catch {
+      setError("Failed to add share. Please try again.");
+    }
     setAddingEmail(false);
   };
 
   const handleRemoveShare = async (shareId: string) => {
-    await shareRepo.removeShare(shareId);
-    await loadShares();
+    setError(null);
+    try {
+      await shareRepo.removeShare(shareId);
+      await loadShares();
+    } catch {
+      setError("Failed to remove share.");
+    }
   };
 
   const handleTogglePublic = async () => {
-    if (publicShare) {
-      await shareRepo.disablePublicShare(tripId);
-    } else {
-      await shareRepo.enablePublicShare(tripId);
+    setError(null);
+    try {
+      if (publicShare) {
+        await shareRepo.disablePublicShare(tripId);
+      } else {
+        await shareRepo.enablePublicShare(tripId);
+      }
+      await loadShares();
+    } catch {
+      setError("Failed to update public link.");
     }
-    await loadShares();
   };
 
   const handleCopyLink = async () => {
     if (!publicShare?.share_code) return;
+    if (typeof window === "undefined") return;
     const link = `${window.location.origin}/shared/${publicShare.share_code}`;
-    await navigator.clipboard.writeText(link);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setError("Failed to copy link.");
+    }
   };
 
   return (
@@ -110,6 +136,12 @@ export function ShareTripDialog({
             Share &quot;{tripName}&quot; with others (view-only access)
           </DialogDescription>
         </DialogHeader>
+
+        {error && (
+          <div className="px-4 py-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+            {error}
+          </div>
+        )}
 
         {loading ? (
           <div className="flex items-center justify-center py-8">
@@ -141,6 +173,7 @@ export function ShareTripDialog({
                   onClick={handleAddEmail}
                   disabled={!email.trim() || addingEmail}
                   className="shrink-0"
+                  aria-label="Add email"
                 >
                   {addingEmail ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -224,6 +257,7 @@ export function ShareTripDialog({
                     size="sm"
                     onClick={handleCopyLink}
                     className="shrink-0"
+                    aria-label="Copy link"
                   >
                     {copied ? (
                       <Check className="w-4 h-4 text-emerald-400" />

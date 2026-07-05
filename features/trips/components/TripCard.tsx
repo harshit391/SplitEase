@@ -124,6 +124,7 @@ export function TripCard({ trip, onDelete, savedView, linkPrefix }: TripCardProp
                 size="icon-xs"
                 onClick={handleDelete}
                 className="hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+                aria-label="Delete trip"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>

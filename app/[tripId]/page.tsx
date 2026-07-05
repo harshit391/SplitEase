@@ -107,13 +107,16 @@ export default function TripPage() {
   // Fetch public share code for WhatsApp copy
   useEffect(() => {
     const supabase = createClient();
-    supabase
-      .from("trip_shares")
-      .select("share_code")
-      .eq("trip_id", tripId)
-      .eq("share_type", "public")
-      .maybeSingle()
-      .then(({ data }) => setShareCode(data?.share_code ?? null));
+    Promise.resolve(
+      supabase
+        .from("trip_shares")
+        .select("share_code")
+        .eq("trip_id", tripId)
+        .eq("share_type", "public")
+        .maybeSingle()
+    )
+      .then(({ data }) => setShareCode(data?.share_code ?? null))
+      .catch(() => {});
   }, [tripId]);
 
   // Redirect if trip not found

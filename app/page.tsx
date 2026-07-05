@@ -52,7 +52,7 @@ export default function HomePage() {
     if (!user) return;
     const supabase = createClient();
     const savedRepo = createSavedTripsRepository(supabase, user.id);
-    savedRepo.getSavedTrips().then(setSavedTrips);
+    savedRepo.getSavedTrips().then(setSavedTrips).catch(() => {});
   }, [user]);
 
   const hasSavedTrips = savedTrips.length > 0;

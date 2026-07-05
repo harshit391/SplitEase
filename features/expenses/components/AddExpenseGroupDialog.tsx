@@ -47,6 +47,7 @@ export function AddExpenseGroupDialog({
 }: AddExpenseGroupDialogProps) {
   const [activeTab, setActiveTab] = useState<"manual" | "quick">("manual");
   const [templateText, setTemplateText] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [quickSubmitErrors, setQuickSubmitErrors] = useState<
     { line: number; message: string }[]
   >([]);
@@ -69,6 +70,7 @@ export function AddExpenseGroupDialog({
   }, [templateText, friends]);
 
   const handleFormSubmit = (data: CreateExpenseGroupFormData) => {
+    setSubmitting(true);
     onSubmit(data);
     reset();
   };
@@ -79,6 +81,7 @@ export function AddExpenseGroupDialog({
       setTemplateText("");
       setQuickSubmitErrors([]);
       setActiveTab("manual");
+      setSubmitting(false);
     }
     onOpenChange(newOpen);
   };
@@ -102,6 +105,7 @@ export function AddExpenseGroupDialog({
       return;
     }
 
+    setSubmitting(true);
     setQuickSubmitErrors([]);
     onQuickSubmit?.(result.data, templateText);
     setTemplateText("");
@@ -172,7 +176,7 @@ export function AddExpenseGroupDialog({
               />
             </div>
 
-            <Button type="submit" className="w-full" variant="glow">
+            <Button type="submit" className="w-full" variant="glow" disabled={submitting}>
               <Plus className="w-5 h-5" />
               Add Expense Group
             </Button>
@@ -261,7 +265,7 @@ export function AddExpenseGroupDialog({
               className="w-full"
               variant="glow"
               onClick={handleQuickSubmit}
-              disabled={!templateText.trim()}
+              disabled={!templateText.trim() || submitting}
             >
               <Plus className="w-5 h-5" />
               Add Expense Group

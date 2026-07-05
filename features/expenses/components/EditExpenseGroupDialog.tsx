@@ -64,6 +64,7 @@ export function EditExpenseGroupDialog({
   const [activeTab, setActiveTab] = useState<"form" | "quick">("form");
   const [templateText, setTemplateText] = useState(expenseGroup.templateText || "");
   const [quickSubmitErrors, setQuickSubmitErrors] = useState<{ line: number; message: string }[]>([]);
+  const [submitting, setSubmitting] = useState(false);
 
   const {
     register,
@@ -94,6 +95,7 @@ export function EditExpenseGroupDialog({
       setActiveTab("form");
       setTemplateText(expenseGroup.templateText || "");
       setQuickSubmitErrors([]);
+      setSubmitting(false);
       reset({
         name: expenseGroup.name,
         taxPercent: expenseGroup.taxPercent || 0,
@@ -146,6 +148,7 @@ export function EditExpenseGroupDialog({
       updates.discountPercent = 0;
     }
 
+    setSubmitting(true);
     onSubmit(updates);
   };
 
@@ -164,6 +167,7 @@ export function EditExpenseGroupDialog({
       setQuickSubmitErrors(result.errors);
       return;
     }
+    setSubmitting(true);
     setQuickSubmitErrors([]);
     onQuickEditSubmit?.(result.data, templateText);
   };
@@ -300,7 +304,7 @@ export function EditExpenseGroupDialog({
               className="w-full"
               variant="glow"
               onClick={handleQuickSubmit}
-              disabled={!templateText.trim()}
+              disabled={!templateText.trim() || submitting}
             >
               <Plus className="w-5 h-5" />
               Replace Items from Template
@@ -495,7 +499,7 @@ export function EditExpenseGroupDialog({
             </div>
           )}
 
-          <Button type="submit" className="w-full" variant="glow">
+          <Button type="submit" className="w-full" variant="glow" disabled={submitting}>
             <Save className="w-5 h-5" />
             Save Changes
           </Button>

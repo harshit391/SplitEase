@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Trash2, Edit, Plus, IndianRupee, Save, Percent, ArrowRightLeft } from "lucide-react";
 import {
   Table,
@@ -70,7 +70,10 @@ export function ItemTable({
     discountPerPerson,
     totalDiscount,
     subTopicTotal,
-  } = calculateSubTopicPersonTotals(expenseGroup, trip.friends);
+  } = useMemo(
+    () => calculateSubTopicPersonTotals(expenseGroup, trip.friends),
+    [expenseGroup, trip.friends]
+  );
 
   const totalAfterTax = subTopicTotal + totalTax;
 
