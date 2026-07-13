@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -36,10 +36,12 @@ import {
 import { useAuth } from "@/components/auth-provider";
 import { UserMenu } from "@/components/user-menu";
 import { Button } from "@/components/ui/button";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import type { Trip } from "@/types";
 
 export default function SharedTripPage() {
   const params = useParams();
+  const router = useRouter();
   const code = params.code as string;
 
   const { user } = useAuth();
@@ -55,6 +57,10 @@ export default function SharedTripPage() {
     toggleExpandedExpenseGroup,
     toggleExcludedExpenseGroup,
   } = useUIStore();
+
+  useKeyboardShortcuts([
+    { key: "?", shift: true, label: "?", description: "Shortcuts", action: () => router.push("/shortcuts") },
+  ]);
 
   useEffect(() => {
     async function loadSharedTrip() {

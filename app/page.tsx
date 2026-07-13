@@ -29,6 +29,8 @@ import { UserMenu } from "@/components/user-menu";
 import { SyncStatusBadge } from "@/components/sync-status-badge";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useConfirm } from "@/components/confirm-dialog";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { KeyboardShortcutHint } from "@/components/keyboard-shortcut-hint";
 
 export default function HomePage() {
   const router = useRouter();
@@ -47,6 +49,12 @@ export default function HomePage() {
 
   const { createTripDialogOpen, openCreateTripDialog, closeCreateTripDialog } =
     useUIStore();
+
+  useKeyboardShortcuts([
+    { key: "?", shift: true, label: "?", description: "Shortcuts", action: () => router.push("/shortcuts") },
+    { key: "n", label: "N", description: "New trip", action: () => openCreateTripDialog() },
+    { key: "i", label: "I", description: "Import trip", action: () => fileInputRef.current?.click() },
+  ]);
 
   useEffect(() => {
     if (!user) return;
@@ -339,6 +347,8 @@ export default function HomePage() {
         }
         onSubmit={handleCreateTrip}
       />
+
+      <KeyboardShortcutHint />
     </div>
   );
 }

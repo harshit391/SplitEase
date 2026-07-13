@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Receipt, FileText, Zap } from "lucide-react";
@@ -63,6 +63,18 @@ export function AddExpenseGroupDialog({
       name: "",
     },
   });
+
+  const prevOpen = useRef(open);
+  useEffect(() => {
+    if (prevOpen.current && !open) {
+      reset();
+      setTemplateText("");
+      setQuickSubmitErrors([]);
+      setActiveTab("manual");
+      setSubmitting(false);
+    }
+    prevOpen.current = open;
+  }, [open, reset]);
 
   const parseResult = useMemo(() => {
     if (!templateText.trim()) return null;

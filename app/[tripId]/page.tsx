@@ -57,6 +57,8 @@ import { ShareTripDialog } from "@/components/share-trip-dialog";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useTheme } from "@/components/theme-provider";
 import { useConfirm } from "@/components/confirm-dialog";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { KeyboardShortcutHint } from "@/components/keyboard-shortcut-hint";
 import { createClient } from "@/lib/supabase/client";
 
 export default function TripPage() {
@@ -103,6 +105,14 @@ export default function TripPage() {
   const [editingItem, setEditingItem] = useState<Item | null>(null);
   const [movingItem, setMovingItem] = useState<Item | null>(null);
   const [shareCode, setShareCode] = useState<string | null>(null);
+
+  useKeyboardShortcuts([
+    { key: "?", shift: true, label: "?", description: "Shortcuts", action: () => router.push("/shortcuts") },
+    { key: "e", label: "E", description: "Add expense", action: () => setAddExpenseGroupDialogOpen(true) },
+    { key: "s", label: "S", description: "Share trip", action: () => setShareTripDialogOpen(true) },
+    { key: "d", label: "D", description: "Export trip", action: () => { if (trip) exportTripAsJSON(trip); } },
+    { key: "t", label: "T", description: "Edit trip", action: () => setEditTripDialogOpen(true) },
+  ]);
 
   // Fetch public share code for WhatsApp copy
   useEffect(() => {
@@ -746,6 +756,8 @@ export default function TripPage() {
           onSubmit={handleSplitExpenseGroup}
         />
       )}
+
+      <KeyboardShortcutHint />
     </div>
   );
 }
