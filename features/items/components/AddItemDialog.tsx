@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, DollarSign, User, Users, Percent, IndianRupee, FileText, Zap } from "lucide-react";
+import { Plus, DollarSign, User, Users, Percent, IndianRupee, FileText, Zap, Link as LinkIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -336,6 +336,19 @@ export function AddItemDialog({
                   ${perPerson} per person ({splitAmong.length} people)
                 </p>
               )}
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <LinkIcon className="w-4 h-4" />
+                Link
+                <span className="text-muted-foreground font-normal">(optional)</span>
+              </Label>
+              <Input
+                {...register("link")}
+                placeholder="https://..."
+                type="url"
+              />
             </div>
 
             {/* Item-level Tax & Discount */}

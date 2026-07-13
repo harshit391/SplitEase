@@ -41,6 +41,7 @@ export interface DbItem {
   discount_percent: number;
   discount_value: number;
   discount_mode: "percentage" | "value";
+  link: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;

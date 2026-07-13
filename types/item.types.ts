@@ -10,6 +10,7 @@ export interface Item {
   discountPercent: number;
   discountValue: number;
   discountMode: "percentage" | "value";
+  link?: string;
 }
 
 export interface ItemCreate {
@@ -23,6 +24,7 @@ export interface ItemCreate {
   discountPercent?: number;
   discountValue?: number;
   discountMode?: "percentage" | "value";
+  link?: string;
 }
 
 export interface ItemUpdate {
@@ -36,4 +38,5 @@ export interface ItemUpdate {
   discountPercent?: number;
   discountValue?: number;
   discountMode?: "percentage" | "value";
+  link?: string;
 }

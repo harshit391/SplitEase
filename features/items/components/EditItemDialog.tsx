@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Save, DollarSign, User, Users, Percent, IndianRupee } from "lucide-react";
+import { Save, DollarSign, User, Users, Percent, IndianRupee, Link as LinkIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -63,6 +63,7 @@ export function EditItemDialog({
       discountPercent: item.discountPercent || 0,
       discountValue: item.discountValue || 0,
       discountMode: item.discountMode || "percentage",
+      link: item.link || "",
     },
   });
 
@@ -83,6 +84,7 @@ export function EditItemDialog({
         discountPercent: item.discountPercent || 0,
         discountValue: item.discountValue || 0,
         discountMode: item.discountMode || "percentage",
+        link: item.link || "",
       });
       setTaxMode(item.taxMode || "percentage");
       setDiscountMode(item.discountMode || "percentage");
@@ -247,6 +249,19 @@ export function EditItemDialog({
                 ${perPerson} per person ({splitAmong.length} people)
               </p>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <LinkIcon className="w-4 h-4" />
+              Link
+              <span className="text-muted-foreground font-normal">(optional)</span>
+            </Label>
+            <Input
+              {...register("link")}
+              placeholder="https://..."
+              type="url"
+            />
           </div>
 
           {/* Item-level Tax & Discount */}

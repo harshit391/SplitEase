@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Trash2, Edit, Plus, IndianRupee, Save, Percent, ArrowRightLeft } from "lucide-react";
+import { Trash2, Edit, Plus, IndianRupee, Save, Percent, ArrowRightLeft, ExternalLink } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -379,7 +379,22 @@ export function ItemTable({
 
               return (
                 <TableRow key={item.id}>
-                  <TableCell className="font-medium">{item.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <span className="inline-flex items-center gap-1.5">
+                      {item.name}
+                      {item.link && (
+                        <a
+                          href={item.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:text-primary/80 transition-colors"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      )}
+                    </span>
+                  </TableCell>
                   <TableCell>
                     <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-primary/10 border border-primary/20 text-xs text-primary font-medium">
                       {item.paidBy}

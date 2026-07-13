@@ -11,6 +11,7 @@ export const createItemSchema = z.object({
   discountPercent: z.number().min(0).max(100).optional(),
   discountValue: z.number().min(0).optional(),
   discountMode: z.enum(["percentage", "value"]).optional(),
+  link: z.string().url("Must be a valid URL").optional().or(z.literal("")),
 });
 
 export const editItemSchema = createItemSchema;

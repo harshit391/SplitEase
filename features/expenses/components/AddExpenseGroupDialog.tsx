@@ -45,7 +45,7 @@ export function AddExpenseGroupDialog({
   friends = [],
   onQuickSubmit,
 }: AddExpenseGroupDialogProps) {
-  const [activeTab, setActiveTab] = useState<"manual" | "quick">("manual");
+  const [activeTab, setActiveTab] = useState<"manual" | "quick">("quick");
   const [templateText, setTemplateText] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [quickSubmitErrors, setQuickSubmitErrors] = useState<
@@ -70,7 +70,6 @@ export function AddExpenseGroupDialog({
       reset();
       setTemplateText("");
       setQuickSubmitErrors([]);
-      setActiveTab("manual");
       setSubmitting(false);
     }
     prevOpen.current = open;
@@ -92,7 +91,6 @@ export function AddExpenseGroupDialog({
       reset();
       setTemplateText("");
       setQuickSubmitErrors([]);
-      setActiveTab("manual");
       setSubmitting(false);
     }
     onOpenChange(newOpen);

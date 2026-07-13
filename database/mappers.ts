@@ -58,6 +58,7 @@ export function itemToDb(
     discount_percent: item.discountPercent,
     discount_value: item.discountValue,
     discount_mode: item.discountMode,
+    link: item.link || null,
     sort_order: sortOrder,
   };
 }
@@ -98,6 +99,7 @@ export function dbToItem(i: DbItem): Item {
     discountPercent: Number(i.discount_percent),
     discountValue: Number(i.discount_value),
     discountMode: i.discount_mode as "percentage" | "value",
+    link: i.link || undefined,
   };
 }
 

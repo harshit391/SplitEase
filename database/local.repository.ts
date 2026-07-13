@@ -212,6 +212,7 @@ export const localRepository: ITripsRepository & {
       discountPercent: data.discountPercent ?? 0,
       discountValue: data.discountValue ?? 0,
       discountMode: data.discountMode ?? "percentage",
+      link: data.link || undefined,
     };
 
     expenseGroup.items.push(item);
@@ -249,6 +250,7 @@ export const localRepository: ITripsRepository & {
       item.discountValue = updates.discountValue;
     if (updates.discountMode !== undefined)
       item.discountMode = updates.discountMode;
+    if (updates.link !== undefined) item.link = updates.link || undefined;
 
     delete expenseGroup.templateText;
     markPending(trip);
@@ -366,6 +368,7 @@ export const localRepository: ITripsRepository & {
       discountPercent: data.discountPercent ?? 0,
       discountValue: data.discountValue ?? 0,
       discountMode: data.discountMode ?? "percentage",
+      link: data.link || undefined,
     }));
 
     if (updates.name !== undefined) expenseGroup.name = updates.name;
