@@ -8,6 +8,7 @@ export interface Trip {
   createdAt: string;
   googleSheetUrl: string | null;
   defaultPayer: string | null;
+  accentColor?: string | null;
   userId?: string;
   sharedWith?: string[];
   shareCode?: string | null;

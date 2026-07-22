@@ -11,6 +11,7 @@ import type {
   ItemUpdate,
 } from "@/types";
 import { generateTripId, generateId } from "@/utils";
+import { getRandomAccentColor } from "@/lib/accent-colors";
 import type { ITripsRepository } from "./repository.interface";
 
 function markPending(trip: LocalTrip): LocalTrip {
@@ -43,6 +44,7 @@ export const localRepository: ITripsRepository & {
       createdAt: now,
       googleSheetUrl: null,
       defaultPayer: data.defaultPayer || null,
+      accentColor: getRandomAccentColor(),
       updated_at: now,
       sync_status: "pending",
     };
@@ -80,6 +82,7 @@ export const localRepository: ITripsRepository & {
     const now = new Date().toISOString();
     const importedTrip: LocalTrip = {
       ...trip,
+      accentColor: trip.accentColor || getRandomAccentColor(),
       subTopics: (trip.subTopics || []).map((sub) => ({
         ...sub,
         taxMode: sub.taxMode || "percentage",

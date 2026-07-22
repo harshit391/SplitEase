@@ -5,6 +5,7 @@ export interface DbTrip {
   friends: string[];
   google_sheet_url: string | null;
   default_payer: string | null;
+  accent_color: string | null;
   created_at: string;
   updated_at: string;
 }

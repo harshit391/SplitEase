@@ -12,6 +12,7 @@ export function tripToDb(
     friends: trip.friends,
     google_sheet_url: trip.googleSheetUrl,
     default_payer: trip.defaultPayer,
+    accent_color: trip.accentColor || null,
     created_at: trip.createdAt,
   };
 }
@@ -119,6 +120,7 @@ export function dbToTrip(
     createdAt: t.created_at,
     googleSheetUrl: t.google_sheet_url,
     defaultPayer: t.default_payer,
+    accentColor: t.accent_color,
     userId: t.user_id,
   };
 }

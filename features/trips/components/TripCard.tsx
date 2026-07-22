@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import type { Trip } from "@/types";
 import { staggerItem } from "@/lib/animations";
+import { ACCENT_COLORS } from "@/lib/accent-colors";
 import { useTheme } from "@/components/theme-provider";
 import { useConfirm } from "@/components/confirm-dialog";
 
@@ -23,12 +24,12 @@ interface TripCardProps {
   linkPrefix?: string;
 }
 
-const ACCENT_PALETTE = [
-  { color: "#FF9500", glow: "rgba(255,145,0,.12)" },
-  { color: "#2563EB", glow: "rgba(60,120,255,.12)" },
-  { color: "#34C759", glow: "rgba(0,220,130,.12)" },
-  { color: "#8B5CF6", glow: "rgba(140,80,255,.12)" },
-];
+function hexToGlow(hex: string): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},.12)`;
+}
 
 const LIGHT = {
   cardBg: "#FFFFFF",
@@ -68,8 +69,8 @@ export function TripCard({ trip, onDelete, savedView, linkPrefix }: TripCardProp
     return total + subTotal + tax;
   }, 0);
 
-  const accentIndex = trip.name.length % ACCENT_PALETTE.length;
-  const accent = ACCENT_PALETTE[accentIndex];
+  const accentHex = trip.accentColor || ACCENT_COLORS[trip.name.length % ACCENT_COLORS.length];
+  const accent = { color: accentHex, glow: hexToGlow(accentHex) };
 
   const status = trip.subTopics.length === 0 ? "New" : "Active";
 

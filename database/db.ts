@@ -1,5 +1,6 @@
 import Dexie, { type Table } from "dexie";
 import type { Trip } from "@/types";
+import { ACCENT_COLORS } from "@/lib/accent-colors";
 
 export interface LocalTrip extends Trip {
   updated_at: string;
@@ -30,6 +31,22 @@ export class SplitSolveDB extends Dexie {
               (trip.createdAt as string) ||
               new Date().toISOString();
             trip.sync_status = "pending";
+          });
+      });
+
+    this.version(3)
+      .stores({
+        trips: "id, name, createdAt, updated_at, sync_status",
+      })
+      .upgrade((tx) => {
+        return tx
+          .table("trips")
+          .toCollection()
+          .modify((trip: Record<string, unknown>) => {
+            if (!trip.accentColor) {
+              trip.accentColor =
+                ACCENT_COLORS[Math.floor(Math.random() * ACCENT_COLORS.length)];
+            }
           });
       });
   }
