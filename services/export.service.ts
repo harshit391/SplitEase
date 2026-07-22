@@ -312,6 +312,18 @@ export function downloadDetailedCSV(
   URL.revokeObjectURL(url);
 }
 
+export function generateExpenseList(trip: Trip, date: string): string {
+  const lines: string[] = [];
+
+  trip.subTopics.forEach((group) => {
+    group.items.forEach((item) => {
+      lines.push(`${item.name}, ${item.amount}, ${date}`);
+    });
+  });
+
+  return lines.join("\n");
+}
+
 export function formatSettlementsForWhatsApp(settlements: Settlement[]): string {
   if (settlements.length === 0) {
     return "All settled up!";

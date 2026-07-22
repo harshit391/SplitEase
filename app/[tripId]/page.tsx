@@ -12,8 +12,16 @@ import {
   Receipt,
   TrendingUp,
   Share2,
+  ClipboardList,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useTrip, useUpdateTrip } from "@/features/trips/hooks/useTrips";
 import {
   useAddExpenseGroup,
@@ -47,6 +55,8 @@ import {
   calculateSettlements,
   calculateSubTopicPersonTotals,
   exportTripAsJSON,
+  generateExpenseList,
+  copyToClipboard,
 } from "@/services";
 import type { ExpenseGroup, ExpenseGroupUpdate, Item, ItemCreate } from "@/types";
 import type { ParsedTemplate } from "@/services/template-parser";
@@ -98,6 +108,9 @@ export default function TripPage() {
   const [moveItemDialogOpen, setMoveItemDialogOpen] = useState(false);
   const [splitExpenseGroupDialogOpen, setSplitExpenseGroupDialogOpen] = useState(false);
   const [splittingExpenseGroup, setSplittingExpenseGroup] = useState<ExpenseGroup | null>(null);
+  const [copyListDialogOpen, setCopyListDialogOpen] = useState(false);
+  const [copyListDate, setCopyListDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [copyListSuccess, setCopyListSuccess] = useState(false);
 
   // Editing states
   const [editingExpenseGroup, setEditingExpenseGroup] = useState<ExpenseGroup | null>(null);
@@ -380,6 +393,18 @@ export default function TripPage() {
     exportTripAsJSON(trip);
   };
 
+  const handleCopyExpenseList = async () => {
+    const text = generateExpenseList(trip, copyListDate);
+    const success = await copyToClipboard(text);
+    if (success) {
+      setCopyListSuccess(true);
+      setTimeout(() => {
+        setCopyListSuccess(false);
+        setCopyListDialogOpen(false);
+      }, 1200);
+    }
+  };
+
   const handleUpdateGoogleSheetUrl = (url: string | null) => {
     updateTrip.mutate({
       id: tripId,
@@ -437,6 +462,16 @@ export default function TripPage() {
             >
               <Download className="w-4 h-4" />
               <span className="hidden md:inline">Export</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-full"
+              onClick={() => setCopyListDialogOpen(true)}
+              title="Copy Expense List"
+            >
+              <ClipboardList className="w-4 h-4" />
+              <span className="hidden md:inline">Copy List</span>
             </Button>
             <SyncStatusBadge />
             <ThemeToggle />
@@ -756,6 +791,50 @@ export default function TripPage() {
           onSubmit={handleSplitExpenseGroup}
         />
       )}
+
+      <Dialog open={copyListDialogOpen} onOpenChange={setCopyListDialogOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Copy Expense List</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium text-foreground" htmlFor="copy-list-date">
+                Date for all expenses
+              </label>
+              <input
+                id="copy-list-date"
+                type="date"
+                value={copyListDate}
+                onChange={(e) => setCopyListDate(e.target.value)}
+                className="mt-1.5 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+            <div className="rounded-lg border border-border bg-secondary/50 p-3 max-h-40 overflow-y-auto">
+              <pre className="text-xs text-muted-foreground whitespace-pre-wrap font-mono">
+                {generateExpenseList(trip, copyListDate) || "No expenses to copy"}
+              </pre>
+            </div>
+            <Button
+              className="w-full rounded-full"
+              onClick={handleCopyExpenseList}
+              disabled={trip.subTopics.length === 0}
+            >
+              {copyListSuccess ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <ClipboardList className="w-4 h-4" />
+                  Copy to Clipboard
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <KeyboardShortcutHint />
     </div>
