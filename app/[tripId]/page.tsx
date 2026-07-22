@@ -110,6 +110,7 @@ export default function TripPage() {
   const [splittingExpenseGroup, setSplittingExpenseGroup] = useState<ExpenseGroup | null>(null);
   const [copyListDialogOpen, setCopyListDialogOpen] = useState(false);
   const [copyListDate, setCopyListDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [copyListPerson, setCopyListPerson] = useState("");
   const [copyListSuccess, setCopyListSuccess] = useState(false);
 
   // Editing states
@@ -394,7 +395,7 @@ export default function TripPage() {
   };
 
   const handleCopyExpenseList = async () => {
-    const text = generateExpenseList(trip, copyListDate);
+    const text = generateExpenseList(trip, copyListDate, copyListPerson);
     const success = await copyToClipboard(text);
     if (success) {
       setCopyListSuccess(true);
@@ -467,7 +468,10 @@ export default function TripPage() {
               variant="outline"
               size="sm"
               className="rounded-full"
-              onClick={() => setCopyListDialogOpen(true)}
+              onClick={() => {
+                if (!copyListPerson && trip.friends.length > 0) setCopyListPerson(trip.friends[0]);
+                setCopyListDialogOpen(true);
+              }}
               title="Copy Expense List"
             >
               <ClipboardList className="w-4 h-4" />
@@ -799,8 +803,23 @@ export default function TripPage() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
+              <label className="text-sm font-medium text-foreground" htmlFor="copy-list-person">
+                Person
+              </label>
+              <select
+                id="copy-list-person"
+                value={copyListPerson}
+                onChange={(e) => setCopyListPerson(e.target.value)}
+                className="mt-1.5 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+                {trip.friends.map((f) => (
+                  <option key={f} value={f}>{f}</option>
+                ))}
+              </select>
+            </div>
+            <div>
               <label className="text-sm font-medium text-foreground" htmlFor="copy-list-date">
-                Date for all expenses
+                Date
               </label>
               <input
                 id="copy-list-date"
@@ -812,13 +831,13 @@ export default function TripPage() {
             </div>
             <div className="rounded-lg border border-border bg-secondary/50 p-3 max-h-40 overflow-y-auto">
               <pre className="text-xs text-muted-foreground whitespace-pre-wrap font-mono">
-                {generateExpenseList(trip, copyListDate) || "No expenses to copy"}
+                {generateExpenseList(trip, copyListDate, copyListPerson) || "No expenses for this person"}
               </pre>
             </div>
             <Button
               className="w-full rounded-full"
               onClick={handleCopyExpenseList}
-              disabled={trip.subTopics.length === 0}
+              disabled={!copyListPerson || trip.subTopics.length === 0}
             >
               {copyListSuccess ? (
                 <>

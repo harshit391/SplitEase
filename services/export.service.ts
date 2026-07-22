@@ -312,12 +312,18 @@ export function downloadDetailedCSV(
   URL.revokeObjectURL(url);
 }
 
-export function generateExpenseList(trip: Trip, date: string): string {
+export function generateExpenseList(
+  trip: Trip,
+  date: string,
+  person: string
+): string {
   const lines: string[] = [];
 
   trip.subTopics.forEach((group) => {
     group.items.forEach((item) => {
-      lines.push(`${item.name}, ${item.amount}, ${date}`);
+      if (!item.splitAmong.includes(person)) return;
+      const share = item.amount / item.splitAmong.length;
+      lines.push(`${item.name}, ${Math.round(share * 100) / 100}, ${date}`);
     });
   });
 
